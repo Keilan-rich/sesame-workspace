@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sésame 2026 — Accès Premium</title>
+<meta name="description" content="Débloquer l'accès complet à Sésame 2026">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#06d6f5">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent: #06d6f5;
+  --green: #34d399;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --violet: #a78bfa;
+  --transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+[data-theme="dark"] {
+  --bg: #08080f; --card: #0f0f1a; --border: #1c1c2e;
+  --text: #e8e8f5; --muted: #606080;
+  --card-hover: #141426; --shadow: rgba(0,0,0,0.4);
+}
+[data-theme="light"] {
+  --bg: #f3f3fb; --card: #ffffff; --border: #e0e0f0;
+  --text: #0f0f1a; --muted: #8080a0;
+  --card-hover: #f8f8ff; --shadow: rgba(0,0,0,0.08);
+}
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px;
+  transition: var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 200;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  color: var(--muted); transition: var(--transition);
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+.back-link {
+  position: fixed; top: 16px; left: 16px; z-index: 200;
+  color: var(--muted); font-size: 13px; font-weight: 600;
+  text-decoration: none; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent); }
+
+/* ── GLOW ────────────────────────────────────────────────── */
+.glow {
+  position: fixed; top: 30%; left: 50%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(6,214,245,0.08) 0%, transparent 70%);
+  transform: translate(-50%, -50%); pointer-events: none;
+}
+
+/* ── PAYWALL CARD ────────────────────────────────────────── */
+.paywall {
+  position: relative;
+  max-width: 440px; width: 100%;
+  text-align: center;
+}
+
+.paywall-logo {
+  font-size: 36px; font-weight: 800; margin-bottom: 6px;
+}
+.paywall-logo span { color: var(--accent); }
+
+.paywall-subtitle {
+  color: var(--muted); font-size: 14px; margin-bottom: 32px;
+}
+
+/* ── PROMO BANNER ────────────────────────────────────────── */
+.promo-banner {
+  background: linear-gradient(135deg, rgba(248,113,113,0.12), rgba(251,191,36,0.12));
+  border: 1px solid rgba(248,113,113,0.25);
+  border-radius: 14px; padding: 16px 20px; margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.promo-badge {
+  display: inline-block;
+  background: var(--red); color: #fff;
+  font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 4px 12px;
+  border-radius: 20px; margin-bottom: 10px;
+}
+.promo-timer {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 700;
+  color: var(--red); letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.promo-timer-label {
+  font-size: 11px; color: var(--muted); letter-spacing: 1px;
+}
+
+/* ── PRICE BLOCK ─────────────────────────────────────────── */
+.price-block {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 28px; margin-bottom: 20px;
+  box-shadow: 0 4px 24px var(--shadow);
+}
+
+.price-old {
+  font-size: 22px; font-weight: 600;
+  color: var(--muted); text-decoration: line-through;
+  margin-bottom: 4px;
+}
+.price-new {
+  font-size: 48px; font-weight: 800; line-height: 1.1;
+  color: var(--accent);
+}
+.price-currency {
+  font-size: 20px; font-weight: 600; color: var(--muted);
+  vertical-align: super;
+}
+.price-period {
+  font-size: 13px; color: var(--muted); margin-top: 4px;
+}
+.price-savings {
+  display: inline-block; margin-top: 12px;
+  background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25);
+  color: var(--green); font-size: 12px; font-weight: 700;
+  padding: 5px 14px; border-radius: 20px;
+}
+
+/* ── FEATURES ────────────────────────────────────────────── */
+.features {
+  text-align: left; margin-bottom: 24px;
+}
+.feature {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 0;
+}
+.feature + .feature { border-top: 1px solid var(--border); }
+.feature-icon {
+  flex-shrink: 0; width: 28px; height: 28px;
+  background: rgba(6,214,245,0.08); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.feature-text {
+  font-size: 13px; font-weight: 500; line-height: 1.5;
+}
+.feature-text strong { font-weight: 700; }
+
+/* ── WAVE CTA ────────────────────────────────────────────── */
+.wave-section {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; margin-bottom: 16px;
+  box-shadow: 0 4px 24px var(--shadow);
+}
+.wave-title {
+  font-size: 13px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--muted); margin-bottom: 16px;
+}
+.wave-logo {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; margin-bottom: 16px;
+}
+.wave-logo-circle {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #1DC3F2, #1BA8E0);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 800; color: #fff;
+}
+.wave-logo-text {
+  font-size: 28px; font-weight: 800;
+  background: linear-gradient(135deg, #1DC3F2, #1BA8E0);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.wave-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px; font-weight: 700;
+  color: var(--text); letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.wave-instruction {
+  font-size: 13px; color: var(--muted); line-height: 1.6;
+}
+.wave-instruction strong { color: var(--text); }
+
+.btn-wave {
+  display: block; width: 100%;
+  background: linear-gradient(135deg, #1DC3F2, #1BA8E0);
+  color: #fff; border: none;
+  padding: 16px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+  margin-top: 16px; text-decoration: none; text-align: center;
+}
+.btn-wave:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(29,195,242,0.3);
+}
+
+.separator {
+  display: flex; align-items: center; gap: 12px;
+  margin: 16px 0; color: var(--muted); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;
+}
+.separator::before, .separator::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+.note {
+  font-size: 11px; color: var(--muted); line-height: 1.6;
+  text-align: center;
+}
+
+/* ── MOBILE ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  body { padding: 16px; }
+  .paywall-logo { font-size: 28px; }
+  .price-new { font-size: 40px; }
+  .promo-timer { font-size: 24px; }
+  .wave-number { font-size: 20px; }
+  .theme-toggle { top: 10px; right: 10px; padding: 4px 10px; font-size: 11px; }
+  .back-link { top: 12px; left: 12px; font-size: 12px; }
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  body { padding-top: env(safe-area-inset-top); }
+}
+</style>
+</head>
+<body>
+
+<div class="glow"></div>
+<a class="back-link" href="/">← Retour</a>
+<button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+
+<div class="paywall">
+  <div class="paywall-logo">Sésame <span>2026</span></div>
+  <div class="paywall-subtitle">Prépare le concours Sésame avec un programme adaptatif complet</div>
+
+  <!-- PROMO COUNTDOWN -->
+  <div class="promo-banner">
+    <div class="promo-badge">Offre de lancement</div>
+    <div class="promo-timer" id="countdown">--:--:--</div>
+    <div class="promo-timer-label">L'offre expire dans</div>
+  </div>
+
+  <!-- PRICE -->
+  <div class="price-block">
+    <div class="price-old">20 000 FCFA</div>
+    <div class="price-new">10 000 <span class="price-currency">FCFA</span></div>
+    <div class="price-period">Accès complet jusqu'au concours (8 avril 2026)</div>
+    <div class="price-savings">-50% — Tu économises 10 000 FCFA</div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">📝</div>
+      <div class="feature-text"><strong>Sessions quotidiennes personnalisées</strong> — adaptées à tes points faibles</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📊</div>
+      <div class="feature-text"><strong>500+ questions par matière</strong> — Maths, Français, Anglais, Enjeux, Digital, Espagnol</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⏱</div>
+      <div class="feature-text"><strong>Simulations en conditions réelles</strong> — chrono, correction instantanée</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔁</div>
+      <div class="feature-text"><strong>Révision intelligente des erreurs</strong> — les questions ratées reviennent automatiquement</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🌍</div>
+      <div class="feature-text"><strong>Fiches Enjeux contemporains</strong> — mises à jour chaque semaine avec l'actu</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📱</div>
+      <div class="feature-text"><strong>Multi-appareils</strong> — téléphone, tablette, ordinateur — tout se synchronise</div>
+    </div>
+  </div>
+
+  <!-- WAVE PAYMENT -->
+  <div class="wave-section">
+    <div class="wave-title">Paiement par</div>
+    <div class="wave-logo">
+      <div class="wave-logo-circle">W</div>
+      <div class="wave-logo-text">Wave</div>
+    </div>
+    <div class="wave-number">+221 XX XXX XX XX</div>
+    <div class="wave-instruction">
+      <strong>1.</strong> Ouvre l'appli Wave<br>
+      <strong>2.</strong> Envoie <strong>10 000 FCFA</strong> au numéro ci-dessus<br>
+      <strong>3.</strong> Mets ton <strong>email Google</strong> en motif de paiement<br>
+      <strong>4.</strong> Ton accès est activé sous 1h maximum
+    </div>
+    <a class="btn-wave" href="https://pay.wave.com/m/PLACEHOLDER" target="_blank" rel="noopener">
+      Payer 10 000 FCFA via Wave
+    </a>
+  </div>
+
+  <div class="separator">ou</div>
+
+  <div class="note">
+    Un problème ? Contacte-nous par WhatsApp au <strong>+221 XX XXX XX XX</strong><br>
+    Paiement sécurisé — Accès instantané après confirmation
+  </div>
+</div>
+
+<script>
+// ── THEME ────────────────────────────────────────────────
+function initTheme() {
+  const saved = localStorage.getItem('sesame_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀ Clair' : '☾ Sombre';
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('sesame_theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀ Clair' : '☾ Sombre';
+}
+initTheme();
+
+// ── COUNTDOWN (3 days from first visit) ──────────────────
+function initCountdown() {
+  const STORAGE_KEY = 'sesame_promo_end';
+  let endTime = localStorage.getItem(STORAGE_KEY);
+
+  if (!endTime) {
+    // First visit: set promo end to 3 days from now
+    const end = new Date();
+    end.setDate(end.getDate() + 3);
+    end.setHours(23, 59, 59, 0);
+    endTime = end.getTime().toString();
+    localStorage.setItem(STORAGE_KEY, endTime);
+  }
+
+  const deadline = parseInt(endTime, 10);
+
+  function update() {
+    const now = Date.now();
+    const diff = deadline - now;
+
+    if (diff <= 0) {
+      document.getElementById('countdown').textContent = '00:00:00';
+      document.querySelector('.promo-badge').textContent = 'Offre expirée';
+      return;
+    }
+
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+
+    const pad = n => String(n).padStart(2, '0');
+
+    if (d > 0) {
+      document.getElementById('countdown').textContent =
+        `${d}j ${pad(h)}:${pad(m)}:${pad(s)}`;
+    } else {
+      document.getElementById('countdown').textContent =
+        `${pad(h)}:${pad(m)}:${pad(s)}`;
+    }
+  }
+
+  update();
+  setInterval(update, 1000);
+}
+
+initCountdown();
+</script>
+</body>
+</html>
