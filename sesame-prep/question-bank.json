@@ -1,0 +1,207 @@
+{
+  "_meta": {
+    "description": "Banque de questions Sésame — suivi des questions utilisées et sessions incomplètes",
+    "last_updated": "2026-03-16",
+    "warn_on_empty": true,
+    "note": "Quand toutes les questions d'une matière sont used:true, NE PAS reset automatiquement — prévenir l'utilisateur et lui demander de fournir de nouvelles questions."
+  },
+  "pending_session": { "date": "2026-03-21", "type": "simulation", "subjects": ["digital", "enjeux", "maths"], "file": "sesame-prep/daily/2026-03-21.html", "save_key": "sesame_pause_2026-03-21" },
+  "subjects": {
+    "digital": {
+      "total": 23,
+      "questions": [
+        {"id":"d1","topic":"RSS / flux d'information","used":true,"session":"2026-03-15"},
+        {"id":"d2","topic":"Moteur de recherche","used":true,"session":"2026-03-15"},
+        {"id":"d3","topic":"Métadonnées","used":true,"session":"2026-03-15"},
+        {"id":"d4","topic":"Compression de fichiers","used":true,"session":"2026-03-15"},
+        {"id":"d5","topic":"Référence absolue tableur","used":true,"session":"2026-03-15"},
+        {"id":"d6","topic":"Formule tableur (recopie)","used":true,"session":"2026-03-15"},
+        {"id":"d7","topic":"Newsletter / liste de diffusion","used":true,"session":"2026-03-15"},
+        {"id":"d8","topic":"Mode collaboratif","used":true,"session":"2026-03-15"},
+        {"id":"d9","topic":"Indicateurs réseaux sociaux","used":true,"session":"2026-03-15"},
+        {"id":"d10","topic":"Formats de fichiers","used":true,"session":"2026-03-15"},
+        {"id":"d11","topic":"Création de PDF","used":true,"session":"2026-03-15"},
+        {"id":"d12","topic":"Algorithme — boucle for","used":true,"session":"2026-03-15"},
+        {"id":"d13","topic":"Algorithme — répéter jusqu'à","used":true,"session":"2026-03-15"},
+        {"id":"d14","topic":"Algorithme — listes","used":true,"session":"2026-03-15"},
+        {"id":"d15","topic":"Algorithme — booléen","used":true,"session":"2026-03-15"},
+        {"id":"d16","topic":"Double authentification","used":true,"session":"2026-03-15"},
+        {"id":"d17","topic":"Virus / fichiers dangereux","used":true,"session":"2026-03-15"},
+        {"id":"d18","topic":"Usurpation d'identité en ligne","used":true,"session":"2026-03-15"},
+        {"id":"d19","topic":"Data center & impact environnemental","used":true,"session":"2026-03-15"},
+        {"id":"d20","topic":"Outils informatiques de base","used":true,"session":"2026-03-15"},
+        {"id":"d21","topic":"Phishing","used":false,"session":null},
+        {"id":"d22","topic":"HTML (acronyme)","used":false,"session":null},
+        {"id":"d23","topic":"Cookie internet","used":false,"session":null},
+        {"id":"d24","topic":"HTTPS chiffrement","used":false,"session":null},
+        {"id":"d25","topic":"Résolution image 1920×1080","used":false,"session":null},
+        {"id":"d26","topic":"Stockage cloud","used":false,"session":null},
+        {"id":"d27","topic":"Algorithme — for range(3)","used":false,"session":null},
+        {"id":"d28","topic":"Formule tableur SOMME","used":false,"session":null},
+        {"id":"d29","topic":"Adresse IP","used":false,"session":null},
+        {"id":"d30","topic":"Extension .exe dangereuse","used":false,"session":null}
+      ]
+    },
+    "enjeux": {
+      "total": 25,
+      "questions": [
+        {"id":"e1","topic":"ODD — inexactitude","correct":"D","used":true,"session":"2026-03-16"},
+        {"id":"e2","topic":"Chine premier exportateur","correct":"C","used":true,"session":"2026-03-16"},
+        {"id":"e3","topic":"OMC","correct":"C","used":true,"session":"2026-03-16"},
+        {"id":"e4","topic":"Premier producteur pétrole","correct":"C","used":true,"session":"2026-03-16"},
+        {"id":"e5","topic":"Réchauffement climatique GIEC","correct":"B","used":true,"session":"2026-03-16"},
+        {"id":"e6","topic":"PIB définition","correct":"B","used":true,"session":"2026-03-16"},
+        {"id":"e7","topic":"Traité UE Maastricht","correct":"B","used":true,"session":"2026-03-16"},
+        {"id":"e8","topic":"IA disruption sectorielle","correct":"C","used":true,"session":"2026-03-16"},
+        {"id":"e9","topic":"Géopolitique définition","correct":"B","used":true,"session":"2026-03-16"},
+        {"id":"e10","topic":"Pays le plus peuplé 2024","correct":"B","used":true,"session":"2026-03-16"},
+        {"id":"e11","topic":"Centenaire Surréalisme Paris 2025","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"e12","topic":"Grève médecins UK 2025","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"e13","topic":"Température Copernicus août 2025","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"e14","topic":"CAC 40 chute Stellantis 2025","correct":"A","source":"KEDGE","used":false,"session":null},
+        {"id":"e15","topic":"Trump retrait UNESCO 2025","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"e16","topic":"Film animation box-office 2025 Ne Zha 2","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"e17","topic":"UE-Mercosur opposition France","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"e18","topic":"Cambriolage Louvre bijoux 2025","correct":"D","source":"KEDGE","used":false,"session":null},
+        {"id":"e19","topic":"Inflation USA juillet 2025","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"e20","topic":"NBA All-Star Game format 2025","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"e21","topic":"Tour Eiffel rose cancer du sein 2025","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"e22","topic":"S&P 500 record octobre 2025","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"e23","topic":"Prix Goncourt 2025","correct":"A","source":"KEDGE","used":false,"session":null},
+        {"id":"e24","topic":"Sagrada Família église plus haute 2025","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"e25","topic":"S&P 500 Nasdaq secteur technologie","correct":"B","source":"KEDGE","used":false,"session":null}
+      ]
+    },
+    "maths": {
+      "total": 20,
+      "questions": [
+        {"id":"m1","topic":"f(x)=2x²-3x+1, f(2)","correct":"C","used":false,"session":null},
+        {"id":"m2","topic":"Pythagore 3-4-5","correct":"A","used":false,"session":null},
+        {"id":"m3","topic":"log₁₀(1000)","correct":"B","used":false,"session":null},
+        {"id":"m4","topic":"Probabilité dé pair","correct":"C","used":false,"session":null},
+        {"id":"m5","topic":"Développer (x+3)²","correct":"C","used":false,"session":null},
+        {"id":"m6","topic":"Dérivée x³+2x","correct":"C","used":false,"session":null},
+        {"id":"m7","topic":"Équation 3x+7=22","correct":"B","used":false,"session":null},
+        {"id":"m8","topic":"PGCD 48 et 36","correct":"C","used":false,"session":null},
+        {"id":"m9","topic":"Suite arithmétique u₁=2 r=3, u₅","correct":"B","used":false,"session":null},
+        {"id":"m10","topic":"Aire disque rayon 5","correct":"C","used":false,"session":null},
+        {"id":"m11","topic":"Tableau croisé hommes lunettes","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"m12","topic":"Système équations zoo adultes/enfants","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"m13","topic":"Moyenne pondérée salaires","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"m14","topic":"Taux baisse successive 64%","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"m15","topic":"Probabilité nombre premier 1-100","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"m16","topic":"Taux variation +10% puis -10%","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"m17","topic":"Problème vitesse Marie/mère vélo","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"m18","topic":"Robinets débit proportionnalité","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"m19","topic":"Probabilité somme deux dés premier","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"m20","topic":"Carré inscrit cercle diagonale 3/√2","correct":"A","source":"KEDGE","used":false,"session":null}
+      ]
+    },
+    "francais": {
+      "total": 15,
+      "questions": [
+        {"id":"f1","topic":"Roman pas de Victor Hugo","correct":"C","source":"KEDGE","used":true,"session":"2026-03-16"},
+        {"id":"f2","topic":"Synonyme refusé/explication","correct":"A","source":"KEDGE","used":true,"session":"2026-03-16"},
+        {"id":"f3","topic":"Synonyme félicité/travail","correct":"C","source":"KEDGE","used":true,"session":"2026-03-16"},
+        {"id":"f4","topic":"Antonyme proverbe risque","correct":"A","source":"KEDGE","used":true,"session":"2026-03-16"},
+        {"id":"f5","topic":"Molière XVIIe siècle","correct":"B","source":"KEDGE","used":true,"session":"2026-03-16"},
+        {"id":"f6","topic":"Intrus optimiste/confiant/crédule","correct":"D","source":"KEDGE","used":true,"session":"2026-03-16"},
+        {"id":"f7","topic":"Accord participe passé COD","correct":"B","source":"KEDGE","used":true,"session":"2026-03-16"},
+        {"id":"f8","topic":"Orthographe quant/quand/qu'en","correct":"C","source":"KEDGE","used":true,"session":"2026-03-16"},
+        {"id":"f9","topic":"Ad vitam aeternam","correct":"D","source":"KEDGE","used":true,"session":"2026-03-16"},
+        {"id":"f10","topic":"Le Rouge et le Noir Stendhal","correct":"A","source":"KEDGE","used":true,"session":"2026-03-16"},
+        {"id":"f11","topic":"Compter fautes paragraphe (4)","correct":"D","source":"KEDGE","used":false,"session":null},
+        {"id":"f12","topic":"Figure de style dévoré des yeux","correct":"A","source":"KEDGE","used":false,"session":null},
+        {"id":"f13","topic":"Syllogisme définition","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"f14","topic":"Philatélie — art timbres","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"f15","topic":"Bel-Ami pas de Balzac","correct":"D","source":"KEDGE","used":false,"session":null}
+      ]
+    },
+    "anglais": {
+      "total": 10,
+      "questions": [
+        {"id":"a1","topic":"Prépositions depend on / responsible for","correct":"B","source":"KEDGE","used":false,"session":null},
+        {"id":"a2","topic":"Since vs for — point dans le temps","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"a3","topic":"Article Mississippi (état US)","correct":"A","source":"KEDGE","used":false,"session":null},
+        {"id":"a4","topic":"Écrire 13748 en lettres","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"a5","topic":"Whatever you do","correct":"D","source":"KEDGE","used":false,"session":null},
+        {"id":"a6","topic":"Articles the Alps / Mont Blanc","correct":"A","source":"KEDGE","used":false,"session":null},
+        {"id":"a7","topic":"Prétérit spent last week","correct":"C","source":"KEDGE","used":false,"session":null},
+        {"id":"a8","topic":"As soon as + présent simple futur","correct":"A","source":"KEDGE","used":false,"session":null},
+        {"id":"a9","topic":"D.C. = District of Columbia","correct":"D","source":"KEDGE","used":false,"session":null},
+        {"id":"a10","topic":"Hardly had ... when it began","correct":"B","source":"KEDGE","used":false,"session":null}
+      ]
+    },
+    "espagnol": {
+      "total": 10,
+      "questions": [
+        {"id":"es1","topic":"Subjonctif présent","correct":"C","used":false,"session":null},
+        {"id":"es2","topic":"Por vs Para","correct":"D","used":false,"session":null},
+        {"id":"es3","topic":"Faux ami embarazada","correct":"C","used":false,"session":null},
+        {"id":"es4","topic":"Imparfait vs Prétérit","correct":"B","used":false,"session":null},
+        {"id":"es5","topic":"Ser vs Estar","correct":"C","used":false,"session":null},
+        {"id":"es6","topic":"Vocabulaire synonymes","correct":"C","used":false,"session":null},
+        {"id":"es7","topic":"Négation double","correct":"C","used":false,"session":null},
+        {"id":"es8","topic":"Accord de l'adjectif","correct":"C","used":false,"session":null},
+        {"id":"es9","topic":"Connecteur logique","correct":"C","used":false,"session":null},
+        {"id":"es10","topic":"Futur simple","correct":"B","used":false,"session":null}
+      ]
+    },
+    "analyse_doc": {"total": 0, "questions": []}
+  },
+  "sessions": {
+    "2026-03-15": {
+      "subject": "digital",
+      "file": "sesame-prep/daily/2026-03-15.html",
+      "completed": null,
+      "score": null,
+      "questions_used": ["d1","d2","d3","d4","d5","d6","d7","d8","d9","d10","d11","d12","d13","d14","d15","d16","d17","d18","d19","d20"]
+    },
+    "2026-03-16": {
+      "subjects": ["enjeux", "francais"],
+      "file": "sesame-prep/daily/2026-03-16.html",
+      "completed": false,
+      "score": null,
+      "questions_used": ["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10"]
+    },
+    "2026-03-17": {
+      "subjects": ["enjeux", "francais"],
+      "file": "sesame-prep/daily/2026-03-17.html",
+      "completed": false,
+      "score": null,
+      "resumed_from": "2026-03-16",
+      "questions_used": ["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10"]
+    },
+    "2026-03-18": {
+      "subjects": ["enjeux", "francais"],
+      "file": "sesame-prep/daily/2026-03-18.html",
+      "completed": false,
+      "score": null,
+      "resumed_from": "2026-03-16",
+      "questions_used": ["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10"]
+    },
+    "2026-03-19": {
+      "subjects": ["enjeux", "francais"],
+      "file": "sesame-prep/daily/2026-03-19.html",
+      "completed": false,
+      "score": null,
+      "resumed_from": "2026-03-16",
+      "questions_used": ["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10"]
+    },
+    "2026-03-20": {
+      "subjects": ["anglais", "espagnol"],
+      "file": "sesame-prep/daily/2026-03-20.html",
+      "completed": false,
+      "score": null,
+      "questions_used": ["a1","a2","a3","a4","a5","a6","a7","a8","a9","a10","es1","es2","es3","es4","es5","es6","es7","es8","es9","es10"]
+    },
+    "2026-03-21": {
+      "type": "simulation",
+      "subjects": ["digital", "enjeux", "maths"],
+      "file": "sesame-prep/daily/2026-03-21.html",
+      "completed": false,
+      "score": null,
+      "questions_used": ["d21","d22","d23","d24","d25","d26","d27","d28","d29","d30","e11","e12","e13","e14","e15","e16","e17","e18","e19","e20","m1","m2","m3","m4","m5","m6","m7","m8","m9","m10"]
+    }
+  }
+}

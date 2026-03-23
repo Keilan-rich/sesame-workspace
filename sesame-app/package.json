@@ -1,0 +1,11 @@
+{
+  "name": "sesame-prep",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2"
+  },
+  "devDependencies": {
+    "pg": "^8.20.0"
+  }
+}

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enjeux contemporains — Révision active</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[data-theme="dark"]  { --bg:#08080f; --card:#0f0f1a; --card2:#13131f; --border:#1c1c2e; --text:#e8e8f5; --muted:#606080; --shadow:rgba(0,0,0,0.5); }
+[data-theme="light"] { --bg:#f3f3fb; --card:#ffffff; --card2:#f0f0fa; --border:#e0e0f0; --text:#0f0f1a; --muted:#8080a0; --shadow:rgba(0,0,0,0.07); }
+:root { --accent:#fbbf24; --green:#34d399; --red:#f87171; --amber:#f59e0b; }
+
+body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; transition:background .2s,color .2s; }
+
+/* ── SCREENS ── */
+.screen { display:none; min-height:100vh; }
+.screen.active { display:flex; flex-direction:column; }
+
+/* ── TOP NAV ── */
+.topnav { display:flex; align-items:center; justify-content:space-between; padding:20px 24px; flex-shrink:0; }
+.back { font-size:13px; color:var(--muted); text-decoration:none; }
+.back:hover { color:var(--accent); }
+.theme-toggle { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); font-family:'Sora',sans-serif; }
+.theme-toggle:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ══════════════════════════════════════════════════════════
+   START SCREEN
+══════════════════════════════════════════════════════════ */
+#screen-start { padding:0 24px 40px; }
+.start-wrap { max-width:680px; margin:0 auto; padding-top:20px; }
+
+.start-tag { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+.start-title { font-size:clamp(28px,5vw,48px); font-weight:800; line-height:1.1; margin-bottom:16px; }
+.start-title span { color:var(--accent); }
+.start-sub { font-size:14px; color:var(--muted); line-height:1.7; margin-bottom:32px; }
+
+.stats-row { display:flex; gap:12px; margin-bottom:32px; flex-wrap:wrap; }
+.stat-pill { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 20px; flex:1; min-width:120px; }
+.stat-num { font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:700; }
+.stat-lbl { font-size:11px; color:var(--muted); margin-top:2px; text-transform:uppercase; letter-spacing:1px; }
+.num-green { color:var(--green); }
+.num-amber { color:var(--accent); }
+.num-muted { color:var(--muted); }
+
+.progress-bar-wrap { margin-bottom:32px; }
+.progress-bar-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:8px; }
+.progress-bar { height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+.progress-fill { height:100%; background:var(--green); border-radius:4px; transition:width .5s; }
+
+.mode-selector { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; }
+.mode-card { background:var(--card); border:2px solid var(--border); border-radius:14px; padding:20px; cursor:pointer; transition:all .2s; text-align:left; font-family:'Sora',sans-serif; color:var(--text); }
+.mode-card:hover { border-color:var(--accent); background:rgba(251,191,36,0.04); }
+.mode-card.selected { border-color:var(--accent); background:rgba(251,191,36,0.08); }
+.mode-icon { font-size:24px; margin-bottom:10px; }
+.mode-title { font-size:14px; font-weight:700; margin-bottom:4px; }
+.mode-desc { font-size:12px; color:var(--muted); line-height:1.5; }
+
+.btn-start { width:100%; background:var(--accent); color:#08080f; border:none; border-radius:12px; padding:16px; font-size:16px; font-weight:800; cursor:pointer; font-family:'Sora',sans-serif; transition:opacity .15s; }
+.btn-start:hover { opacity:.9; }
+.btn-start:disabled { opacity:.4; cursor:default; }
+
+.domain-filter { margin-bottom:20px; }
+.domain-filter-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+.domain-pills { display:flex; flex-wrap:wrap; gap:6px; }
+.domain-pill { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:5px 12px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); font-family:'Sora',sans-serif; transition:all .15s; }
+.domain-pill:hover, .domain-pill.active { border-color:var(--accent); color:var(--accent); background:rgba(251,191,36,0.08); }
+
+/* ══════════════════════════════════════════════════════════
+   SESSION SCREEN
+══════════════════════════════════════════════════════════ */
+#screen-session { padding:0; }
+.session-wrap { max-width:700px; margin:0 auto; padding:0 24px 40px; flex:1; display:flex; flex-direction:column; }
+
+.session-header { display:flex; align-items:center; gap:16px; margin-bottom:32px; }
+.session-progress { flex:1; }
+.session-prog-label { font-size:12px; color:var(--muted); margin-bottom:6px; display:flex; justify-content:space-between; }
+.session-prog-bar { height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
+.session-prog-fill { height:100%; background:var(--accent); border-radius:2px; transition:width .3s; }
+.btn-quit { background:none; border:1px solid var(--border); border-radius:8px; padding:6px 12px; font-size:12px; color:var(--muted); cursor:pointer; font-family:'Sora',sans-serif; }
+.btn-quit:hover { border-color:var(--red); color:var(--red); }
+
+.event-card-session { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:32px; flex:1; display:flex; flex-direction:column; animation:slideIn .3s ease; }
+@keyframes slideIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+.event-domain-tag { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; padding:4px 12px; border-radius:20px; border:1px solid currentColor; margin-bottom:20px; opacity:.8; }
+
+.event-title { font-size:clamp(18px,3vw,26px); font-weight:800; margin-bottom:8px; line-height:1.2; }
+.event-date-tag { font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-bottom:28px; }
+
+/* QUESTION ZONE */
+.question-zone { background:rgba(251,191,36,0.07); border:1px solid rgba(251,191,36,0.2); border-radius:14px; padding:24px; margin-bottom:24px; flex:1; }
+.question-label { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
+.question-text { font-size:17px; font-weight:600; line-height:1.5; color:var(--text); }
+
+/* COUNTDOWN */
+.countdown-wrap { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.countdown-ring { position:relative; width:48px; height:48px; flex-shrink:0; }
+.countdown-svg { transform:rotate(-90deg); }
+.countdown-track { fill:none; stroke:var(--border); stroke-width:3; }
+.countdown-prog { fill:none; stroke:var(--accent); stroke-width:3; stroke-linecap:round; transition:stroke-dashoffset .9s linear; }
+.countdown-num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; color:var(--accent); }
+.countdown-text { font-size:12px; color:var(--muted); }
+
+.btn-reveal { width:100%; background:var(--accent); color:#08080f; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:800; cursor:pointer; font-family:'Sora',sans-serif; transition:all .2s; }
+.btn-reveal:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; }
+.btn-reveal:not(:disabled):hover { opacity:.9; transform:translateY(-1px); }
+
+/* REVEAL CONTENT */
+.reveal-content { display:none; flex-direction:column; gap:0; }
+.reveal-content.visible { display:flex; }
+
+.context-block { background:var(--card2); border-radius:12px; padding:18px; margin-bottom:16px; font-size:14px; line-height:1.7; color:var(--text); }
+[data-theme="light"] .context-block { color:#3a3a5a; }
+
+.facts-block { margin-bottom:20px; }
+.facts-block-label { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+.facts-list { list-style:none; display:flex; flex-direction:column; gap:8px; }
+.facts-list li { font-size:13px; line-height:1.5; padding:8px 12px 8px 32px; background:var(--card2); border-radius:8px; position:relative; }
+.facts-list li::before { content:'→'; position:absolute; left:12px; color:var(--accent); font-weight:700; }
+
+/* SELF-ASSESS BUTTONS */
+.assess-label { font-size:11px; color:var(--muted); text-align:center; margin-bottom:12px; text-transform:uppercase; letter-spacing:1px; }
+.assess-btns { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.assess-btn { border:none; border-radius:12px; padding:14px 8px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; transition:all .15s; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.assess-btn .emoji { font-size:20px; }
+.assess-btn:hover { transform:translateY(-2px); }
+.btn-avais { background:rgba(52,211,153,0.15); color:var(--green); border:1px solid rgba(52,211,153,0.3); }
+.btn-avais:hover { background:rgba(52,211,153,0.25); }
+.btn-approx { background:rgba(251,191,36,0.12); color:var(--accent); border:1px solid rgba(251,191,36,0.3); }
+.btn-approx:hover { background:rgba(251,191,36,0.22); }
+.btn-savais-pas { background:rgba(248,113,113,0.12); color:var(--red); border:1px solid rgba(248,113,113,0.3); }
+.btn-savais-pas:hover { background:rgba(248,113,113,0.22); }
+
+/* ══════════════════════════════════════════════════════════
+   END SCREEN
+══════════════════════════════════════════════════════════ */
+#screen-end { padding:0 24px 40px; }
+.end-wrap { max-width:600px; margin:0 auto; padding-top:20px; }
+
+.end-score-ring { width:120px; height:120px; margin:0 auto 24px; position:relative; }
+.end-score-ring svg { transform:rotate(-90deg); }
+.ring-track { fill:none; stroke:var(--border); stroke-width:8; }
+.ring-fill { fill:none; stroke:var(--green); stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset 1s ease; }
+.ring-pct { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:700; color:var(--green); }
+
+.end-title { font-size:clamp(22px,4vw,36px); font-weight:800; text-align:center; margin-bottom:8px; }
+.end-sub { font-size:14px; color:var(--muted); text-align:center; margin-bottom:32px; }
+
+.end-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:32px; }
+.end-stat { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; }
+.end-stat-num { font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:700; margin-bottom:4px; }
+.end-stat-lbl { font-size:11px; color:var(--muted); }
+
+.review-section { margin-bottom:28px; }
+.review-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--red); margin-bottom:12px; }
+.review-item { background:var(--card); border:1px solid rgba(248,113,113,0.2); border-radius:10px; padding:12px 16px; margin-bottom:8px; font-size:13px; }
+.review-item strong { color:var(--text); }
+.review-item .review-q { color:var(--muted); font-size:12px; margin-top:4px; }
+
+.end-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.btn-end { border:none; border-radius:12px; padding:14px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; transition:all .15s; }
+.btn-retry { background:var(--accent); color:#08080f; }
+.btn-retry:hover { opacity:.9; }
+.btn-home { background:var(--card); border:1px solid var(--border); color:var(--text); }
+.btn-home:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ══════════════════════════════════════════════════════════
+   BROWSE SCREEN
+══════════════════════════════════════════════════════════ */
+#screen-browse { padding:0 24px 60px; }
+.browse-wrap { max-width:980px; margin:0 auto; padding-top:10px; }
+.browse-controls { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+.browse-filters { display:flex; flex-wrap:wrap; gap:6px; }
+.browse-filter-btn { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:5px 12px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); font-family:'Sora',sans-serif; }
+.browse-filter-btn.active, .browse-filter-btn:hover { border-color:var(--accent); color:var(--accent); }
+.btn-back-session { background:var(--accent); color:#08080f; border:none; border-radius:10px; padding:8px 16px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; }
+
+.browse-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+.browse-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; position:relative; overflow:hidden; }
+.browse-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--dc); }
+.browse-card.bc-maitrise { border-color:rgba(52,211,153,0.3); background:rgba(52,211,153,0.03); }
+.browse-card.bc-incertain { border-color:rgba(251,191,36,0.25); }
+.browse-card.bc-hidden { display:none; }
+.bc-header { display:flex; justify-content:space-between; margin-bottom:8px; }
+.bc-tag { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+.bc-state { font-size:12px; font-weight:700; }
+.bc-title { font-size:13px; font-weight:700; margin-bottom:6px; }
+.bc-question { font-size:11px; color:var(--muted); line-height:1.5; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════ START SCREEN ══════════════════════════ -->
+<div class="screen active" id="screen-start">
+  <div class="topnav">
+    <a class="back" href="hub.html">← Tableau de bord</a>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn-quit" onclick="showBrowse()">📋 Toutes les fiches</button>
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+    </div>
+  </div>
+  <div class="start-wrap">
+    <div class="start-tag">Enjeux contemporains · Sésame 2026</div>
+    <div class="start-title">Révision <span>active</span></div>
+    <div class="start-sub">Juin 2025 → Mars 2026 · <strong id="total-count">42</strong> événements sélectionnés par probabilité au concours</div>
+
+    <div class="stats-row">
+      <div class="stat-pill">
+        <div class="stat-num num-green" id="s-maitrise">0</div>
+        <div class="stat-lbl">Maîtrisé</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-num num-amber" id="s-incertain">0</div>
+        <div class="stat-lbl">Incertain</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-num num-muted" id="s-voir">42</div>
+        <div class="stat-lbl">À voir</div>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-label">
+        <span>Progression</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="domain-filter">
+      <div class="domain-filter-label">Filtrer par domaine</div>
+      <div class="domain-pills" id="domain-pills">
+        <button class="domain-pill active" data-d="all">Tout</button>
+        <button class="domain-pill" data-d="geo">🌍 Géopolitique</button>
+        <button class="domain-pill" data-d="eco">💰 Économie</button>
+        <button class="domain-pill" data-d="institutions">🏛 Institutions</button>
+        <button class="domain-pill" data-d="societe">🌱 Société</button>
+        <button class="domain-pill" data-d="sciences">🔬 Sciences</button>
+        <button class="domain-pill" data-d="tech">💻 Tech & IA</button>
+        <button class="domain-pill" data-d="sport">🏅 Sport</button>
+        <button class="domain-pill" data-d="culture">🎨 Culture</button>
+      </div>
+    </div>
+
+    <button class="btn-start" id="btn-start" onclick="startSession()">Démarrer la session →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════ SESSION SCREEN ═════════════════════════ -->
+<div class="screen" id="screen-session">
+  <div class="topnav">
+    <div style="font-size:13px;color:var(--muted)">Enjeux contemporains</div>
+    <button class="theme-toggle" onclick="toggleTheme()">☀</button>
+  </div>
+  <div class="session-wrap">
+    <div class="session-header">
+      <div class="session-progress">
+        <div class="session-prog-label">
+          <span id="prog-current">Question 1</span>
+          <span id="prog-total">sur 10</span>
+        </div>
+        <div class="session-prog-bar"><div class="session-prog-fill" id="sess-prog-fill" style="width:0%"></div></div>
+      </div>
+      <button class="btn-quit" onclick="quitSession()">✕ Quitter</button>
+    </div>
+
+    <div class="event-card-session" id="event-card">
+      <!-- filled dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ END SCREEN ════════════════════════════ -->
+<div class="screen" id="screen-end">
+  <div class="topnav">
+    <a class="back" href="hub.html">← Tableau de bord</a>
+    <button class="theme-toggle" onclick="toggleTheme()">☀</button>
+  </div>
+  <div class="end-wrap">
+    <div class="end-score-ring">
+      <svg viewBox="0 0 120 120" width="120" height="120">
+        <circle class="ring-track" cx="60" cy="60" r="52"/>
+        <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+      </svg>
+      <div class="ring-pct" id="ring-pct">0%</div>
+    </div>
+    <div class="end-title" id="end-title">Bien joué !</div>
+    <div class="end-sub" id="end-sub">Session terminée</div>
+    <div class="end-stats">
+      <div class="end-stat"><div class="end-stat-num num-green" id="end-avais">0</div><div class="end-stat-lbl">J'avais ✓</div></div>
+      <div class="end-stat"><div class="end-stat-num num-amber" id="end-approx">0</div><div class="end-stat-lbl">Pas tout à fait ~</div></div>
+      <div class="end-stat"><div class="end-stat-num" style="color:var(--red)" id="end-pas">0</div><div class="end-stat-lbl">Je savais pas ✗</div></div>
+    </div>
+    <div class="review-section" id="review-section"></div>
+    <div class="end-btns">
+      <button class="btn-end btn-retry" onclick="retryWeak()">↺ Revoir les ratés</button>
+      <button class="btn-end btn-home" onclick="goStart()">← Accueil</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ BROWSE SCREEN ═════════════════════════ -->
+<div class="screen" id="screen-browse">
+  <div class="topnav">
+    <a class="back" href="hub.html">← Tableau de bord</a>
+    <div style="display:flex;gap:8px">
+      <button class="btn-back-session" onclick="goStart()">← Retour session</button>
+      <button class="theme-toggle" onclick="toggleTheme()">☀</button>
+    </div>
+  </div>
+  <div class="browse-wrap">
+    <div style="font-size:22px;font-weight:800;margin-bottom:16px">Toutes les fiches <span style="color:var(--accent)">enjeux</span></div>
+    <div class="browse-controls">
+      <div class="browse-filters" id="browse-filters">
+        <button class="browse-filter-btn active" data-bf="all">Tout</button>
+        <button class="browse-filter-btn" data-bf="geo">🌍 Géo</button>
+        <button class="browse-filter-btn" data-bf="eco">💰 Éco</button>
+        <button class="browse-filter-btn" data-bf="institutions">🏛 Institutions</button>
+        <button class="browse-filter-btn" data-bf="societe">🌱 Société</button>
+        <button class="browse-filter-btn" data-bf="sciences">🔬 Sciences</button>
+        <button class="browse-filter-btn" data-bf="tech">💻 Tech</button>
+        <button class="browse-filter-btn" data-bf="sport">🏅 Sport</button>
+        <button class="browse-filter-btn" data-bf="culture">🎨 Culture</button>
+      </div>
+    </div>
+    <div class="browse-grid" id="browse-grid"></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────
+const DOMAIN_LABELS = { geo:'🌍 Géopolitique', eco:'💰 Économie', institutions:'🏛 Institutions', societe:'🌱 Société', sciences:'🔬 Sciences', tech:'💻 Tech & IA', sport:'🏅 Sport', culture:'🎨 Culture' };
+const DOMAIN_COLORS = { geo:'#60a5fa', eco:'#34d399', institutions:'#a78bfa', societe:'#4ade80', sciences:'#f472b6', tech:'#06d6f5', sport:'#fb923c', culture:'#fbbf24' };
+
+const EVENTS = [
+  { id:'g1', domain:'geo', date:'Oct 2025', title:'Cessez-le-feu à Gaza', context:"Après 2 ans de guerre depuis le 7 octobre 2023, une 1ère phase de cessez-le-feu entre Israël et le Hamas entre en vigueur selon le plan Trump. Gaza est de facto partitionné : Israël contrôle plus de la moitié du territoire. Le Hamas refuse de désarmer.", facts:["Conflit : 2 ans (oct 2023 → oct 2025)","Plan Trump : échange otages/prisonniers, retrait progressif IDF","Hamas refuse de désarmer et maintient sa présence militaire","411 Palestiniens tués depuis le début du cessez-le-feu (violations)"], question:"Dans le plan Trump, que prévoit la 1ère phase du cessez-le-feu à Gaza ?" },
+  { id:'g2', domain:'geo', date:'Déc 2025', title:'Syrie : Ahmed al-Sharaa succède à Assad', context:"En 2025, le régime de Bachar al-Assad s'effondre. Ahmed al-Sharaa prend le pouvoir à Damas. En décembre, Trump l'accueille à la Maison Blanche et les États-Unis lèvent leurs sanctions contre la Syrie.", facts:["Nouveau dirigeant : Ahmed al-Sharaa (alias Abu Mohammad al-Jolani)","Visite Maison Blanche : décembre 2025","États-Unis : levée des sanctions économiques contre la Syrie","Opportunité de reconstruction après la guerre civile"], question:"Qui dirige la Syrie après Assad, et quel geste diplomatique Trump fait-il en décembre 2025 ?" },
+  { id:'g3', domain:'geo', date:'2025-2026', title:'Ukraine : guerre en impasse', context:"Après 3 ans de guerre, la Russie prend l'avantage en Donbas. Poutine exige le retrait ukrainien du Donbas non encore conquis. Zelensky refuse de céder les territoires tenus par ses troupes. Trump pousse à un accord.", facts:["3e année de guerre en 2025","Point de blocage : contrôle du Donbas","Trump pousse à un accord de paix","Russie : avantage militaire croissant sur le terrain"], question:"Quel est le principal point de désaccord dans les négociations Russie-Ukraine en 2025-2026 ?" },
+  { id:'g4', domain:'geo', date:'Juin 2025', title:"OTAN : objectif 5% du PIB pour la défense", context:"Au sommet OTAN de La Haye (24-25 juin 2025), les membres acceptent de porter leurs dépenses de défense à 5% du PIB d'ici 2035, sous pression de Trump. L'objectif précédent depuis 2014 était 2%.", facts:["Sommet : La Haye, 24-25 juin 2025","Nouvel objectif : 5% du PIB d'ici 2035","Dont 3,5% militaire + 1,5% sécurité civile","Ancien objectif : 2% du PIB (sommet Pays de Galles 2014)"], question:"Quel est le nouvel objectif de dépenses de défense fixé par l'OTAN en juin 2025, et pour quelle échéance ?" },
+  { id:'g5', domain:'geo', date:'Sept 2025', title:"Reconnaissance de l'État de Palestine", context:"En septembre 2025, le Royaume-Uni, le Canada et l'Australie reconnaissent l'État de Palestine. La France fait de même. Plus de 140 pays reconnaissaient déjà la Palestine à l'ONU.", facts:["Nouveaux pays (sept 2025) : RU, Canada, Australie, France","Total mondial : +140 pays reconnaissant la Palestine","Contexte : pression internationale post-guerre Gaza"], question:"Quels grands pays occidentaux reconnaissent officiellement l'État de Palestine en septembre 2025 ?" },
+  { id:'g6', domain:'geo', date:'Déc 2025', title:'Chine : exercices "Mission Justice 2025"', context:"Le 29 décembre 2025, la Chine lance les exercices militaires 'Mission Justice 2025' autour de Taïwan : avions de combat, navires de guerre, bombardiers stratégiques. Message clair contre tout mouvement indépendantiste.", facts:["Nom : 'Mission Justice 2025'","Date : 29 décembre 2025","Forces : avions de combat, navires de guerre, bombardiers stratégiques","Objectif : condamner l'indépendantisme taïwanais"], question:"Quel est le nom des exercices militaires chinois lancés autour de Taïwan fin décembre 2025 ?" },
+  { id:'g7', domain:'geo', date:'Été 2025', title:'Iran-Israël : escalade et cessez-le-feu', context:"Après 12 jours d'escalade, un cessez-le-feu est annoncé entre Israël et l'Iran. L'Iran avait frappé une base américaine au Qatar en représailles. Des échanges de tirs persistent malgré l'accord.", facts:["Durée de l'escalade : 12 jours","Iran frappe : base américaine au Qatar","Cessez-le-feu annoncé puis partiellement violé","Contexte : tensions régionales Proche-Orient"], question:"Quelle cible l'Iran frappe-t-il lors de l'escalade avec Israël à l'été 2025 ?" },
+  { id:'g8', domain:'geo', date:'Fév 2026', title:'Expiration du traité New START', context:"Le 5 février 2026, le traité New START entre Washington et Moscou expire sans renouvellement. C'était le dernier traité bilatéral de contrôle des armes nucléaires, limitant chaque pays à 1 550 ogives déployées.", facts:["Date d'expiration : 5 février 2026","Dernier traité bilatéral de contrôle nucléaire USA-Russie","Limite : 1 550 ogives nucléaires déployées par pays","Conséquence : absence d'accord de contrôle nucléaire bilatéral"], question:"Quel traité de contrôle des armements nucléaires expire le 5 février 2026, et quelle était sa limite ?" },
+  { id:'e1', domain:'eco', date:'Juin 2025', title:'BCE : taux directeur stabilisé à 2%', context:"Depuis le 5 juin 2025, la BCE maintient son taux de dépôt à 2%, signalant la fin de son cycle de baisse. L'inflation en zone euro s'établit à ~2,2% en novembre 2025.", facts:["Taux directeur BCE (dépôt) : 2% depuis juin 2025","Inflation zone euro : ~2,2% (nov 2025)","Fed américaine : également en baisse de taux en 2025","Objectif BCE : 2% d'inflation à moyen terme"], question:"Quel est le taux directeur de la BCE depuis juin 2025, et quel est le niveau d'inflation en zone euro ?" },
+  { id:'e2', domain:'eco', date:'Août 2025', title:'Trump : guerre commerciale et droits de douane', context:"Trump impose des droits de douane massifs en 2025. Après une suspension de 90 jours, de nouveaux droits entrent en vigueur le 1er août pour le reste du monde, et le 12 août pour la Chine.", facts:["Suspension de 90 jours : accordée puis levée","1er août 2025 : droits pour le reste du monde","12 août 2025 : droits pour la Chine","Impact : ralentissement de la croissance mondiale"], question:"À quelle date les droits de douane Trump s'appliquent-ils au reste du monde en 2025 ?" },
+  { id:'e3', domain:'eco', date:'T1 2025', title:'Dette publique française : 114% du PIB', context:"À fin T1 2025, la dette française atteint 3 345,8 milliards d'euros, soit 114% du PIB. La France fait face à la pression des marchés et des agences de notation.", facts:["Montant : 3 345,8 milliards d'euros","Ratio : 114% du PIB","Période : fin du 1er trimestre 2025"], question:"Quel est le ratio de la dette publique française par rapport au PIB au T1 2025 ?" },
+  { id:'e4', domain:'eco', date:'Sept 2025', title:"Fitch dégrade la France : AA- → A+", context:"En septembre 2025, Fitch abaisse la note de la dette souveraine française de AA- à A+, en raison de l'absence de trajectoire crédible de réduction du déficit.", facts:["Agence : Fitch Ratings","Ancienne note : AA-","Nouvelle note : A+","Motif : absence de trajectoire crédible de réduction du déficit"], question:"De quelle note à quelle note Fitch dégrade-t-il la dette souveraine française en septembre 2025 ?" },
+  { id:'e5', domain:'eco', date:'2025', title:'Croissance France +0,9% · Inflation 0,9%', context:"Le PIB français croît de +0,9% en 2025, sous la moyenne de la zone euro (+1,3%). L'inflation chute à 0,9% (vs 2,3% en 2024), point bas depuis le pic post-COVID.", facts:["Croissance PIB France 2025 : +0,9%","Croissance zone euro 2025 : +1,3%","Inflation France 2025 : 0,9% (vs 2,3% en 2024)","Inflation zone euro nov 2025 : 2,2%"], question:"Quelle est la croissance du PIB français en 2025 et comment se compare-t-elle à la zone euro ?" },
+  { id:'e6', domain:'eco', date:'2025-2026', title:'Croissance mondiale : 3,2% → 2,9%', context:"La croissance mondiale ralentit de 3,2% en 2025 à 2,9% prévu en 2026, sous l'effet des droits de douane, des conflits géopolitiques et du resserrement financier.", facts:["Croissance mondiale 2025 : 3,2%","Croissance mondiale 2026 prévu : 2,9%","Causes : droits de douane Trump, conflits, resserrement financier","Source : FMI"], question:"Quel est le taux de croissance mondial en 2025, et quelle est la prévision pour 2026 ?" },
+  { id:'e7', domain:'eco', date:'Déc 2025', title:'Iran : hyperinflation supérieure à 50%', context:"En décembre 2025, l'Iran fait face à une inflation dépassant 50%, provoquant des manifestations dans plusieurs villes. 6 morts lors des affrontements avec les forces de l'ordre.", facts:["Taux d'inflation Iran : >50%","Cause : sanctions + mauvaise gestion économique","Manifestations dans plusieurs villes","Bilan : 6 morts lors des affrontements"], question:"Quel taux d'inflation dépasse l'Iran en décembre 2025, et quelles conséquences cela provoque-t-il ?" },
+  { id:'i1', domain:'institutions', date:'Sept 2025', title:'Lecornu reconduit Premier ministre', context:"Après des manifestations contre le budget (>500 000 personnes, 300+ interpellations), Macron reconduit Sébastien Lecornu comme Premier ministre.", facts:["Premier ministre : Sébastien Lecornu (reconduit)","Manifestations : >500 000 personnes contre le budget","Interpellations : 300+","Contexte : austérité budgétaire"], question:"Quel Premier ministre Macron reconduit-il en septembre 2025, dans quel contexte social ?" },
+  { id:'i2', domain:'institutions', date:'Sept 2025', title:'UE : motion de censure contre von der Leyen', context:"En septembre 2025, le Parlement européen initie une motion de censure contre Ursula von der Leyen. Les trois principaux groupes y renoncent finalement.", facts:["Cible : Ursula von der Leyen (Commission européenne)","Initiative : motion de censure au PE","Résultat : abandonnée par les groupes politiques","Reproche : gestion jugée autoritaire"], question:"Quelle initiative parlementaire vise la Commission européenne en septembre 2025, et quel en est le résultat ?" },
+  { id:'i3', domain:'institutions', date:'Mars 2026', title:'Élections municipales en France', context:"Les Français votent les 15 et 22 mars 2026 pour les élections municipales, dans un contexte politique tendu : gouvernement fragilisé, austérité, forte abstention attendue.", facts:["Type : élections municipales","1er tour : 15 mars 2026","2e tour : 22 mars 2026","Contexte : gouvernement fragilisé par la crise budgétaire"], question:"À quelles dates se tiennent les élections municipales françaises en 2026 ?" },
+  { id:'i4', domain:'institutions', date:'2025', title:"UE-Mercosur : blocage de la France", context:"L'accord de libre-échange UE-Mercosur reste bloqué par la France, qui craint la concurrence déloyale pour ses agriculteurs et invoque des standards environnementaux insuffisants.", facts:["Parties : UE + Mercosur (Brésil, Argentine, Uruguay, Paraguay)","Type : accord de libre-échange","Principal opposant : France","Raisons : agriculture + standards environnementaux"], question:"Quel pays européen bloque principalement l'accord UE-Mercosur et pour quelles raisons ?" },
+  { id:'s1', domain:'societe', date:'Nov 2025', title:"COP30 à Belém : accord a minima", context:"La COP30 se tient du 10 au 22 novembre 2025 à Belém (Brésil, Amazonie). 189 pays. L'objectif 1,5°C est jugé hors d'atteinte ; la trajectoire mène vers +2,5°C. Le financement des pays en développement est triplé.", facts:["Lieu : Belém, Brésil (Amazonie)","Dates : 10-22 novembre 2025","Participants : 189 pays, ~56 000 représentants","Objectif 1,5°C : hors d'atteinte → trajectoire +2,5°C","Financement pays en développement : ×3"], question:"Où se tient la COP30 en novembre 2025, et quelle trajectoire de réchauffement est désormais jugée réaliste ?" },
+  { id:'s2', domain:'societe', date:'2025', title:"10 ans de l'Accord de Paris", context:"L'Accord de Paris (COP21, décembre 2015) fête ses 10 ans en 2025. Sans lui, trajectoire +4°C ; grâce à lui, +2,5°C. Mais l'objectif 1,5°C reste hors de portée.", facts:["Signé : COP21, Paris, décembre 2015","10e anniversaire : 2025","Sans l'accord : trajectoire +4°C","Avec l'accord : trajectoire ramenée à +2,5°C"], question:"Quel accord climatique fête ses 10 ans en 2025, de quelle trajectoire a-t-il permis de s'éloigner ?" },
+  { id:'s3', domain:'societe', date:'Été 2025', title:"Copernicus : record de température mondiale", context:"Le service Copernicus confirme un record de température mondiale en 2025. Les 10 années les plus chaudes jamais enregistrées sont toutes postérieures à 2015. El Niño amplifie le réchauffement.", facts:["Service : Copernicus Climate Change Service (C3S, UE)","Record : température mondiale 2025","Les 10 années les plus chaudes : toutes post-2015","Amplificateur : El Niño + changement climatique anthropique"], question:"Quel service européen certifie les records de température mondiale, et quel phénomène amplifie le réchauffement en 2025 ?" },
+  { id:'s4', domain:'societe', date:'Nov 2025', title:'Semaine européenne de la réduction des déchets', context:"La SERD (Semaine Européenne de la Réduction des Déchets) se tient du 22 au 30 novembre 2025, organisée par l'UE et l'ADEME pour promouvoir l'économie circulaire.", facts:["Dates 2025 : 22-30 novembre","Organisateurs : UE + ADEME","Objectif : réduction à la source + économie circulaire"], question:"Quand se tient la Semaine Européenne de la Réduction des Déchets en 2025, et qui l'organise ?" },
+  { id:'sc1', domain:'sciences', date:'Juin 2025', title:"Vaccin personnalisé contre le cancer ORL", context:"Au congrès ASCO (Chicago, juin 2025), l'Institut Curie présente un vaccin thérapeutique individualisé contre le cancer ORL basé sur le séquençage génomique + IA. Résultat : 0% de rechute vs 20% sans vaccin.", facts:["Institution : Institut Curie (Paris)","Congrès : ASCO, Chicago, juin 2025","Méthode : séquençage tumoral + IA → vaccin personnalisé (~30 mutations/patient)","Résultat : 0% rechute (vaccinés) vs 20% (non vaccinés)"], question:"Quelle institution française présente un vaccin personnalisé anti-cancer ORL à l'ASCO 2025, avec quel résultat ?" },
+  { id:'sc2', domain:'sciences', date:'2025', title:"Vaccin anti-cancer : 88% d'efficacité", context:"L'Université du Massachusetts révèle un vaccin expérimental à base de nanotechnologie atteignant 88% d'efficacité contre certaines tumeurs agressives. Les vaccins ARNm thérapeutiques transforment l'oncologie.", facts:["Source : Université du Massachusetts","Technologie : nanotechnologie + ARNm thérapeutique","Efficacité : 88% contre certaines tumeurs agressives"], question:"Quel est le taux d'efficacité du vaccin anti-cancer à base de nanotechnologie présenté par l'Université du Massachusetts en 2025 ?" },
+  { id:'sc3', domain:'sciences', date:'2025', title:"OMS : 40% des cancers sont évitables", context:"Un rapport OMS/IARC révèle que 40% des cancers (7,1M sur 18,7M en 2022) étaient évitables. Nouveauté : les causes infectieuses identifiées pour la 1ère fois. Priorité : vaccination HPV.", facts:["Cancers évitables : 40% (7,1M sur 18,7M cas en 2022)","Sources : OMS + IARC","Nouveau facteur identifié : causes infectieuses","Priorité : vaccination HPV (cancer col de l'utérus)"], question:"Selon l'OMS, quelle proportion des cancers diagnostiqués en 2022 était évitable, et quel nouveau facteur de risque est identifié ?" },
+  { id:'sc4', domain:'sciences', date:'Oct 2025', title:"Nobel de Physique : circuits quantiques", context:"Le Nobel de Physique 2025 récompense John Clarke, Michel Devoret et John Martinis pour leurs découvertes sur les circuits quantiques macroscopiques — fondement de l'informatique quantique.", facts:["Lauréats : John Clarke, Michel Devoret, John Martinis","Affiliations : UC Berkeley, Yale, UC Santa Barbara","Domaine : tunnels quantiques macroscopiques, circuits quantiques","Application : base de l'informatique quantique"], question:"Pour quels travaux le Nobel de Physique 2025 est-il décerné, et combien de lauréats le partagent ?" },
+  { id:'t1', domain:'tech', date:'2025', title:"Gemini 2.5 Pro : 750M utilisateurs", context:"Google lance Gemini 2.5 Pro, 'nativement multimodal' : entraîné simultanément sur texte, image, audio et vidéo. Il cumule 750 millions d'utilisateurs actifs, intégré dans 6 produits Google à 2 milliards d'utilisateurs.", facts:["Modèle : Gemini 2.5 Pro (Google)","Innovation : nativement multimodal (texte + image + audio + vidéo)","Utilisateurs actifs : 750 millions","Intégré dans 6 produits Google à 2 Mds d'utilisateurs chacun"], question:"Quelle est la caractéristique principale de Gemini 2.5 Pro de Google, et combien d'utilisateurs actifs compte-t-il ?" },
+  { id:'t2', domain:'tech', date:'2025-2026', title:"Agents IA autonomes : première génération", context:"Les premiers agents IA véritablement autonomes apparaissent en 2025-2026 : capables de réserver des voyages, négocier des contrats, restructurer des agendas sans intervention humaine. L'IA passe de l'assistance à l'action.", facts:["Rupture : IA assistante → IA qui agit de façon autonome","Capacités : réserver, négocier, restructurer","Modèles clés : OpenAI o3/GPT-5, Gemini 2.5","Enjeu réglementaire : responsabilité juridique des agents"], question:"Quelle évolution majeure caractérise les IA en 2025-2026 par rapport aux générations précédentes ?" },
+  { id:'t3', domain:'tech', date:'2025-2026', title:"AI Act : 1er cadre légal mondial sur l'IA", context:"L'AI Act européen entre progressivement en vigueur en 2025-2026 : premier règlement mondial contraignant sur l'IA, classant les systèmes par niveau de risque.", facts:["Nom officiel : Règlement européen sur l'IA (EU AI Act)","Portée : premier règlement mondial contraignant","Approche : classification par niveau de risque (inacceptable/élevé/limité/minimal)","Entrée en vigueur : progressive 2025-2026"], question:"Qu'est-ce que l'AI Act européen et quelle est sa portée mondiale ?" },
+  { id:'t4', domain:'tech', date:'Oct 2025', title:"Nobel d'Économie : Aghion, Mokyr, Howitt", context:"Le Nobel d'Économie 2025 récompense Philippe Aghion (Français, Collège de France), Joel Mokyr et Peter Howitt pour leurs travaux sur l'innovation comme moteur de la croissance.", facts:["Lauréats : Philippe Aghion, Joel Mokyr, Peter Howitt","Travaux : rôle de l'innovation dans la croissance économique","Philippe Aghion : économiste français, Collège de France","Annonce : 13 octobre 2025, Stockholm"], question:"Qui reçoit le Nobel d'Économie 2025 et pour quels travaux ? Quel lauréat est français ?" },
+  { id:'sp1', domain:'sport', date:'2025', title:"Tennis : Sinner & Alcaraz partagent les 4 Grand Chelems", context:"Jannik Sinner et Carlos Alcaraz se partagent les 4 Grands Chelems masculins 2025. Sinner : Open d'Australie (bat Zverev) + Wimbledon. Alcaraz : Roland Garros (en 5 sets) + US Open.", facts:["Open d'Australie : Sinner bat Zverev (6-3, 7-6, 6-3)","Roland Garros : Alcaraz bat Sinner en 5 sets (renversement après 2 sets perdus)","Wimbledon : Sinner (1er titre)","US Open : Alcaraz bat Sinner en finale"], question:"Comment se répartissent les 4 Grands Chelems masculins entre Sinner et Alcaraz en 2025 ?" },
+  { id:'sp2', domain:'sport', date:'2025', title:"Pogacar : le 'Cannibale du XXIe siècle'", context:"Tadej Pogacar réalise une saison 2025 historique : Tour de France, classiques (Paris-Roubaix…), championnats du monde. Son niveau de domination lui vaut le surnom de 'Cannibale du XXIe siècle'.", facts:["Nationalité : Slovène (UAE Team Emirates)","Victoires 2025 : Tour de France + classiques + championnats du monde","Surnom : 'Cannibale du XXIe siècle'","Côté français : Pauline Ferrand-Prévot (Paris-Roubaix + Tour féminin)"], question:"Quel cycliste domine la saison 2025 au point d'être surnommé 'Cannibale du XXIe siècle' ?" },
+  { id:'sp3', domain:'sport', date:'2025', title:"Léon Marchand : record du 200m 4 nages à Singapour", context:"Après 4 titres olympiques à Paris 2024, Léon Marchand continue de dominer la natation mondiale en 2025 et bat le record du monde du 200m 4 nages à Singapour.", facts:["Athlète : Léon Marchand (France)","Épreuve : 200m 4 nages","Lieu du record : Singapour (2025)","Contexte : après 4 médailles d'or aux JO Paris 2024"], question:"Quel record du monde Léon Marchand bat-il en 2025, et dans quelle ville ?" },
+  { id:'sp4', domain:'sport', date:'Jan 2026', title:"CAN 2026 : le Sénégal champion au Maroc", context:"La CAN 2026 se déroule au Maroc du 21 décembre 2025 au 18 janvier 2026. Le Sénégal remporte le titre, confirmant sa domination continentale après la CAN 2022.", facts:["Compétition : Coupe d'Afrique des Nations 2026","Pays hôte : Maroc","Dates : 21 décembre 2025 → 18 janvier 2026","Champion : Sénégal","Précédent titre sénégalais : CAN 2022 (Cameroun)"], question:"Quel pays remporte la CAN organisée au Maroc en 2025-2026, et quel était son précédent titre ?" },
+  { id:'sp5', domain:'sport', date:'2025', title:"Dembélé reçoit le Ballon d'Or", context:"Ousmane Dembélé (PSG) reçoit le Ballon d'Or 2025 : meilleur buteur de Ligue 1 (21 buts), meilleur joueur de la Ligue des Champions. Mbappé établit le record du nombre de triplés en LDC.", facts:["Ballon d'Or 2025 : Ousmane Dembélé (PSG)","Meilleur buteur Ligue 1 : 21 buts","Meilleur joueur Ligue des Champions 2025-2026","Mbappé : record de triplés (hat-tricks) en Ligue des Champions"], question:"Qui reçoit le Ballon d'Or 2025, dans quel club joue-t-il ?" },
+  { id:'c1', domain:'culture', date:'Oct 2025', title:"Nobel de Littérature : László Krasznahorkai", context:"Le Nobel de Littérature 2025 est attribué à l'écrivain hongrois László Krasznahorkai (71 ans) pour une œuvre 'fascinante et visionnaire', caractérisée par de longues phrases labyrinthiques.", facts:["Lauréat : László Krasznahorkai","Nationalité : hongroise","Âge : 71 ans","Qualification : œuvre 'fascinante et visionnaire'"], question:"Qui reçoit le Nobel de Littérature 2025, et de quelle nationalité est cet écrivain ?" },
+  { id:'c2', domain:'culture', date:'Oct 2025', title:"Nobel de la Paix : María Corina Machado", context:"Le Nobel de la Paix 2025 récompense la Vénézuélienne María Corina Machado pour son combat contre le régime Maduro et sa lutte 'inlassable' pour les droits démocratiques du peuple vénézuélien.", facts:["Lauréate : María Corina Machado","Nationalité : vénézuélienne","Combat : opposition démocratique au régime Maduro","Qualification : travail 'inlassable' pour une 'transition juste et pacifique'"], question:"Qui reçoit le Nobel de la Paix 2025, pour quels combats politiques ?" },
+  { id:'c3', domain:'culture', date:'Nov 2025', title:"Prix Goncourt 2025 : Laurent Mauvignier", context:"Le Goncourt 2025 est décerné le 4 novembre à Laurent Mauvignier pour 'La Maison vide', au 1er tour par 6 voix contre 4 pour 'Le Bel Obscur' de Caroline Lamarche.", facts:["Lauréat : Laurent Mauvignier","Roman primé : 'La Maison vide'","Date : 4 novembre 2025","Vote : 6 voix vs 4 pour Caroline Lamarche ('Le Bel Obscur')"], question:"Qui reçoit le Prix Goncourt 2025, et quel est le titre de son roman primé ?" },
+  { id:'c4', domain:'culture', date:'2025', title:"Centenaire du Surréalisme à Paris", context:"Paris célèbre en 2025 le centenaire du Surréalisme, fondé par André Breton avec le 1er Manifeste du Surréalisme (1924-1925). Dalí, Magritte, Aragon, Éluard en sont les figures emblématiques.", facts:["Centenaire : 100 ans du Surréalisme (1925-2025)","Fondateur : André Breton","Œuvre fondatrice : 1er Manifeste du Surréalisme (1924)","Figures : Dalí, Magritte, Max Ernst, Aragon, Éluard"], question:"Quel anniversaire le Surréalisme célèbre-t-il en 2025, et qui en est le fondateur ?" },
+  { id:'c5', domain:'culture', date:'2025', title:"Ne Zha 2 : record mondial d'animation", context:"Le film d'animation chinois 'Ne Zha 2' devient le film d'animation le plus rentable de l'histoire du cinéma mondial en 2025. Réalisé par Jiaozi, inspiré de la mythologie chinoise.", facts:["Film : Ne Zha 2 (Chine)","Réalisateur : Jiaozi","Record : film d'animation le plus rentable de l'histoire","Inspiration : mythologie chinoise"], question:"Quel film d'animation bat le record mondial du box-office en 2025, et de quelle origine culturelle est-il ?" },
+  { id:'c6', domain:'culture', date:'2025', title:"Sagrada Família : plus haute église du monde", context:"En 2025, la Sagrada Família de Barcelone dépasse la cathédrale d'Ulm et devient la plus haute église du monde. Tour de Jésus-Christ : 172,5 m. Œuvre de Gaudí commencée en 1882.", facts:["Édifice : Sagrada Família, Barcelone","Architecte : Antoni Gaudí (mort en 1926)","Début : 1882 · Fin prévue : 2026","Hauteur tour de Jésus-Christ : 172,5 mètres","Statut : plus haute église du monde depuis 2025"], question:"Quel édifice devient la plus haute église du monde en 2025, dans quelle ville, et qui en est l'architecte ?" }
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────
+const STORE_KEY = 'sesame_enjeux_v2';
+let states = {};
+function loadStates() { try { states = JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); } catch { states = {}; } }
+function saveStates() { localStorage.setItem(STORE_KEY, JSON.stringify(states)); }
+function getState(id) { return states[id] || 'voir'; }
+function setState(id, s) { states[id] = s; saveStates(); }
+
+// ── SESSION STATE ──────────────────────────────────────────────────────
+let queue = [];
+let qIdx = 0;
+let results = { avais:[], approx:[], pas:[] };
+let activeFilter = 'all';
+let countdownTimer = null;
+
+// ── START SCREEN ───────────────────────────────────────────────────────
+function updateStartStats() {
+  let m=0, i=0, v=0;
+  EVENTS.forEach(e => { const s=getState(e.id); if(s==='maitrise')m++; else if(s==='incertain')i++; else v++; });
+  document.getElementById('s-maitrise').textContent = m;
+  document.getElementById('s-incertain').textContent = i;
+  document.getElementById('s-voir').textContent = v;
+  const pct = Math.round(m/EVENTS.length*100);
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-pct').textContent = pct+'%';
+}
+
+document.getElementById('domain-pills').addEventListener('click', e => {
+  const pill = e.target.closest('.domain-pill');
+  if (!pill) return;
+  document.querySelectorAll('.domain-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  activeFilter = pill.dataset.d;
+});
+
+function getFilteredEvents() {
+  let evs = activeFilter === 'all' ? EVENTS : EVENTS.filter(e => e.domain === activeFilter);
+  // prioritize: pas > incertain > voir > maitrise
+  const order = { 'voir':2, 'incertain':3, 'maitrise':0 };
+  // Actually: non-maîtrisé first, then maîtrisé last
+  evs = [...evs].sort((a,b) => {
+    const sa = getState(a.id), sb = getState(b.id);
+    if (sa === 'maitrise' && sb !== 'maitrise') return 1;
+    if (sb === 'maitrise' && sa !== 'maitrise') return -1;
+    return 0;
+  });
+  return evs.slice(0, 10); // max 10 per session
+}
+
+function startSession() {
+  queue = getFilteredEvents();
+  if (queue.length === 0) { alert("Aucun événement disponible pour ce filtre."); return; }
+  qIdx = 0;
+  results = { avais:[], approx:[], pas:[] };
+  showScreen('screen-session');
+  renderEvent();
+}
+
+// ── SESSION ────────────────────────────────────────────────────────────
+function renderEvent() {
+  const e = queue[qIdx];
+  const total = queue.length;
+  const pct = Math.round(qIdx/total*100);
+  document.getElementById('prog-current').textContent = `Question ${qIdx+1}`;
+  document.getElementById('prog-total').textContent = `sur ${total}`;
+  document.getElementById('sess-prog-fill').style.width = pct+'%';
+
+  const color = DOMAIN_COLORS[e.domain] || '#fbbf24';
+  const factsHtml = e.facts.map(f=>`<li>${f}</li>`).join('');
+
+  document.getElementById('event-card').innerHTML = `
+    <div class="event-domain-tag" style="color:${color};border-color:${color}">${DOMAIN_LABELS[e.domain]}</div>
+    <div class="event-title">${e.title}</div>
+    <div class="event-date-tag">${e.date}</div>
+
+    <div class="question-zone">
+      <div class="question-label">⚡ Question au concours</div>
+      <div class="question-text">${e.question}</div>
+    </div>
+
+    <div class="countdown-wrap">
+      <div class="countdown-ring">
+        <svg class="countdown-svg" viewBox="0 0 48 48" width="48" height="48">
+          <circle class="countdown-track" cx="24" cy="24" r="20"/>
+          <circle class="countdown-prog" id="cd-circle" cx="24" cy="24" r="20" stroke-dasharray="125.6" stroke-dashoffset="0"/>
+        </svg>
+        <div class="countdown-num" id="cd-num">5</div>
+      </div>
+      <div class="countdown-text">Réfléchis avant de révéler…</div>
+    </div>
+
+    <button class="btn-reveal" id="btn-reveal" disabled onclick="revealEvent()">Révéler les faits →</button>
+
+    <div class="reveal-content" id="reveal-content">
+      <div class="context-block">${e.context}</div>
+      <div class="facts-block">
+        <div class="facts-block-label">Faits clés à retenir</div>
+        <ul class="facts-list">${factsHtml}</ul>
+      </div>
+      <div class="assess-label">Tu l'avais ?</div>
+      <div class="assess-btns">
+        <button class="assess-btn btn-avais" onclick="assess('avais')"><span class="emoji">✓</span>J'avais</button>
+        <button class="assess-btn btn-approx" onclick="assess('approx')"><span class="emoji">~</span>Pas tout à fait</button>
+        <button class="assess-btn btn-savais-pas" onclick="assess('pas')"><span class="emoji">✗</span>Je savais pas</button>
+      </div>
+    </div>
+  `;
+
+  startCountdown(5);
+}
+
+function startCountdown(seconds) {
+  if (countdownTimer) clearInterval(countdownTimer);
+  let remaining = seconds;
+  const circle = document.getElementById('cd-circle');
+  const numEl = document.getElementById('cd-num');
+  const circumference = 125.6;
+
+  function tick() {
+    remaining--;
+    if (numEl) numEl.textContent = remaining;
+    if (circle) circle.style.strokeDashoffset = circumference * (1 - remaining/seconds);
+    if (remaining <= 0) {
+      clearInterval(countdownTimer);
+      const btn = document.getElementById('btn-reveal');
+      if (btn) { btn.disabled = false; btn.textContent = 'Révéler les faits →'; }
+    }
+  }
+
+  if (circle) circle.style.strokeDashoffset = 0;
+  countdownTimer = setInterval(tick, 1000);
+}
+
+function revealEvent() {
+  if (countdownTimer) clearInterval(countdownTimer);
+  const reveal = document.getElementById('reveal-content');
+  const cdWrap = document.querySelector('.countdown-wrap');
+  const btnReveal = document.getElementById('btn-reveal');
+  if (reveal) reveal.classList.add('visible');
+  if (cdWrap) cdWrap.style.display = 'none';
+  if (btnReveal) btnReveal.style.display = 'none';
+}
+
+function assess(result) {
+  const e = queue[qIdx];
+  if (result === 'avais') { setState(e.id, 'maitrise'); results.avais.push(e); }
+  else if (result === 'approx') { setState(e.id, 'incertain'); results.approx.push(e); }
+  else { setState(e.id, 'voir'); results.pas.push(e); }
+
+  qIdx++;
+  if (qIdx >= queue.length) { showEndScreen(); }
+  else { renderEvent(); }
+}
+
+function quitSession() { goStart(); }
+
+// ── END SCREEN ─────────────────────────────────────────────────────────
+function showEndScreen() {
+  showScreen('screen-end');
+  const total = queue.length;
+  const avais = results.avais.length;
+  const pct = Math.round(avais/total*100);
+
+  // Ring
+  const circumference = 326.7;
+  setTimeout(() => {
+    const ring = document.getElementById('ring-fill');
+    if (ring) ring.style.strokeDashoffset = circumference * (1 - pct/100);
+  }, 100);
+  document.getElementById('ring-pct').textContent = pct+'%';
+
+  // Title
+  const titles = pct >= 80 ? 'Excellent !' : pct >= 60 ? 'Bien joué !' : pct >= 40 ? 'En progrès !' : 'À consolider';
+  document.getElementById('end-title').textContent = titles;
+  document.getElementById('end-sub').textContent = `${avais}/${total} événements maîtrisés · ${results.approx.length} incertains · ${results.pas.length} à revoir`;
+
+  document.getElementById('end-avais').textContent = results.avais.length;
+  document.getElementById('end-approx').textContent = results.approx.length;
+  document.getElementById('end-pas').textContent = results.pas.length;
+
+  // Review list
+  const toReview = [...results.pas, ...results.approx];
+  const reviewEl = document.getElementById('review-section');
+  if (toReview.length > 0) {
+    reviewEl.innerHTML = `<div class="review-title">À revoir (${toReview.length})</div>` +
+      toReview.map(e => `<div class="review-item"><strong>${e.title}</strong><div class="review-q">${e.question}</div></div>`).join('');
+  } else {
+    reviewEl.innerHTML = '<div style="text-align:center;color:var(--green);font-weight:700;padding:16px">Parfait — tout maîtrisé ! 🎯</div>';
+  }
+
+  updateStartStats();
+}
+
+function retryWeak() {
+  const weak = [...results.pas, ...results.approx];
+  if (weak.length === 0) { goStart(); return; }
+  queue = weak;
+  qIdx = 0;
+  results = { avais:[], approx:[], pas:[] };
+  showScreen('screen-session');
+  renderEvent();
+}
+
+// ── BROWSE SCREEN ──────────────────────────────────────────────────────
+function showBrowse() {
+  renderBrowse('all');
+  showScreen('screen-browse');
+}
+
+function renderBrowse(filter) {
+  const grid = document.getElementById('browse-grid');
+  grid.innerHTML = '';
+  const filtered = filter === 'all' ? EVENTS : EVENTS.filter(e => e.domain === filter);
+  filtered.forEach(e => {
+    const s = getState(e.id);
+    const color = DOMAIN_COLORS[e.domain];
+    const stateLabel = s==='maitrise' ? '<span style="color:var(--green)">✓ Maîtrisé</span>' : s==='incertain' ? '<span style="color:var(--accent)">~ Incertain</span>' : '<span style="color:var(--muted)">À voir</span>';
+    const cls = s==='maitrise' ? 'browse-card bc-maitrise' : s==='incertain' ? 'browse-card bc-incertain' : 'browse-card';
+    grid.insertAdjacentHTML('beforeend', `
+      <div class="${cls}" style="--dc:${color}">
+        <div class="bc-header"><span class="bc-tag">${DOMAIN_LABELS[e.domain]} · ${e.date}</span>${stateLabel}</div>
+        <div class="bc-title">${e.title}</div>
+        <div class="bc-question">${e.question}</div>
+      </div>
+    `);
+  });
+}
+
+document.getElementById('browse-filters').addEventListener('click', e => {
+  const btn = e.target.closest('.browse-filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.browse-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBrowse(btn.dataset.bf);
+});
+
+// ── SCREENS ────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goStart() { updateStartStats(); showScreen('screen-start'); }
+
+// ── THEME ──────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.querySelectorAll('.theme-toggle').forEach(b => b.textContent = next === 'dark' ? '☀ Clair' : '☾ Sombre');
+  localStorage.setItem('sesame_theme', next);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────
+loadStates();
+updateStartStats();
+const savedTheme = localStorage.getItem('sesame_theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
+document.querySelectorAll('.theme-toggle').forEach(b => b.textContent = savedTheme === 'dark' ? '☀ Clair' : '☾ Sombre');
+</script>
+</body>
+</html>

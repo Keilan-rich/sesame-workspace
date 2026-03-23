@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sésame 2026 — Tableau de bord</title>
+<meta name="description" content="Préparation au concours Sésame 2026">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#06d6f5">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent: #06d6f5;
+  --green: #34d399;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --violet: #a78bfa;
+  --digital: #06d6f5;
+  --enjeux: #fbbf24;
+  --math: #34d399;
+  --french: #818cf8;
+  --english: #a78bfa;
+  --spanish: #f87171;
+  --docu: #fb923c;
+  --transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+[data-theme="dark"] {
+  --bg: #08080f; --card: #0f0f1a; --border: #1c1c2e;
+  --text: #e8e8f5; --muted: #606080;
+  --card-hover: #141426; --shadow: rgba(0,0,0,0.4);
+}
+[data-theme="light"] {
+  --bg: #f3f3fb; --card: #ffffff; --border: #e0e0f0;
+  --text: #0f0f1a; --muted: #8080a0;
+  --card-hover: #f8f8ff; --shadow: rgba(0,0,0,0.08);
+}
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; padding-bottom: 60px;
+  transition: var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 200;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  color: var(--muted); transition: var(--transition);
+  display: flex; align-items: center; gap: 6px;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+.header {
+  padding: 36px 24px 0; max-width: 900px; margin: 0 auto;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.header-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+}
+.header-title {
+  font-size: clamp(28px, 5vw, 40px); font-weight: 800; line-height: 1.15;
+}
+.header-title span { color: var(--muted); font-weight: 300; }
+
+.countdown-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 20px 28px; text-align: center;
+  min-width: 140px; box-shadow: 0 4px 20px var(--shadow);
+}
+.countdown-num {
+  font-size: 52px; font-weight: 800; line-height: 1;
+  color: var(--red); font-variant-numeric: tabular-nums;
+}
+.countdown-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
+.countdown-date { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+.divider { max-width: 900px; margin: 32px auto 0; padding: 0 24px; border-bottom: 1px solid var(--border); }
+
+.section { max-width: 900px; margin: 0 auto; padding: 32px 24px 0; }
+.section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); margin-bottom: 20px;
+}
+
+.today-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 28px; margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap; box-shadow: 0 4px 20px var(--shadow);
+}
+.today-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--accent);
+  background: rgba(6,214,245,0.08); border: 1px solid rgba(6,214,245,0.2);
+  padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px;
+}
+.today-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.today-meta { font-size: 13px; color: var(--muted); }
+.today-meta strong { color: var(--text); }
+
+.btn-start {
+  background: var(--accent); color: #000; border: none;
+  padding: 16px 36px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  text-decoration: none; display: inline-block;
+}
+.btn-start:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(6,214,245,0.3); }
+.done-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25);
+  color: var(--green); padding: 14px 28px; border-radius: 12px;
+  font-size: 14px; font-weight: 700;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+.action-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px;
+  cursor: pointer; transition: all 0.2s;
+  text-decoration: none; display: block;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+.action-card:hover { border-color: rgba(6,214,245,0.4); transform: translateY(-2px); background: var(--card-hover); }
+.action-icon { font-size: 24px; margin-bottom: 12px; }
+.action-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+.action-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.action-sub { font-size: 11px; color: var(--accent); margin-top: 8px; font-weight: 600; }
+
+.progress-grid { display: flex; flex-direction: column; gap: 10px; }
+.subject-row {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 20px;
+  display: grid; grid-template-columns: 160px 1fr 60px; align-items: center; gap: 16px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+.subject-name { font-size: 13px; font-weight: 600; }
+.subject-level { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+.bar-wrap { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+.subject-score { font-size: 13px; font-weight: 700; text-align: right; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+.history-wrap {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px var(--shadow);
+}
+.history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.history-table th {
+  text-align: left; padding: 12px 16px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--muted);
+  border-bottom: 1px solid var(--border); background: var(--card);
+}
+.history-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.history-table tr:last-child td { border-bottom: none; }
+.score-pill {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+}
+.score-pill.high { background: rgba(52,211,153,0.15); color: var(--green); }
+.score-pill.mid { background: rgba(251,191,36,0.15); color: var(--amber); }
+.score-pill.low { background: rgba(248,113,113,0.15); color: var(--red); }
+.empty-state { text-align: center; padding: 32px; color: var(--muted); font-size: 14px; }
+
+.calendar-strip {
+  display: flex; gap: 6px; overflow-x: auto;
+  padding-bottom: 8px; scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.cal-day {
+  flex-shrink: 0; width: 44px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  padding: 8px 6px; text-align: center;
+}
+.cal-day.past { opacity: 0.35; }
+.cal-day.today { border-color: var(--accent); background: rgba(6,214,245,0.06); }
+.cal-day.done { border-color: rgba(52,211,153,0.4); background: rgba(52,211,153,0.06); }
+.cal-day-num { font-size: 16px; font-weight: 700; line-height: 1; }
+.cal-day-month { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.cal-day-dot { width: 4px; height: 4px; border-radius: 50%; margin: 4px auto 0; }
+.cal-day.done .cal-day-dot { background: var(--green); }
+.cal-day.today .cal-day-dot { background: var(--accent); }
+.cal-phase { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-top: 4px; }
+
+/* ── LOADING ─────────────────────────────────────────────── */
+.loading-spinner {
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid var(--border); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── MOBILE RESPONSIVE ───────────────────────────────────── */
+@media (max-width: 600px) {
+  .header { padding: 20px 16px 0; }
+  .header-title { font-size: 24px; }
+  .countdown-card { padding: 14px 20px; min-width: 110px; }
+  .countdown-num { font-size: 38px; }
+  .section { padding: 24px 16px 0; }
+  .today-card { padding: 20px; flex-direction: column; text-align: center; }
+  .today-title { font-size: 18px; }
+  .btn-start { padding: 14px 28px; font-size: 13px; width: 100%; text-align: center; }
+  .actions-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .action-card { padding: 14px; }
+  .action-icon { font-size: 20px; margin-bottom: 8px; }
+  .action-title { font-size: 13px; }
+  .action-desc { font-size: 11px; }
+  .subject-row { grid-template-columns: 1fr; gap: 8px; padding: 12px 16px; }
+  .subject-score { text-align: left; }
+  .history-table th, .history-table td { padding: 8px 10px; font-size: 11px; }
+  .history-table th:nth-child(5), .history-table td:nth-child(5) { display: none; }
+  .theme-toggle { top: 10px; right: 10px; padding: 4px 10px; font-size: 11px; }
+}
+
+@media (max-width: 380px) {
+  .actions-grid { grid-template-columns: 1fr; }
+  .countdown-card { min-width: auto; }
+  .header { flex-direction: column; align-items: stretch; }
+  .countdown-card { display: flex; align-items: center; gap: 12px; text-align: left; }
+  .countdown-num { font-size: 32px; }
+}
+
+/* ── AUTH OVERLAY ────────────────────────────────────────── */
+.auth-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 32px;
+}
+.auth-overlay.hidden { display: none; }
+.auth-glow {
+  position: absolute; top: 50%; left: 50%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(6,214,245,0.10) 0%, transparent 70%);
+  transform: translate(-50%, -50%); pointer-events: none;
+}
+.auth-logo { font-size: 48px; font-weight: 800; margin-bottom: 8px; position: relative; }
+.auth-logo span { color: var(--accent); }
+.auth-sub { color: var(--muted); font-size: 14px; margin-bottom: 40px; position: relative; }
+.btn-google {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: #fff; color: #333; border: 1px solid #ddd;
+  border-radius: 12px; padding: 14px 32px;
+  font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; position: relative;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.btn-google:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.12); }
+.btn-google svg { width: 20px; height: 20px; }
+.auth-note { color: var(--muted); font-size: 11px; margin-top: 20px; position: relative; }
+
+/* ── USER BAR ───────────────────────────────────────────── */
+.user-bar {
+  position: fixed; top: 16px; left: 16px; z-index: 200;
+  display: flex; align-items: center; gap: 8px;
+}
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid var(--accent); object-fit: cover;
+}
+.user-name { font-size: 11px; color: var(--muted); font-weight: 600; }
+.btn-logout {
+  background: none; border: 1px solid var(--border); border-radius: 8px;
+  padding: 3px 8px; font-size: 10px; color: var(--muted);
+  cursor: pointer; font-family: 'Sora', sans-serif;
+}
+.btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+/* ── SAFE AREA (notch) ───────────────────────────────────── */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body { padding-top: env(safe-area-inset-top); padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-glow"></div>
+  <div class="auth-logo">Sésame <span>2026</span></div>
+  <div class="auth-sub">Connecte-toi pour synchroniser tes sessions sur tous tes appareils</div>
+  <button class="btn-google" onclick="loginGoogle()">
+    <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    Continuer avec Google
+  </button>
+  <div class="auth-note">Tes données restent privées et synchronisées entre tes appareils</div>
+</div>
+
+<!-- USER BAR -->
+<div class="user-bar" id="user-bar" style="display:none">
+  <img class="user-avatar" id="user-avatar" src="" alt="">
+  <span class="user-name" id="user-name"></span>
+  <button class="btn-logout" onclick="logout()">Déconnexion</button>
+</div>
+
+<button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-eyebrow">Tableau de bord</div>
+    <div class="header-title">Sésame 2026 <span id="header-username"></span></div>
+  </div>
+  <div class="countdown-card">
+    <div class="countdown-num" id="days-left">—</div>
+    <div class="countdown-label">jours restants</div>
+    <div class="countdown-date">8 avril 2026</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+  <div class="section-title">Aujourd'hui</div>
+  <div class="today-card">
+    <div class="today-left">
+      <div class="today-badge" id="today-badge"><span class="loading-spinner"></span></div>
+      <div class="today-title" id="today-title">Chargement...</div>
+      <div class="today-meta" id="today-meta">—</div>
+    </div>
+    <div id="today-action">
+      <a class="btn-start" id="btn-today" href="#">Démarrer →</a>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Que faire ?</div>
+  <div class="actions-grid">
+    <a class="action-card" id="action-session" href="#">
+      <div class="action-icon">▶</div>
+      <div class="action-title">Session du jour</div>
+      <div class="action-desc">Questions du plan du jour, avec révision des erreurs en intro</div>
+      <div class="action-sub">Commence ici →</div>
+    </a>
+    <a class="action-card" href="/quiz.html?type=simulation" style="border-left: 3px solid #6366f1">
+      <div class="action-icon">⏱</div>
+      <div class="action-title">Simulation concours</div>
+      <div class="action-desc">Séquence complète condensée en conditions réelles</div>
+      <div class="action-sub">~45 min · samedi →</div>
+    </a>
+    <a class="action-card" href="/quiz.html?type=guided" style="border-left: 3px solid #f59e0b">
+      <div class="action-icon">☀️</div>
+      <div class="action-title">Session guidée</div>
+      <div class="action-desc">Révision approfondie des matières faibles avec mémo et retry</div>
+      <div class="action-sub">~40 min · dimanche</div>
+    </a>
+    <a class="action-card" href="/erreurs.html" id="action-erreurs">
+      <div class="action-icon">🔁</div>
+      <div class="action-title">Réviser mes erreurs</div>
+      <div class="action-desc">Revoir uniquement les questions ratées lors des sessions précédentes</div>
+      <div class="action-sub" id="erreurs-count">—</div>
+    </a>
+    <a class="action-card" href="/enjeux-contemporains.html" style="border-left: 3px solid #fbbf24">
+      <div class="action-icon">🌍</div>
+      <div class="action-title">Enjeux contemporains</div>
+      <div class="action-desc">42 événements clés · Révision active avec auto-évaluation</div>
+      <div class="action-sub">Quiz interactif →</div>
+    </a>
+    <a class="action-card" href="/fiches/" style="border-left: 3px solid #34d399">
+      <div class="action-icon">📋</div>
+      <div class="action-title">Fiches mémo</div>
+      <div class="action-desc">Résumés visuels par matière : notions clés, pièges, quiz éclair</div>
+      <div class="action-sub">7 fiches disponibles →</div>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Progression par matière</div>
+  <div class="progress-grid" id="progress-grid"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">Historique des sessions</div>
+  <div id="history-container">
+    <div class="history-wrap"><div class="empty-state">Chargement...</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Planning 24 jours</div>
+  <div class="calendar-strip" id="calendar-strip"></div>
+</div>
+
+<script>
+// ─── SUPABASE ─────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://gkcxenxcyybgwdsgsuep.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY3hlbnhjeXliZ3dkc2dzdWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjcyMjMsImV4cCI6MjA4OTUwMzIyM30.fSS4MJpilWlfVyu6uPUKK-cWhO3S5KA_NUkKFLRPiBo';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const EXAM_DATE  = new Date('2026-04-08');
+const START_DATE = new Date('2026-03-15');
+const TODAY      = new Date(); TODAY.setHours(0,0,0,0);
+
+let currentUser = null;
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+async function loginGoogle() {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin }
+  });
+  if (error) alert('Erreur de connexion : ' + error.message);
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  // Clear all user-specific localStorage
+  Object.keys(localStorage).forEach(k => {
+    if (k.startsWith('sesame_pause_') || k.startsWith('sesame_daily_')) localStorage.removeItem(k);
+  });
+  document.getElementById('auth-overlay').classList.remove('hidden');
+  document.getElementById('user-bar').style.display = 'none';
+  document.getElementById('header-username').textContent = '';
+  // Reset dashboard UI
+  document.getElementById('progress-grid').innerHTML = '';
+  document.getElementById('history-container').innerHTML = '';
+  document.getElementById('calendar-strip').innerHTML = '';
+}
+
+function showUserBar(user) {
+  const bar = document.getElementById('user-bar');
+  const avatar = document.getElementById('user-avatar');
+  const name = document.getElementById('user-name');
+  const meta = user.user_metadata || {};
+  avatar.src = meta.avatar_url || meta.picture || '';
+  name.textContent = meta.full_name || meta.name || user.email || '';
+  bar.style.display = 'flex';
+  // Header username
+  const firstName = (meta.full_name || meta.name || user.email || '').split(' ')[0];
+  document.getElementById('header-username').textContent = firstName ? `/ ${firstName}` : '';
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+// ─── SESSION GENERATION ENGINE (Supabase per-user) ──────────────────────────
+// Full daily-sesame skill logic:
+// 1. Calendar lookup → subjects, type, time
+// 2. Error revision block (3-5 wrong answers from past sessions)
+// 3. Weak subject adaptation (+5 bonus if < 50%)
+// 4. Unused question selection (avoid already-seen by this user)
+// 5. Fallback to wrong answers when questions exhausted
+// 6. Session saved to Supabase with user_id for cross-device sync
+
+async function generateDailySession(dateStr) {
+  if (!currentUser) return null;
+  const uid = currentUser.id;
+
+  // Check if session already exists in Supabase for this user today + type
+  const { data: existing } = await sb
+    .from('daily_sessions').select('*')
+    .eq('date', dateStr).eq('user_id', uid).eq('session_type', 'daily').maybeSingle();
+  if (existing) return existing;
+
+  // 1. Calendar lookup
+  const { data: calEntry } = await sb
+    .from('calendar').select('*').eq('date', dateStr).maybeSingle();
+  if (!calEntry) return null;
+
+  const subjects = calEntry.subjects || [];
+  const qPerSubject = calEntry.questions_per_subject || 10;
+  const sessionType = calEntry.session_type || 'daily';
+  const timeMinutes = calEntry.time_minutes || 20;
+
+  // 2. User's past results (from Supabase, per-user)
+  const { data: pastResults } = await sb
+    .from('session_results').select('subject, score, total, wrong_answers')
+    .eq('user_id', uid).order('created_at', { ascending: false }).limit(50);
+  const results = pastResults || [];
+
+  // 3. User's already-seen questions (from their past daily_sessions)
+  const { data: pastSessions } = await sb
+    .from('daily_sessions').select('question_ids').eq('user_id', uid);
+  const seenQids = new Set((pastSessions || []).flatMap(s => s.question_ids || []));
+
+  // 4. Weak subjects (average < 50%)
+  const subjectScores = {};
+  results.forEach(r => {
+    if (!subjectScores[r.subject]) subjectScores[r.subject] = { score: 0, total: 0 };
+    subjectScores[r.subject].score += r.score;
+    subjectScores[r.subject].total += r.total;
+  });
+  const weakSubjects = new Set();
+  Object.entries(subjectScores).forEach(([subj, { score, total }]) => {
+    if (total > 0 && (score / total) < 0.5) weakSubjects.add(subj);
+  });
+
+  // 5. Error revision block (3-5 past wrong answers)
+  const allWrong = results.flatMap(r => (r.wrong_answers || []).map(w => ({ ...w })));
+  const wrongMap = {};
+  allWrong.forEach(w => { if (w.id && !wrongMap[w.id]) wrongMap[w.id] = w; });
+  const revisionPool = Object.values(wrongMap)
+    .filter(w => subjects.includes(w.subject) && !seenQids.has(w.id));
+  const revisionIds = shuffle(revisionPool).slice(0, 5).map(w => w.id);
+
+  // 6. Select questions per subject
+  let selectedIds = [...revisionIds];
+  for (const subject of subjects) {
+    const limit = qPerSubject + (weakSubjects.has(subject) ? 5 : 0);
+    const { data: allQ } = await sb.from('questions').select('id').eq('subject', subject);
+    if (!allQ) continue;
+
+    const unseen = allQ.filter(q => !seenQids.has(q.id) && !selectedIds.includes(q.id));
+    const picked = shuffle(unseen).slice(0, limit);
+    selectedIds.push(...picked.map(q => q.id));
+
+    if (picked.length < limit) {
+      const fallback = Object.values(wrongMap)
+        .filter(w => w.subject === subject && !selectedIds.includes(w.id))
+        .slice(0, limit - picked.length);
+      selectedIds.push(...fallback.map(w => w.id));
+    }
+  }
+  if (selectedIds.length === 0) return null;
+
+  // 7. Save to Supabase (cross-device sync)
+  const session = {
+    date: dateStr, user_id: uid, subjects, question_ids: selectedIds,
+    revision_ids: revisionIds, session_type: sessionType, time_minutes: timeMinutes
+  };
+  const { data: inserted, error } = await sb
+    .from('daily_sessions').insert(session).select().single();
+  return error ? null : inserted;
+}
+
+const SUBJECTS = [
+  { key:'digital',      label:'Compétences digitales', color:'--digital' },
+  { key:'enjeux',       label:'Enjeux contemporains',  color:'--enjeux' },
+  { key:'maths',        label:'Mathématiques',         color:'--math' },
+  { key:'francais',     label:'Français',              color:'--french' },
+  { key:'anglais',      label:'Anglais',               color:'--english' },
+  { key:'espagnol',     label:'Espagnol',              color:'--spanish' },
+  { key:'analyse_doc',  label:'Analyse documentaire',  color:'--docu' },
+];
+const LEVEL_COLORS = { 'Bon':'var(--green)', 'Moyen':'var(--amber)', 'À travailler':'var(--red)', 'Faible':'var(--red)', 'Inconnu':'var(--muted)' };
+
+// ─── THEME ───────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀ Clair' : '☾ Sombre';
+  localStorage.setItem('sesame_theme', next);
+}
+function initTheme() {
+  const saved = localStorage.getItem('sesame_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀ Clair' : '☾ Sombre';
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  initTheme();
+  const daysLeft = Math.max(0, Math.ceil((EXAM_DATE - TODAY) / 86400000));
+  document.getElementById('days-left').textContent = daysLeft;
+
+  // Check auth state
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+    document.getElementById('auth-overlay').classList.add('hidden');
+    showUserBar(currentUser);
+    await loadDashboard();
+  } else {
+    // Ensure overlay is visible when not authenticated
+    document.getElementById('auth-overlay').classList.remove('hidden');
+  }
+
+  // Listen for ALL auth changes (login, logout, token refresh, account switch)
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
+      // If switching accounts, reload everything
+      const isNewUser = !currentUser || currentUser.id !== session.user.id;
+      currentUser = session.user;
+      document.getElementById('auth-overlay').classList.add('hidden');
+      showUserBar(currentUser);
+      if (isNewUser) await loadDashboard();
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      document.getElementById('auth-overlay').classList.remove('hidden');
+      document.getElementById('user-bar').style.display = 'none';
+      document.getElementById('header-username').textContent = '';
+    }
+  });
+});
+
+async function loadDashboard() {
+  try {
+    // Fetch shared data + user's results from Supabase
+    const [calendarRes, resultsRes] = await Promise.all([
+      sb.from('calendar').select('*').order('date'),
+      sb.from('session_results').select('*').eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false })
+    ]);
+    if (calendarRes.error) console.error('Calendar fetch error:', calendarRes.error);
+    if (resultsRes.error) console.error('Results fetch error:', resultsRes.error);
+    const calendar = calendarRes.data || [];
+    const sessions = resultsRes.data || [];
+
+    // Generate today's session if needed
+    const todayStr = fmtDate(TODAY);
+    let todaySession = null;
+    try {
+      todaySession = await generateDailySession(todayStr);
+    } catch (e) {
+      console.error('Session generation error:', e);
+    }
+
+    renderToday(sessions, calendar, todaySession);
+    renderProgress(sessions);
+    renderHistory(sessions);
+    renderCalendar(sessions, calendar);
+    renderErreursCount(sessions);
+  } catch (e) {
+    console.error('Dashboard load error:', e);
+    document.getElementById('today-title').textContent = 'Erreur de chargement';
+    document.getElementById('today-meta').textContent = 'Vérifie ta connexion et recharge la page.';
+  }
+}
+
+// ─── TODAY ────────────────────────────────────────────────────────────────────
+function renderToday(sessions, calendar, todaySession) {
+  const todayStr = fmtDate(TODAY);
+  const calEntry = calendar.find(c => c.date === todayStr);
+  const done = sessions.find(s => s.date === todayStr);
+
+  const badge    = document.getElementById('today-badge');
+  const title    = document.getElementById('today-title');
+  const meta     = document.getElementById('today-meta');
+  const actionDiv= document.getElementById('today-action');
+  const btnToday = document.getElementById('btn-today');
+  const actionLink = document.getElementById('action-session');
+
+  if (todaySession) {
+    const subjectLabels = (todaySession.subjects || []).map(s => {
+      const found = SUBJECTS.find(sub => sub.key === s);
+      return found ? found.label : s;
+    }).join(' + ');
+
+    const typeLabel = todaySession.session_type === 'simulation' ? '⏱ Simulation' :
+                      todaySession.session_type === 'guided' ? '☀️ Session guidée' :
+                      `Session · ${todayStr}`;
+    badge.textContent = typeLabel;
+    title.textContent = subjectLabels || 'Session du jour';
+    const qCount = (todaySession.question_ids || []).length;
+    const revCount = (todaySession.revision_ids || []).length;
+    const revHint = revCount > 0 ? ` · dont ${revCount} en révision d'erreurs` : '';
+    meta.innerHTML = `<strong>${qCount} questions</strong> · ${todaySession.time_minutes || 20} min${revHint}`;
+
+    const sType = todaySession.session_type || 'daily';
+    const quizUrl = `/quiz.html?date=${todayStr}&type=${sType}`;
+    btnToday.href = quizUrl;
+    if (actionLink) actionLink.href = quizUrl;
+  } else if (calEntry) {
+    badge.textContent = `${todayStr}`;
+    const subjectLabels = (calEntry.subjects || []).map(s => {
+      const found = SUBJECTS.find(sub => sub.key === s);
+      return found ? found.label : s;
+    }).join(' + ');
+    title.textContent = subjectLabels || 'Session du jour';
+    meta.textContent = 'Aucune question disponible pour cette session';
+    btnToday.style.opacity = '0.5';
+  } else {
+    badge.textContent = todayStr;
+    title.textContent = 'Pas de session planifiée';
+    meta.textContent = 'Aucune session au calendrier pour aujourd\'hui';
+    btnToday.style.display = 'none';
+  }
+
+  // Check if today's session was already completed
+  const todayResults = sessions.filter(s => s.date === todayStr);
+  if (todayResults.length > 0) {
+    const totalScore = todayResults.reduce((a, r) => a + r.score, 0);
+    const totalQ = todayResults.reduce((a, r) => a + r.total, 0);
+    actionDiv.innerHTML = `<div class="done-badge">✓ Complétée — ${totalScore}/${totalQ}</div>`;
+  }
+}
+
+// ─── ERREURS COUNT ────────────────────────────────────────────────────────────
+function renderErreursCount(sessions) {
+  let total = 0;
+  sessions.forEach(s => { if (s.wrong_answers) total += s.wrong_answers.length; });
+  const el = document.getElementById('erreurs-count');
+  if (el) el.textContent = total > 0 ? `${total} erreur${total>1?'s':''} à revoir` : 'Aucune erreur enregistrée';
+  const card = document.getElementById('action-erreurs');
+  if (card && total === 0) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
+}
+
+// ─── PROGRESS ─────────────────────────────────────────────────────────────────
+function renderProgress(sessions) {
+  const grid = document.getElementById('progress-grid');
+  grid.innerHTML = SUBJECTS.map(subj => {
+    // Aggregate ALL results for this subject (not just last)
+    const subSessions = sessions.filter(s => s.subject === subj.key);
+    let pct = 0;
+    let scoreText = '—';
+    let color = 'var(--muted)';
+    let dynLevel = 'Inconnu';
+
+    if (subSessions.length > 0) {
+      const totalScore = subSessions.reduce((a, s) => a + s.score, 0);
+      const totalQ = subSessions.reduce((a, s) => a + s.total, 0);
+      pct = totalQ > 0 ? Math.round(totalScore / totalQ * 100) : 0;
+      scoreText = `${totalScore}/${totalQ}`;
+      color = pct >= 70 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
+      dynLevel = pct >= 75 ? 'Bon' : pct >= 55 ? 'Moyen' : 'À travailler';
+    }
+
+    return `
+      <div class="subject-row">
+        <div>
+          <div class="subject-name">${subj.label}</div>
+          <div class="subject-level" style="color:${LEVEL_COLORS[dynLevel] || 'var(--muted)'}">${dynLevel}</div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-fill" style="width:${pct}%; background:${color};"></div>
+        </div>
+        <div class="subject-score">${scoreText}</div>
+      </div>`;
+  }).join('');
+}
+
+// ─── HISTORY ──────────────────────────────────────────────────────────────────
+function renderHistory(sessions) {
+  const container = document.getElementById('history-container');
+  if (!sessions.length) {
+    container.innerHTML = '<div class="history-wrap"><div class="empty-state">Aucune session enregistrée pour l\'instant.</div></div>';
+    return;
+  }
+  const rows = sessions.map(s => {
+    const pct = s.total > 0 ? Math.round(s.score / s.total * 100) : 0;
+    const cls = pct >= 70 ? 'high' : pct >= 50 ? 'mid' : 'low';
+    const subj = SUBJECTS.find(sub => sub.key === s.subject);
+    return `<tr>
+      <td>${s.date}</td>
+      <td>${subj ? subj.label : s.subject}</td>
+      <td><span class="score-pill ${cls}">${s.score}/${s.total}</span></td>
+      <td style="color:var(--muted)">${s.duration_min || '—'} min</td>
+      <td style="color:var(--muted);font-size:12px">${(s.weak_topics||[]).slice(0,2).join(', ')||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="history-wrap">
+      <table class="history-table">
+        <thead><tr><th>Date</th><th>Matière</th><th>Score</th><th>Durée</th><th>Points faibles</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ─── CALENDAR ─────────────────────────────────────────────────────────────────
+function renderCalendar(sessions, calendar) {
+  const strip = document.getElementById('calendar-strip');
+  const doneDates = new Set(sessions.map(s => s.date));
+  const MONTHS = ['jan','fév','mar','avr'];
+  let html = '';
+  for (let i = 0; i < 25; i++) {
+    const d = new Date(START_DATE); d.setDate(d.getDate() + i);
+    const dStr = fmtDate(d);
+    const isToday = dStr === fmtDate(TODAY);
+    const isPast  = d < TODAY;
+    const isDone  = doneDates.has(dStr);
+    const calEntry = calendar.find(c => c.date === dStr);
+    const phase = calEntry ? `P${calEntry.phase}` : (i < 12 ? 'P1' : i < 20 ? 'P2' : 'P3');
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    else if (isDone) cls += ' done';
+    else if (isPast) cls += ' past';
+
+    html += `<div class="${cls}" title="${dStr}">
+      <div class="cal-day-num">${d.getDate()}</div>
+      <div class="cal-day-month">${MONTHS[d.getMonth()]}</div>
+      <div class="cal-day-dot"></div>
+      <div class="cal-phase">${phase}</div>
+    </div>`;
+  }
+  strip.innerHTML = html;
+  const todayEl = strip.querySelector('.cal-day.today');
+  if (todayEl) todayEl.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+}
+
+function fmtDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// ─── PWA ──────────────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>

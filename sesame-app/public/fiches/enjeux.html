@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08080f">
+<link rel="manifest" href="/manifest.json">
+<title>Fiche mémo — Enjeux contemporains</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[data-theme="dark"]  { --bg:#08080f; --bg2:#0a0a14; --card:#0f0f1a; --card2:#121220; --border:#1c1c2e; --text:#e8e8f5; --muted:#606080; --shadow:rgba(0,0,0,0.5); }
+[data-theme="light"] { --bg:#f3f3fb; --bg2:#eaeaf5; --card:#ffffff; --card2:#f8f8ff; --border:#e0e0f0; --text:#0f0f1a; --muted:#8080a0; --shadow:rgba(0,0,0,0.07); }
+:root { --accent:#fbbf24; }
+
+body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:32px 20px 80px; transition:background .2s,color .2s; }
+.wrap { max-width:900px; margin:0 auto; }
+
+/* ── TOP NAV ─── */
+.topnav { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:12px; }
+.back { font-size:13px; color:var(--muted); text-decoration:none; }
+.back:hover { color:var(--accent); }
+.theme-toggle { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); }
+.theme-toggle:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ── HERO ─── */
+.hero { margin-bottom:40px; }
+.hero-tag { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+.hero-title { font-size:clamp(28px,5vw,44px); font-weight:800; line-height:1.1; margin-bottom:16px; }
+.hero-title span { color:var(--accent); }
+.hero-meta { font-size:13px; color:var(--muted); display:flex; gap:20px; flex-wrap:wrap; }
+.hero-meta strong { color:var(--text); }
+
+/* ── BANDEAU ALERTE ─── */
+.alert-banner {
+  background:rgba(251,191,36,0.10); border:1px solid rgba(251,191,36,0.35);
+  border-left:4px solid var(--accent);
+  border-radius:10px; padding:14px 18px; margin-bottom:36px;
+  font-size:13px; color:var(--accent); font-weight:600; line-height:1.6;
+}
+[data-theme="light"] .alert-banner { background:rgba(251,191,36,0.12); }
+
+/* ── SECTIONS ─── */
+.section-title {
+  font-size:10px; font-weight:800; letter-spacing:3px; text-transform:uppercase;
+  color:var(--accent); margin-bottom:16px; padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ── INFOGRAPHIC GRID ─── */
+.info-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-bottom:32px; }
+
+.info-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+  border-left:3px solid var(--c, var(--accent));
+}
+.info-card-icon { font-size:20px; margin-bottom:10px; }
+.info-card-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; }
+.info-card ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.info-card li { font-size:12px; color:var(--muted); line-height:1.5; display:flex; gap:8px; }
+.info-card li::before { content:'→'; color:var(--accent); flex-shrink:0; font-size:11px; }
+.info-card li strong { color:var(--text); }
+.info-card li code {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.15);
+  padding:1px 6px; border-radius:4px; color:var(--accent);
+}
+
+/* ── ALGO BLOC ─── */
+.algo-section { margin-bottom:32px; }
+.algo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.algo-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+}
+.algo-card-title { font-size:12px; font-weight:700; color:var(--accent); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; }
+.algo-block {
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  line-height:1.8; color:#c4b080; margin-bottom:10px;
+  white-space:pre-wrap; overflow-x:auto;
+}
+[data-theme="light"] .algo-block { color:#7a5c10; }
+.algo-note { font-size:11px; color:var(--muted); line-height:1.6; }
+.algo-note strong { color:var(--text); }
+
+/* ── PIÈGE TABLE ─── */
+.traps { margin-bottom:32px; }
+.trap-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:14px 18px; margin-bottom:8px;
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  font-size:12px; box-shadow:0 1px 6px var(--shadow);
+}
+@media(max-width:500px){ .trap-row { grid-template-columns:1fr; } }
+.trap-wrong { color:#f87171; }
+.trap-right { color:#34d399; }
+.trap-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; opacity:.7; }
+
+/* ── QUIZ RAPIDE ─── */
+.quiz-section { margin-bottom:32px; }
+.qr-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:18px; margin-bottom:10px;
+  box-shadow:0 1px 6px var(--shadow); cursor:pointer;
+}
+.qr-q { font-size:13px; font-weight:600; margin-bottom:10px; line-height:1.5; }
+.qr-answer {
+  font-size:12px; color:var(--accent); display:none;
+  padding-top:10px; border-top:1px solid var(--border); line-height:1.6;
+}
+.qr-card.open .qr-answer { display:block; }
+.qr-hint { font-size:11px; color:var(--muted); margin-top:6px; }
+
+/* ── BACK LINK ─── */
+.back-footer { text-align:center; margin-top:40px; }
+.back-footer a { font-size:13px; color:var(--muted); text-decoration:none; }
+.back-footer a:hover { color:var(--accent); }
+@supports (padding-top: env(safe-area-inset-top)) {
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topnav">
+    <a class="back" href="index.html">← Fiches mémo</a>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+  </div>
+
+  <!-- ═══ HERO ═════════════════════════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-tag">Séquence 1 · 40 questions · 30 min</div>
+    <div class="hero-title">Enjeux<br><span>Contemporains</span></div>
+  </div>
+
+  <div class="alert-banner">
+    ⚡ Cette épreuve porte sur les 12 derniers mois — les faits, chiffres et noms propres comptent.
+  </div>
+
+  <!-- ═══ DOMAINES OFFICIELS ════════════════════════════════════════════════ -->
+  <div class="section-title">Domaines officiels</div>
+  <div class="info-grid">
+
+    <div class="info-card" style="--c:#fbbf24">
+      <div class="info-card-icon">🎨</div>
+      <div class="info-card-title">Arts & médias</div>
+      <ul>
+        <li><strong>Centenaire du Surréalisme</strong> — Paris célèbre depuis sept. 2025 (fondé en 1924 par Breton)</li>
+        <li><strong>Prix Goncourt 2025</strong> → Emmanuel Carrère, "La Maison vide" (annoncé 4 nov.)</li>
+        <li><strong>Ne Zha 2</strong> — film d'animation le plus rentable de l'histoire (&gt;2 Mds $)</li>
+        <li><strong>Tour Eiffel</strong> illuminée en rose (30 sept. 2025, campagne cancer du sein)</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#34d399">
+      <div class="info-card-icon">📈</div>
+      <div class="info-card-title">Économie</div>
+      <ul>
+        <li><strong>Stellantis</strong> : -18,5% en juillet 2025 (avertissement sur résultats)</li>
+        <li><strong>Inflation USA</strong> : 2,7% annuel (juillet 2025)</li>
+        <li><strong>S&amp;P 500</strong> : record historique 6 705 pts (29 oct. 2025)</li>
+        <li><strong>Accord UE-Mercosur</strong> : opposition menée par la France (agriculteurs)</li>
+        <li>Technologie = secteur dominant S&amp;P 500 et Nasdaq-100 fin 2025</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#a78bfa">
+      <div class="info-card-icon">🏛</div>
+      <div class="info-card-title">Institutions & politique</div>
+      <ul>
+        <li><strong>Trump</strong> : retrait USA de l'UNESCO annoncé juil. 2025 (raison : position anti-israélienne)</li>
+        <li>Retrait USA de l'<strong>Accord de Paris</strong> (2e retrait américain)</li>
+        <li>Élections en Europe : montée des partis populistes</li>
+        <li><strong>Dévolution UK</strong> : pouvoirs accrus à l'Écosse et Pays de Galles</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#06d6f5">
+      <div class="info-card-icon">🌍</div>
+      <div class="info-card-title">Relations internationales</div>
+      <ul>
+        <li><strong>Guerre en Ukraine</strong> : 3e année, soutien occidental en débat</li>
+        <li><strong>Conflit Gaza</strong> : bilan humanitaire, médiations internationales</li>
+        <li><strong>Chine</strong> : tensions en mer de Chine méridionale / Taïwan</li>
+        <li><strong>BRICS</strong> : expansion, dédollarisation progressive</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#4ade80">
+      <div class="info-card-icon">🌱</div>
+      <div class="info-card-title">Société & environnement</div>
+      <ul>
+        <li><strong>Copernicus</strong> : août 2025 = +1,29°C / ère préindustrielle (record mensuel)</li>
+        <li><strong>COP30</strong> (Belém, nov. 2025) : bilan des engagements climatiques</li>
+        <li><strong>Sagrada Família</strong> (Barcelone) : officiellement l'église la plus haute du monde (oct. 2025)</li>
+        <li>Biodiversité : espèces menacées, artificialisation des sols</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#f87171">
+      <div class="info-card-icon">🔬</div>
+      <div class="info-card-title">Sciences & santé</div>
+      <ul>
+        <li><strong>IA</strong> : disruption majeure dans les services (bureau, finance, droit)</li>
+        <li><strong>DeepSeek R1</strong> (jan. 2025) : IA chinoise open-source, choc sur les marchés tech</li>
+        <li><strong>Résistance aux antibiotiques</strong> : enjeu sanitaire mondial</li>
+        <li>Missions spatiales : Artemis, exploration Mars</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fb923c">
+      <div class="info-card-icon">⚽</div>
+      <div class="info-card-title">Monde du sport</div>
+      <ul>
+        <li><strong>NBA All-Star Game 2025</strong> : nouveau format USA vs Rest of the World</li>
+        <li><strong>Coupe du Monde 2026</strong> : préparations (USA/Canada/Mexique)</li>
+        <li><strong>JO Los Angeles 2028</strong> : premiers préparatifs</li>
+        <li>Dopage : affaires en athlétisme, natation</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fbbf24">
+      <div class="info-card-icon">💻</div>
+      <div class="info-card-title">Nouvelles technologies</div>
+      <ul>
+        <li><strong>IA générative</strong> : GPT-5, Gemini 2.0, Claude 3.5 — course aux modèles</li>
+        <li><strong>DeepFakes</strong> : enjeux électoraux, outils de détection</li>
+        <li><strong>AI Act européen</strong> entré en vigueur 2025</li>
+        <li>Cybersécurité : attaques sur infrastructures critiques</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ═══ CHIFFRES CLÉS ═════════════════════════════════════════════════════ -->
+  <div class="algo-section">
+    <div class="section-title">Chiffres clés à retenir</div>
+    <div class="algo-grid">
+
+      <div class="algo-card">
+        <div class="algo-card-title">🌡 Climat</div>
+        <div class="algo-block">+1,29°C  →  août 2025 (Copernicus, record mensuel)
+ 1,50°C  →  seuil critique Accord de Paris
+COP30   →  Belém, Brésil, nov. 2025</div>
+        <div class="algo-note">
+          <strong>Retenir :</strong> 1,29 est un record mensuel, pas annuel. Le seuil à ne pas franchir durablement reste 1,5°C.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">📊 Économie mondiale</div>
+        <div class="algo-block">Inflation US   →  2,7%  (juil. 2025)
+S&P 500        →  6 705 pts (record 29 oct. 2025)
+Stellantis     →  -18,5% (profit warning)
+Ne Zha 2       →  >2 Mds $ (record animation)</div>
+        <div class="algo-note">
+          <strong>Retenir :</strong> S&amp;P 500 = indice américain des 500 plus grandes capitalisations. Record = signal de marché haussier malgré les tensions géopolitiques.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">🏆 Sport & culture</div>
+        <div class="algo-block">Surréalisme      →  1924 → 2025 = centenaire
+Goncourt 2025   →  Emmanuel Carrère
+Sagrada Família →  >170 m (+ haute église)
+CdM 2026        →  USA / Canada / Mexique</div>
+        <div class="algo-note">
+          <strong>Retenir :</strong> Le Manifeste du Surréalisme d'André Breton date de 1924. Centenaire célébré à Paris depuis sept. 2025.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">🌐 Géopolitique</div>
+        <div class="algo-block">UNESCO  →  2e retrait US (1er en 1984, Reagan)
+BRICS   →  10 membres + (expansion 2024-25)
+Chine   →  1er exportateur mondial (depuis 2009)
+Trump   →  Accord de Paris : 2e retrait</div>
+        <div class="algo-note">
+          <strong>Retenir :</strong> 1er retrait US de l'UNESCO = 1984 (Reagan). 2e retrait = Trump 2025. Même schéma pour l'Accord de Paris (1er retrait Trump 2017, réintégration Biden 2021, 2e retrait 2025).
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ PIÈGES CLASSIQUES ═════════════════════════════════════════════════ -->
+  <div class="traps">
+    <div class="section-title">Pièges classiques — confusion fréquente</div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"Les ODD remplacent les OMD"</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Ils les prolongent et élargissent — plus universel, 17 objectifs vs 8. Les OMD visaient les pays en développement ; les ODD s'appliquent à tous.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"L'Inde est le 2e pays le plus peuplé"</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">L'Inde a dépassé la Chine en 2023 — elle est désormais le 1er pays le plus peuplé du monde.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"La Chine est le 1er producteur de pétrole"</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Les USA sont le 1er producteur mondial depuis la révolution du schiste (~2018). La Chine est en revanche le 1er consommateur et 1er exportateur mondial de marchandises.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"Le Brexit a eu lieu en 2021"</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">L'accord de retrait a été signé en janvier 2020, effectif le 31 décembre 2020. 2021 = fin de la période de transition.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"L'OMC a été créée en 1947"</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">L'OMC a été créée en 1995 — elle est le successeur du GATT qui, lui, date de 1947.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"Maastricht a créé l'euro"</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Le traité de Maastricht (1992) a préparé l'union monétaire, mais l'euro est entré en circulation physique en 2002.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ QUIZ RAPIDE ═══════════════════════════════════════════════════════ -->
+  <div class="quiz-section">
+    <div class="section-title">Quiz éclair — clique pour voir la réponse</div>
+
+    <div class="qr-card" onclick="this.classList.toggle('open')">
+      <div class="qr-q">Quel film d'animation a dépassé 2 milliards de dollars au box-office en 2025 ?</div>
+      <div class="qr-answer">
+        <strong>Ne Zha 2</strong> — film d'animation chinois, nouveau record mondial de la catégorie, dépassant les productions Disney/Pixar.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card" onclick="this.classList.toggle('open')">
+      <div class="qr-q">Quelle organisation internationale Trump a-t-il quitté en juillet 2025, et pour quelle raison officielle ?</div>
+      <div class="qr-answer">
+        <strong>l'UNESCO</strong> — raison invoquée : position anti-israélienne de l'organisation. C'est le 2e retrait américain (le 1er date de 1984 sous Reagan).
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card" onclick="this.classList.toggle('open')">
+      <div class="qr-q">Quel record climatique Copernicus a-t-il mesuré en août 2025 ?</div>
+      <div class="qr-answer">
+        <strong>+1,29°C</strong> par rapport à l'ère préindustrielle — record mensuel absolu. Le seuil de l'Accord de Paris à ne pas dépasser durablement est de +1,5°C.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card" onclick="this.classList.toggle('open')">
+      <div class="qr-q">Qui a remporté le Prix Goncourt 2025 et pour quel ouvrage ?</div>
+      <div class="qr-answer">
+        <strong>Emmanuel Carrère</strong> pour <em>"La Maison vide"</em> — annoncé le 4 novembre 2025.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card" onclick="this.classList.toggle('open')">
+      <div class="qr-q">Quel secteur domine le S&amp;P 500 et le Nasdaq-100 fin 2025 ?</div>
+      <div class="qr-answer">
+        <strong>La Technologie</strong> — portée par l'essor de l'IA et des grandes capitalisations tech (Nvidia, Microsoft, Apple, Alphabet…).
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+  </div>
+
+  <div class="back-footer">
+    <a href="index.html">← Retour aux fiches</a>
+  </div>
+
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀ Clair' : '☾ Sombre';
+  localStorage.setItem('sesame_theme', next);
+}
+const saved = localStorage.getItem('sesame_theme') || 'light';
+document.documentElement.setAttribute('data-theme', saved);
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀ Clair' : '☾ Sombre';
+});
+</script>
+</body>
+</html>

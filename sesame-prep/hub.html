@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sésame 2026 — Tableau de bord</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── THÈMES ──────────────────────────────────────────────── */
+:root {
+  --accent: #06d6f5;
+  --green: #34d399;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --violet: #a78bfa;
+  --digital: #06d6f5;
+  --enjeux: #fbbf24;
+  --math: #34d399;
+  --french: #818cf8;
+  --english: #a78bfa;
+  --spanish: #f87171;
+  --docu: #fb923c;
+  --transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+[data-theme="dark"] {
+  --bg: #08080f;
+  --card: #0f0f1a;
+  --border: #1c1c2e;
+  --text: #e8e8f5;
+  --muted: #606080;
+  --card-hover: #141426;
+  --shadow: rgba(0,0,0,0.4);
+}
+
+[data-theme="light"] {
+  --bg: #f3f3fb;
+  --card: #ffffff;
+  --border: #e0e0f0;
+  --text: #0f0f1a;
+  --muted: #8080a0;
+  --card-hover: #f8f8ff;
+  --shadow: rgba(0,0,0,0.08);
+}
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 60px;
+  transition: var(--transition);
+}
+
+/* ── THEME TOGGLE ─────────────────────────────────────────── */
+.theme-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 200;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  color: var(--muted); transition: var(--transition);
+  display: flex; align-items: center; gap: 6px;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── HEADER ───────────────────────────────────────────────── */
+.header {
+  padding: 36px 24px 0;
+  max-width: 900px; margin: 0 auto;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.header-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+}
+.header-title {
+  font-size: clamp(28px, 5vw, 40px); font-weight: 800; line-height: 1.15;
+}
+.header-title span { color: var(--muted); font-weight: 300; }
+
+.countdown-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 20px 28px; text-align: center;
+  min-width: 140px; box-shadow: 0 4px 20px var(--shadow);
+}
+.countdown-num {
+  font-size: 52px; font-weight: 800; line-height: 1;
+  color: var(--red); font-variant-numeric: tabular-nums;
+}
+.countdown-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
+.countdown-date { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+/* ── DIVIDER ──────────────────────────────────────────────── */
+.divider { max-width: 900px; margin: 32px auto 0; padding: 0 24px; border-bottom: 1px solid var(--border); }
+
+/* ── SECTION ──────────────────────────────────────────────── */
+.section { max-width: 900px; margin: 0 auto; padding: 32px 24px 0; }
+.section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); margin-bottom: 20px;
+}
+
+/* ── TODAY SESSION CARD ───────────────────────────────────── */
+.today-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 28px; margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap; box-shadow: 0 4px 20px var(--shadow);
+}
+.today-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--accent);
+  background: rgba(6,214,245,0.08); border: 1px solid rgba(6,214,245,0.2);
+  padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px;
+}
+.today-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.today-meta { font-size: 13px; color: var(--muted); }
+.today-meta strong { color: var(--text); }
+
+.btn-start {
+  background: var(--accent); color: #000; border: none;
+  padding: 16px 36px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  text-decoration: none; display: inline-block;
+}
+.btn-start:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(6,214,245,0.3); }
+.done-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25);
+  color: var(--green); padding: 14px 28px; border-radius: 12px;
+  font-size: 14px; font-weight: 700;
+}
+
+/* ── ACTION CARDS GRID ────────────────────────────────────── */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+.action-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px;
+  cursor: pointer; transition: all 0.2s;
+  text-decoration: none; display: block;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+.action-card:hover { border-color: rgba(6,214,245,0.4); transform: translateY(-2px); background: var(--card-hover); }
+.action-icon { font-size: 24px; margin-bottom: 12px; }
+.action-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+.action-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.action-sub { font-size: 11px; color: var(--accent); margin-top: 8px; font-weight: 600; }
+
+/* ── PROGRESS BARS ────────────────────────────────────────── */
+.progress-grid { display: flex; flex-direction: column; gap: 10px; }
+.subject-row {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 20px;
+  display: grid; grid-template-columns: 160px 1fr 60px; align-items: center; gap: 16px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+@media (max-width: 500px) { .subject-row { grid-template-columns: 1fr; gap: 8px; } }
+.subject-name { font-size: 13px; font-weight: 600; }
+.subject-level { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+.bar-wrap { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+.subject-score { font-size: 13px; font-weight: 700; text-align: right; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+/* ── HISTORY TABLE ────────────────────────────────────────── */
+.history-wrap {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px var(--shadow);
+}
+.history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.history-table th {
+  text-align: left; padding: 12px 16px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--muted);
+  border-bottom: 1px solid var(--border); background: var(--card);
+}
+.history-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.history-table tr:last-child td { border-bottom: none; }
+.score-pill {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+}
+.score-pill.high { background: rgba(52,211,153,0.15); color: var(--green); }
+.score-pill.mid { background: rgba(251,191,36,0.15); color: var(--amber); }
+.score-pill.low { background: rgba(248,113,113,0.15); color: var(--red); }
+.empty-state { text-align: center; padding: 32px; color: var(--muted); font-size: 14px; }
+
+/* ── CALENDAR STRIP ───────────────────────────────────────── */
+.calendar-strip {
+  display: flex; gap: 6px; overflow-x: auto;
+  padding-bottom: 8px; scrollbar-width: thin;
+}
+.cal-day {
+  flex-shrink: 0; width: 44px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  padding: 8px 6px; text-align: center;
+}
+.cal-day.past { opacity: 0.35; }
+.cal-day.today { border-color: var(--accent); background: rgba(6,214,245,0.06); }
+.cal-day.done { border-color: rgba(52,211,153,0.4); background: rgba(52,211,153,0.06); }
+.cal-day-num { font-size: 16px; font-weight: 700; line-height: 1; }
+.cal-day-month { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.cal-day-dot { width: 4px; height: 4px; border-radius: 50%; margin: 4px auto 0; }
+.cal-day.done .cal-day-dot { background: var(--green); }
+.cal-day.today .cal-day-dot { background: var(--accent); }
+.cal-phase { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+
+<!-- ══════════════════════════ HEADER ════════════════════════════════ -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-eyebrow">Tableau de bord</div>
+    <div class="header-title">Sésame 2026 <span>/ Kevin</span></div>
+  </div>
+  <div class="countdown-card">
+    <div class="countdown-num" id="days-left">—</div>
+    <div class="countdown-label">jours restants</div>
+    <div class="countdown-date">8 avril 2026</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════ AUJOURD'HUI ═══════════════════════════ -->
+<div class="section">
+  <div class="section-title">Aujourd'hui</div>
+  <div class="today-card">
+    <div class="today-left">
+      <div class="today-badge" id="today-badge">Chargement…</div>
+      <div class="today-title" id="today-title">—</div>
+      <div class="today-meta" id="today-meta">—</div>
+    </div>
+    <div id="today-action">
+      <a class="btn-start" id="btn-today" href="#">Démarrer →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ ACTIONS ══════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Que faire ?</div>
+  <div class="actions-grid">
+
+    <a class="action-card" id="action-session" href="#">
+      <div class="action-icon">▶</div>
+      <div class="action-title">Session du jour</div>
+      <div class="action-desc">Questions du plan du jour, avec révision des erreurs de la session précédente en intro</div>
+      <div class="action-sub">Commence ici →</div>
+    </a>
+
+    <a class="action-card" href="fiches/index.html">
+      <div class="action-icon">📋</div>
+      <div class="action-title">Fiches mémo</div>
+      <div class="action-desc">Résumés visuels des notions clés par matière — idéal pour une révision rapide</div>
+      <div class="action-sub">7 matières →</div>
+    </a>
+
+    <div class="action-card" onclick="openSessionGuidee()" style="cursor:pointer; border-left: 3px solid #f59e0b">
+      <div class="action-icon">☀️</div>
+      <div class="action-title">Session guidée</div>
+      <div class="action-desc">Session du dimanche — révision approfondie des matières faibles avec mémo et retry</div>
+      <div class="action-sub">~40 min · dimanche</div>
+    </div>
+
+    <div class="action-card" id="action-erreurs">
+      <div class="action-icon">🔁</div>
+      <div class="action-title">Réviser mes erreurs</div>
+      <div class="action-desc">Revoir uniquement les questions ratées lors des sessions précédentes</div>
+      <div class="action-sub" id="erreurs-count">— erreurs enregistrées</div>
+    </div>
+
+    <div class="action-card" id="action-simulation" onclick="openSimulation()" style="cursor:pointer">
+      <div class="action-icon">⏱</div>
+      <div class="action-title">Simulation concours</div>
+      <div class="action-desc">Séquence complète condensée en ~45 min (moitié des questions, chrono réel)</div>
+      <div class="action-sub">S1 · S2 · S3 disponibles →</div>
+    </div>
+
+    <a class="action-card" href="enjeux-contemporains.html" style="border-left: 3px solid #fbbf24">
+      <div class="action-icon">🌍</div>
+      <div class="action-title">Enjeux contemporains</div>
+      <div class="action-desc">42 événements clés · Juin 2025 → Mars 2026 · Mode révision active avec suivi de maîtrise</div>
+      <div class="action-sub">Mise à jour hebdomadaire →</div>
+    </a>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════ PROGRESSION ══════════════════════════ -->
+<div class="section">
+  <div class="section-title">Progression par matière</div>
+  <div class="progress-grid" id="progress-grid"></div>
+</div>
+
+<!-- ══════════════════════════ HISTORIQUE ═══════════════════════════ -->
+<div class="section">
+  <div class="section-title">Historique des sessions</div>
+  <div id="history-container">
+    <div class="history-wrap"><div class="empty-state">Aucune session enregistrée pour l'instant.</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ CALENDRIER ═══════════════════════════ -->
+<div class="section">
+  <div class="section-title">Planning 24 jours</div>
+  <div class="calendar-strip" id="calendar-strip"></div>
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const EXAM_DATE   = new Date('2026-04-08');
+const START_DATE  = new Date('2026-03-15');
+const TODAY       = new Date(); TODAY.setHours(0,0,0,0);
+
+const DAILY_PLAN = [
+  { date:'2026-03-15', subject:'Compétences digitales', seq:1, q:20, time:20, file:'daily/2026-03-15.html' },
+  { date:'2026-03-16', subject:'Enjeux contemporains',  seq:1, q:40, time:30, file:null },
+  { date:'2026-03-17', subject:'Mathématiques',         seq:1, q:20, time:40, file:null },
+  { date:'2026-03-18', subject:'Français',              seq:2, q:40, time:30, file:null },
+  { date:'2026-03-19', subject:'Anglais',               seq:2, q:40, time:30, file:null },
+  { date:'2026-03-20', subject:'Espagnol',              seq:2, q:40, time:30, file:null },
+  { date:'2026-03-21', subject:'Simulation S1',         seq:1, q:80, time:45, file:null },
+  { date:'2026-03-22', subject:'Analyse documentaire',  seq:3, q:20, time:120, file:null },
+];
+
+const SUBJECTS = [
+  { key:'Compétences digitales', color:'--digital', level:'Bon' },
+  { key:'Enjeux contemporains',  color:'--enjeux',  level:'À travailler' },
+  { key:'Mathématiques',         color:'--math',    level:'Moyen' },
+  { key:'Français',              color:'--french',  level:'À travailler' },
+  { key:'Anglais',               color:'--english', level:'Bon' },
+  { key:'Espagnol',              color:'--spanish', level:'Faible' },
+  { key:'Analyse documentaire',  color:'--docu',    level:'Inconnu' },
+];
+
+const LEVEL_COLORS = {
+  'Bon':'var(--green)', 'Moyen':'var(--amber)',
+  'À travailler':'var(--red)', 'Faible':'var(--red)', 'Inconnu':'var(--muted)'
+};
+const LEVEL_PCT = { 'Bon':70, 'Moyen':50, 'À travailler':30, 'Faible':20, 'Inconnu':10 };
+
+// ─── THEME ───────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀ Clair' : '☾ Sombre';
+  localStorage.setItem('sesame_theme', next);
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('sesame_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀ Clair' : '☾ Sombre';
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  const daysLeft = Math.max(0, Math.ceil((EXAM_DATE - TODAY) / 86400000));
+  document.getElementById('days-left').textContent = daysLeft;
+
+  let sessions = [];
+  try { sessions = JSON.parse(localStorage.getItem('sesame_sessions') || '[]'); } catch(e){}
+
+  // Try fetch from server too
+  fetch('http://localhost:8765/sessions').then(r => r.json()).then(data => {
+    if (data && data.length) {
+      sessions = data;
+      localStorage.setItem('sesame_sessions', JSON.stringify(sessions));
+      render(sessions);
+    }
+  }).catch(() => {});
+
+  render(sessions);
+});
+
+function render(sessions) {
+  renderToday(sessions);
+  renderProgress(sessions);
+  renderHistory(sessions);
+  renderCalendar(sessions);
+  renderErreursCount(sessions);
+}
+
+// ─── TODAY ────────────────────────────────────────────────────────────────────
+async function renderToday(sessions) {
+  const todayStr = fmtDate(TODAY);
+  const plan = DAILY_PLAN.find(p => p.date === todayStr);
+  const done = sessions.find(s => s.date === todayStr);
+
+  const badge    = document.getElementById('today-badge');
+  const title    = document.getElementById('today-title');
+  const meta     = document.getElementById('today-meta');
+  const actionDiv= document.getElementById('today-action');
+  const actionLink = document.getElementById('action-session');
+  const btnToday = document.getElementById('btn-today');
+
+  // Détecte automatiquement si le fichier daily du jour existe via le serveur
+  const autoFile = `daily/${todayStr}.html`;
+  let fileExists = false;
+  try {
+    const r = await fetch(`http://localhost:8765/daily-exists?date=${todayStr}`);
+    if (r.ok) { const d = await r.json(); fileExists = d.exists; }
+  } catch(e) {}
+
+  const dayOfWeek = TODAY.getDay(); // 0=dim, 6=sam
+  let resolvedFile = (plan && plan.file) || (fileExists ? autoFile : null);
+  if (dayOfWeek === 6) resolvedFile = 'simulation.html';      // samedi → simulation
+  if (dayOfWeek === 0) resolvedFile = 'session-guidee.html';  // dimanche → session guidée
+
+  if (plan) {
+    badge.textContent = `Séquence ${plan.seq} · ${todayStr}`;
+    title.textContent = plan.subject;
+    meta.innerHTML = `<strong>${plan.q} questions</strong> · ${plan.time} min`;
+  } else {
+    badge.textContent = todayStr;
+    title.textContent = fileExists ? 'Session du jour' : 'Aucune session planifiée';
+    meta.textContent = fileExists ? 'Fichier généré · prêt à démarrer' : 'Lance /daily-sesame pour générer le plan du jour';
+  }
+
+  if (done) {
+    actionDiv.innerHTML = `<div class="done-badge">✓ Session complétée — ${done.score}/${done.total}</div>`;
+    btnToday.textContent = 'Revoir →';
+    btnToday.href = resolvedFile || '#';
+    if (actionLink) actionLink.href = resolvedFile || '#';
+  } else if (resolvedFile) {
+    btnToday.href = resolvedFile;
+    btnToday.classList.remove('disabled');
+    if (actionLink) actionLink.href = resolvedFile;
+  } else {
+    btnToday.textContent = '→ /daily-sesame dans Claude';
+    btnToday.classList.add('disabled');
+    actionDiv.innerHTML = '<div class="done-badge" style="background:rgba(6,214,245,0.1);color:var(--accent);border-color:rgba(6,214,245,0.2)">→ /daily-sesame</div>';
+  }
+}
+
+// ─── ERREURS COUNT ────────────────────────────────────────────────────────────
+function renderErreursCount(sessions) {
+  let total = 0;
+  sessions.forEach(s => { if (s.wrong_answers) total += s.wrong_answers.length; });
+  const el = document.getElementById('erreurs-count');
+  if (el) el.textContent = total > 0 ? `${total} erreur${total>1?'s':''} à revoir` : 'Aucune erreur enregistrée';
+  const card = document.getElementById('action-erreurs');
+  if (card) {
+    if (total === 0) {
+      card.style.opacity = '0.4';
+      card.style.cursor = 'not-allowed';
+      card.onclick = null;
+    } else {
+      card.style.opacity = '';
+      card.style.cursor = 'pointer';
+      card.onclick = openErreurs;
+    }
+  }
+}
+
+function openErreurs() {
+  let sessions = [];
+  try { sessions = JSON.parse(localStorage.getItem('sesame_sessions') || '[]'); } catch(e){}
+  let all = [];
+  sessions.forEach(s => { if (s.wrong_answers) all = all.concat(s.wrong_answers.map(w => ({...w, matiere: s.matiere, session_date: s.date}))); });
+  if (!all.length) { alert('Aucune erreur enregistrée pour l\'instant. Fais une session d\'abord !'); return; }
+  // Store for erreurs page and redirect
+  localStorage.setItem('sesame_erreurs', JSON.stringify(all));
+  window.location.href = 'erreurs.html';
+}
+
+function openSimulation() {
+  window.location.href = 'simulation.html';
+}
+
+function openSessionGuidee() {
+  window.location.href = 'session-guidee.html';
+}
+
+// ─── PROGRESS ─────────────────────────────────────────────────────────────────
+function renderProgress(sessions) {
+  const grid = document.getElementById('progress-grid');
+  grid.innerHTML = SUBJECTS.map(subj => {
+    const subSessions = sessions.filter(s => s.matiere === subj.key);
+    let pct = LEVEL_PCT[subj.level];
+    let scoreText = '—';
+    let color = `var(${subj.color})`;
+
+    let dynLevel = subj.level;
+    if (subSessions.length > 0) {
+      const last = subSessions[subSessions.length - 1];
+      pct = last.pct || Math.round(last.score / last.total * 100);
+      scoreText = `${last.score}/${last.total}`;
+      color = pct >= 70 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
+      dynLevel = pct >= 75 ? 'Bon' : pct >= 55 ? 'Moyen' : 'À travailler';
+    }
+
+    const levelColor = LEVEL_COLORS[dynLevel] || 'var(--muted)';
+    return `
+      <div class="subject-row">
+        <div>
+          <div class="subject-name">${subj.key}</div>
+          <div class="subject-level" style="color:${levelColor}">${dynLevel}</div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-fill" style="width:${pct}%; background:${color};"></div>
+        </div>
+        <div class="subject-score">${scoreText}</div>
+      </div>`;
+  }).join('');
+}
+
+// ─── HISTORY ──────────────────────────────────────────────────────────────────
+function renderHistory(sessions) {
+  const container = document.getElementById('history-container');
+  if (!sessions.length) {
+    container.innerHTML = '<div class="history-wrap"><div class="empty-state">Aucune session enregistrée pour l\'instant.</div></div>';
+    return;
+  }
+  const rows = [...sessions].reverse().map(s => {
+    const pct = s.pct || Math.round(s.score / s.total * 100);
+    const cls = pct >= 70 ? 'high' : pct >= 50 ? 'mid' : 'low';
+    return `<tr>
+      <td>${s.date}</td>
+      <td>${s.matiere}</td>
+      <td><span class="score-pill ${cls}">${s.score}/${s.total}</span></td>
+      <td style="color:var(--muted)">${s.duration_min || '—'} min</td>
+      <td style="color:var(--muted);font-size:12px">${(s.weak_topics||[]).slice(0,2).join(', ')||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="history-wrap">
+      <table class="history-table">
+        <thead><tr>
+          <th>Date</th><th>Matière</th><th>Score</th><th>Durée</th><th>Points faibles</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ─── CALENDAR ─────────────────────────────────────────────────────────────────
+function renderCalendar(sessions) {
+  const strip = document.getElementById('calendar-strip');
+  const doneDates = new Set(sessions.map(s => s.date));
+  const MONTHS = ['jan','fév','mar','avr'];
+  let html = '';
+  for (let i = 0; i < 25; i++) {
+    const d = new Date(START_DATE); d.setDate(d.getDate() + i);
+    const dStr = fmtDate(d);
+    const isToday = dStr === fmtDate(TODAY);
+    const isPast  = d < TODAY;
+    const isDone  = doneDates.has(dStr);
+    const phase   = i < 12 ? 'P1' : i < 20 ? 'P2' : 'P3';
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    else if (isDone) cls += ' done';
+    else if (isPast) cls += ' past';
+
+    html += `<div class="${cls}" title="${dStr}">
+      <div class="cal-day-num">${d.getDate()}</div>
+      <div class="cal-day-month">${MONTHS[d.getMonth()]}</div>
+      <div class="cal-day-dot"></div>
+      <div class="cal-phase">${phase}</div>
+    </div>`;
+  }
+  strip.innerHTML = html;
+  const todayEl = strip.querySelector('.cal-day.today');
+  if (todayEl) todayEl.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+}
+
+function fmtDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+</script>
+</body>
+</html>

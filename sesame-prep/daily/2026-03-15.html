@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sésame — 15 mars · Compétences digitales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent: #06d6f5;
+  --accent-dim: rgba(6,214,245,0.08);
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.12);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.10);
+  --amber: #fbbf24;
+}
+[data-theme="dark"] {
+  --bg: #08080f; --card: #0f0f1a; --border: #1e1e30;
+  --text: #e8e8f5; --muted: #606080;
+}
+[data-theme="light"] {
+  --bg: #f3f3fb; --card: #ffffff; --border: #e0e0f0;
+  --text: #0f0f1a; --muted: #8080a0;
+}
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── START SCREEN ─────────────────────────────────────────── */
+.start-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 300; padding: 32px; text-align: center;
+}
+.start-screen.gone { display: none; }
+
+.start-glow {
+  position: absolute; top: 50%; left: 50%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(6,214,245,0.12) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.start-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--accent);
+  background: var(--accent-dim); border: 1px solid rgba(6,214,245,0.2);
+  padding: 5px 16px; border-radius: 20px; margin-bottom: 24px;
+  position: relative;
+}
+.start-pill {
+  display: inline-block; background: var(--red); color: white;
+  font-size: 11px; font-weight: 700; padding: 4px 14px;
+  border-radius: 20px; margin-bottom: 20px; letter-spacing: 0.5px;
+  position: relative;
+}
+.start-title {
+  font-size: clamp(32px, 6vw, 52px); font-weight: 800; line-height: 1.15;
+  margin-bottom: 16px; position: relative;
+}
+.start-title span { color: var(--accent); }
+.start-meta {
+  color: var(--muted); font-size: 14px; margin-bottom: 48px;
+  line-height: 1.8; position: relative;
+}
+.start-meta strong { color: var(--text); }
+.btn-start-session {
+  background: var(--accent); color: #000;
+  border: none; padding: 18px 52px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; position: relative;
+  letter-spacing: 0.3px;
+}
+.btn-start-session:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(6,214,245,0.35);
+}
+
+/* ── TOP BAR ──────────────────────────────────────────────── */
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(8,8,15,0.9); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.subject-tag {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--accent);
+  background: var(--accent-dim); padding: 4px 12px;
+  border-radius: 20px; border: 1px solid rgba(6,214,245,0.2);
+}
+.timer-wrap { display: flex; align-items: center; gap: 10px; }
+.timer-display {
+  font-size: 22px; font-weight: 700;
+  font-variant-numeric: tabular-nums; color: var(--text);
+  letter-spacing: -0.5px;
+}
+.timer-display.warning { color: var(--amber); }
+.timer-display.danger { color: var(--red); }
+.btn-pause {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  padding: 4px 12px; border-radius: 6px; font-size: 11px;
+  font-family: 'Sora', sans-serif; cursor: pointer; font-weight: 600;
+  transition: all 0.15s;
+}
+.btn-pause:hover { border-color: var(--accent); color: var(--accent); }
+.q-counter { font-size: 13px; color: var(--muted); font-weight: 500; }
+.q-counter strong { color: var(--text); font-weight: 700; }
+
+/* ── PROGRESS STRIP ───────────────────────────────────────── */
+.progress-strip {
+  position: fixed; top: 60px; left: 0; right: 0;
+  height: 2px; background: var(--border); z-index: 100;
+}
+.progress-fill {
+  height: 100%; background: var(--accent); transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(6,214,245,0.6);
+}
+
+/* ── DOTS NAV ─────────────────────────────────────────────── */
+.dots-strip {
+  position: fixed; top: 62px; left: 0; right: 0;
+  height: 28px; z-index: 99;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 0 16px;
+  overflow: hidden;
+}
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); transition: all 0.25s; flex-shrink: 0;
+  cursor: default;
+}
+.dot.current { background: var(--text); transform: scale(1.3); }
+.dot.ok { background: var(--green); }
+.dot.ko { background: var(--red); }
+
+/* ── QUIZ MAIN ────────────────────────────────────────────── */
+.quiz-main {
+  min-height: 100vh;
+  padding: 110px 24px 160px;
+  max-width: 660px; margin: 0 auto;
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+.question-viewport { position: relative; overflow: hidden; }
+
+.question-slide {
+  position: absolute; top: 0; left: 0; right: 0;
+  opacity: 0; transform: translateX(60px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.question-slide.active {
+  position: relative; opacity: 1; transform: translateX(0);
+  pointer-events: all;
+}
+.question-slide.exit-left {
+  opacity: 0; transform: translateX(-60px);
+}
+
+.q-meta {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 8px;
+}
+.q-topic-badge {
+  background: var(--border); padding: 2px 10px; border-radius: 10px;
+  font-size: 10px; color: var(--muted); font-weight: 600;
+}
+
+.q-text {
+  font-size: 17px; line-height: 1.75; color: var(--text);
+  margin-bottom: 28px; font-weight: 400;
+}
+
+.algo-block {
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  line-height: 1.8; background: #0a0a12;
+  border: 1px solid #2a2a3e; border-left: 3px solid var(--accent);
+  color: #c9d1d9; padding: 18px 20px; border-radius: 10px;
+  margin-bottom: 28px; white-space: pre; overflow-x: auto;
+}
+
+.options-list { display: flex; flex-direction: column; gap: 10px; }
+
+.option {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 15px 18px; border-radius: 10px;
+  border: 1.5px solid var(--border); cursor: pointer;
+  font-size: 14px; line-height: 1.55; transition: all 0.15s;
+  background: var(--card); user-select: none;
+}
+.option:hover:not(.locked) {
+  border-color: rgba(6,214,245,0.5);
+  background: rgba(6,214,245,0.04);
+}
+.option.selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.option.correct {
+  border-color: var(--green); background: var(--green-dim); cursor: default;
+}
+.option.wrong {
+  border-color: rgba(248,113,113,0.4); background: var(--red-dim); cursor: default;
+}
+.option.locked:not(.correct):not(.wrong) { cursor: default; }
+
+.opt-letter {
+  font-size: 12px; font-weight: 700; color: var(--muted);
+  min-width: 20px; padding-top: 1px; flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+.option.selected .opt-letter { color: var(--accent); }
+.option.correct .opt-letter { color: var(--green); }
+.option.wrong .opt-letter { color: var(--red); }
+.option.wrong .opt-text { text-decoration: line-through; color: var(--muted); }
+
+/* ── FOOTER ───────────────────────────────────────────────── */
+.quiz-footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+  padding: 20px 24px 28px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 16px;
+}
+
+.feedback-wrap { min-height: 40px; display: flex; align-items: center; }
+.feedback-text {
+  font-size: 14px; font-weight: 600;
+  opacity: 0; transition: opacity 0.3s;
+  display: flex; align-items: center; gap: 8px;
+}
+.feedback-text.show { opacity: 1; }
+.feedback-text.correct { color: var(--green); }
+.feedback-text.wrong { color: var(--red); }
+.feedback-icon { font-size: 18px; }
+
+.btn-next {
+  background: var(--accent); color: #000; border: none;
+  padding: 15px 32px; border-radius: 10px;
+  font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.25s;
+  opacity: 0; pointer-events: none; transform: translateY(10px);
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.btn-next.show { opacity: 1; pointer-events: all; transform: translateY(0); }
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(6,214,245,0.35); }
+
+/* ── RESULTS ──────────────────────────────────────────────── */
+.results-screen {
+  display: none; position: fixed; inset: 0;
+  background: var(--bg); overflow-y: auto;
+  padding: 48px 24px; z-index: 200;
+}
+.results-inner { max-width: 600px; margin: 0 auto; }
+
+.results-header { text-align: center; margin-bottom: 40px; }
+.results-eyebrow {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); margin-bottom: 24px;
+}
+
+.score-ring {
+  width: 150px; height: 150px; margin: 0 auto 20px;
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-ring svg {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%; transform: rotate(-90deg);
+}
+.score-ring circle {
+  fill: none; stroke-width: 8; stroke-linecap: round;
+}
+.ring-bg { stroke: var(--border); }
+.ring-fill { stroke: var(--accent); transition: stroke-dashoffset 1s ease; }
+.score-num { font-size: 44px; font-weight: 800; line-height: 1; position: relative; }
+.score-denom { font-size: 14px; color: var(--muted); position: relative; }
+.score-verdict { font-size: 15px; font-weight: 600; margin-top: 12px; }
+
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; text-align: center;
+}
+.stat-val { font-size: 22px; font-weight: 700; }
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+.section-hl {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--muted); margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.review-block { margin-bottom: 28px; }
+
+.weak-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+.weak-chip {
+  background: var(--red-dim); border: 1px solid rgba(248,113,113,0.25);
+  color: #fca5a5; font-size: 12px; padding: 4px 12px; border-radius: 20px;
+}
+
+.review-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px; margin-bottom: 8px;
+  font-size: 13px;
+}
+.review-qnum { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.review-qtext { color: var(--text); margin-bottom: 8px; line-height: 1.5; }
+.review-answers { display: flex; gap: 16px; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+.given { color: var(--red); }
+.corr { color: var(--green); }
+
+.next-card {
+  background: var(--card); border: 1px solid rgba(6,214,245,0.2);
+  border-radius: 12px; padding: 20px; margin-bottom: 20px;
+}
+.next-card-title { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.next-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.next-card strong { color: var(--text); }
+.next-card code {
+  background: var(--border); padding: 2px 8px; border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent);
+}
+
+.send-status { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+.send-status.ok { color: var(--green); font-weight: 600; }
+.send-status.err { color: var(--red); }
+
+.hub-back {
+  display: block; text-align: center; font-size: 13px;
+  color: var(--muted); text-decoration: none; padding: 8px;
+  transition: color 0.2s;
+}
+.hub-back:hover { color: var(--accent); }
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- THEME TOGGLE -->
+<button style="position:fixed;top:12px;right:12px;z-index:400;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);font-family:'Sora',sans-serif;" id="theme-btn" onclick="toggleTheme()">☀ Clair</button>
+
+<!-- ═══════════════════════════════ START SCREEN ═══════════════════════════════ -->
+<div class="start-screen" id="start-screen">
+  <div class="start-glow"></div>
+  <div class="start-badge">Sésame 2026</div>
+  <div class="start-pill">J-24 avant le concours</div>
+  <div class="start-title">Compétences<br><span>digitales</span></div>
+  <div class="start-meta">
+    <strong>20 questions</strong> · <strong>20 minutes</strong><br>
+    Séquence 1 — Dimanche 15 mars 2026
+  </div>
+  <button class="btn-start-session" onclick="startSession()">Commencer la session ▶</button>
+</div>
+
+<!-- ═══════════════════════════════ TOP BAR ════════════════════════════════════ -->
+<div class="top-bar">
+  <div class="subject-tag">Compétences digitales</div>
+  <div class="timer-wrap">
+    <div class="timer-display" id="timer">20:00</div>
+    <button class="btn-pause" id="btn-pause" onclick="togglePause()">⏸</button>
+  </div>
+  <div class="q-counter">Q <strong id="q-current">1</strong> / 20</div>
+</div>
+
+<div class="progress-strip">
+  <div class="progress-fill" id="progress-fill" style="width:5%"></div>
+</div>
+
+<div class="dots-strip" id="dots-strip"></div>
+
+<!-- ═══════════════════════════════ QUIZ MAIN ══════════════════════════════════ -->
+<div class="quiz-main">
+  <div class="question-viewport" id="question-viewport"></div>
+</div>
+
+<!-- ═══════════════════════════════ FOOTER ════════════════════════════════════ -->
+<div class="quiz-footer">
+  <div class="feedback-wrap">
+    <div class="feedback-text" id="feedback-text">
+      <span class="feedback-icon" id="feedback-icon"></span>
+      <span id="feedback-msg"></span>
+    </div>
+  </div>
+  <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+    <span id="btn-next-label">Suivant</span> →
+  </button>
+</div>
+
+<!-- ═══════════════════════════════ RESULTS ═══════════════════════════════════ -->
+<div class="results-screen" id="results-screen">
+  <div class="results-inner">
+    <div class="results-header">
+      <div class="results-eyebrow">Session terminée · 15 mars 2026</div>
+      <div class="score-ring">
+        <svg viewBox="0 0 150 150">
+          <circle class="ring-bg" cx="75" cy="75" r="65" stroke-dasharray="408.41" stroke-dashoffset="0"/>
+          <circle class="ring-fill" id="ring-fill" cx="75" cy="75" r="65" stroke-dasharray="408.41" stroke-dashoffset="408.41"/>
+        </svg>
+        <div class="score-num" id="score-num">—</div>
+        <div class="score-denom">/ 20</div>
+      </div>
+      <div class="score-verdict" id="score-verdict">—</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="stat-pct">—</div>
+        <div class="stat-lbl">Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-time">—</div>
+        <div class="stat-lbl">Durée</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-errors">—</div>
+        <div class="stat-lbl">Erreurs</div>
+      </div>
+    </div>
+
+    <div id="weak-section" style="display:none; margin-bottom:28px;">
+      <div class="section-hl">Points à retravailler</div>
+      <div class="weak-chips" id="weak-chips"></div>
+    </div>
+
+    <div class="review-block" id="review-block" style="display:none">
+      <div class="section-hl">Questions ratées</div>
+      <div id="review-list"></div>
+    </div>
+
+    <div class="next-card">
+      <div class="next-card-title">Prochaine session</div>
+      <p>Demain lundi — <strong>Enjeux contemporains</strong> (40 questions, 30 min).<br>
+      Lance <code>/daily-plan</code> pour obtenir ton plan du jour.</p>
+    </div>
+
+    <div class="send-status" id="send-status">Envoi des résultats…</div>
+    <a class="hub-back" href="../hub.html">← Retour au tableau de bord</a>
+  </div>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  { id:1, topic:"RSS / flux d'information",
+    text:"Il est aujourd'hui possible de configurer son propre flux RSS afin de recevoir des informations spécifiques qui intéressent l'utilisateur : « on ne va plus chercher l'information, mais l'information vient à nous ». On parle alors :",
+    options:["de concaténation d'information.","d'agrégation d'information.","de matérialisation d'information.","de diffusion d'information."], correct:"B" },
+  { id:2, topic:"Moteur de recherche",
+    text:"Un moteur de recherche permet d'obtenir de l'information sur un sujet spécifique. Afin d'améliorer la précision de la recherche et la qualité des réponses, il est nécessaire de :",
+    options:["bien choisir l'heure à laquelle on lance sa recherche.","poser des questions longues.","bien choisir ses mots clés.","se limiter à un seul mot clé."], correct:"C" },
+  { id:3, topic:"Métadonnées",
+    text:"Un document numérique contient une catégorie de données aussi appelée « métadonnées ». Dans cette série de données, on ne retrouve pas :",
+    options:["l'auteur du document.","la description du document.","les valeurs chiffrées provenant d'un formulaire.","le titre du document."], correct:"C" },
+  { id:4, topic:"Compression de fichiers",
+    text:"Un logiciel de compression de données (comme 7ZIP ou WinZIP) ne permet pas de :",
+    options:["diviser un fichier numérique en plusieurs parties de tailles identiques.","réduire la taille d'un fichier.","regrouper plusieurs fichiers en diminuant leurs tailles.","créer une archive protégée par mot de passe."], correct:"A" },
+  { id:5, topic:"Référence absolue tableur",
+    text:"Dans un tableur comme MS Excel ou OpenOffice, une référence de cellule dite « absolue » dans une formule s'écrit avec :",
+    options:["un symbole $","un symbole #","deux symboles $","deux symboles #"], correct:"C" },
+  { id:6, topic:"Formule tableur (recopie)",
+    text:"Les colonnes A et B contiennent une liste de références produits et leur prix unitaire HT. On souhaite remplir la colonne C avec le prix TTC en appliquant le taux de TVA indiqué en cellule E2. Pour utiliser la fonction « recopie », la formule à écrire en C2 est :",
+    options:["=B2*E2","=$B$2*E2","=B2*$E$2","=B2*$E2"], correct:"C" },
+  { id:7, topic:"Newsletter / liste de diffusion",
+    text:"Le service marketing d'une entreprise souhaite faire bénéficier à tous les clients inscrits d'une remise commerciale de 20% sur certains articles. Pour ce faire, une newsletter va être envoyée en utilisant :",
+    options:["une liste tertiaire.","une liste destinée.","une liste sélectionnée.","une liste de diffusion."], correct:"D" },
+  { id:8, topic:"Mode collaboratif",
+    text:"Lorsque plusieurs utilisateurs travaillent sur un même document partagé, ils sont en mode :",
+    options:["Équipe","Collaboratif","Groupe","Parité"], correct:"B" },
+  { id:9, topic:"Indicateurs réseaux sociaux",
+    text:"Pierre dispose d'un compte sur un réseau social. Il souhaite quantifier sa visibilité sur ce réseau via des indicateurs spécifiques. Parmi les indicateurs suivants, lequel ne lui sera d'aucune utilité ?",
+    options:["Le nombre de visites sur son compte","Le nombre de partages de ses posts","Le nombre de médias qu'il publie","Le nombre de vues de ses articles"], correct:"C" },
+  { id:10, topic:"Formats de fichiers",
+    text:"Quel format de fichiers numériques est pris en charge par MS Word comme un document texte ?",
+    options:[".zip",".arj",".docx",".png"], correct:"C" },
+  { id:11, topic:"Création de PDF",
+    text:"Parmi les logiciels suivants, lequel ne permet pas directement la création de documents PDF ?",
+    options:["Adobe Acrobat Reader","MS Word","MS Visual Studio","MS Excel"], correct:"C" },
+  { id:12, topic:"Algorithme — boucle for",
+    text:"Que va afficher, après exécution, l'algorithme suivant :",
+    algo:`variables N, i : entiers
+début
+   N = 1
+   pour i de 1 à 10 faire
+       N = N + 2
+   fin pour
+   afficher (N)
+fin`,
+    options:["15","17","19","21"], correct:"D" },
+  { id:13, topic:"Algorithme — répéter jusqu'à",
+    text:"Que va afficher, après exécution, l'algorithme suivant :",
+    algo:`variables A, B : entiers
+début
+   A = 2
+   B = 17
+   répéter
+       B = B - A
+   jusqu'à B >= A
+   afficher (B)
+fin`,
+    options:["1","2","3","4"], correct:"A" },
+  { id:14, topic:"Algorithme — listes",
+    text:"Que va afficher, après exécution, l'algorithme suivant :",
+    algo:`constantes N = 5
+variables Valeurs : liste d'entiers [N]
+variables i : entiers
+début
+   pour i de 1 à N
+       Valeurs[i] = i*2+1
+   fin pour
+   pour i de 2 à N
+       Valeurs[i] = Valeurs[i] + Valeurs[i-1]
+   fin pour
+   afficher (Valeurs[5])
+fin`,
+    options:["29","35","41","47"], correct:"B" },
+  { id:15, topic:"Algorithme — booléen",
+    text:"Que va afficher, après exécution, l'algorithme suivant :",
+    algo:`variables Continu : booléen
+variables i, k, N : entiers
+début
+   N = 1
+   i = 3
+   k = i * 5
+   Continu = VRAI
+   répéter
+       Continu = (k > i)
+       k = k - i
+       N = N + 1
+   jusqu'à Continu
+   afficher ("N=", N, " et k=", k)
+fin`,
+    options:["N=5 et k=3","N=6 et k=3","N=5 et k=0","N=6 et k=0"], correct:"D" },
+  { id:16, topic:"Double authentification",
+    text:"Lors de la connexion à un service internet, une double authentification de l'utilisateur peut être demandée. Quel moyen n'est, en général, PAS utilisé dans ce cadre ?",
+    options:["Code à saisir reçu par SMS","Validation par empreinte digitale","Saisir à nouveau son nom d'utilisateur","Code à saisir reçu par mail"], correct:"C" },
+  { id:17, topic:"Virus / fichiers dangereux",
+    text:"Un fichier joint dans un mail peut être infecté par un virus informatique. Pour certains types de fichiers, il est déconseillé de les ouvrir directement à partir du client de messagerie. Pour quel type de format cela peut-il être le cas ?",
+    options:[".tiff",".wmv",".xlsm",".pdf"], correct:"C" },
+  { id:18, topic:"Usurpation d'identité en ligne",
+    text:"L'usurpation d'identité sur internet est maintenant possible grâce aux contenus mis en ligne par les internautes. Parmi les affirmations suivantes, laquelle est à adopter ?",
+    options:["Poster un maximum de photos et de vidéos sur les réseaux sociaux.","Utiliser toujours le même mot de passe pour toutes les connexions aux sites internet.","Ne jamais effacer l'historique du navigateur internet.","Toujours utiliser un pseudonyme."], correct:"D" },
+  { id:19, topic:"Data center & impact environnemental",
+    text:"Un data center est une installation physique permettant le stockage d'applications et de données. Ce sont des structures consommant beaucoup d'électricité. En proportion, au niveau mondial, leur impact sur les émissions de GES est similaire :",
+    options:["au transport automobile","au transport maritime","au transport aérien","au transport ferroviaire"], correct:"C" },
+  { id:20, topic:"Outils informatiques de base",
+    text:"De nos jours, être à l'aise dans un environnement numérique requiert, à minima, la maîtrise d'outils informatiques de base. Parmi les propositions suivantes, laquelle est plutôt secondaire ?",
+    options:["Les outils bureautique","Les moteurs de recherche","Les environnements de programmation","Les outils de visioconférence"], correct:"C" }
+];
+
+const LETTERS = ["A","B","C","D"];
+let currentIdx = 0;
+let answers = {};
+let revealed = {};
+let timerInterval = null;
+let secondsLeft = 20 * 60;
+let elapsed = 0;
+let timerRunning = false;
+let paused = false;
+
+// ─── START ────────────────────────────────────────────────────────────────────
+function startSession() {
+  document.getElementById('start-screen').classList.add('gone');
+  renderDots();
+  renderQuestion(0);
+  startTimer();
+}
+
+// ─── RENDER QUESTION ──────────────────────────────────────────────────────────
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  const isLast = idx === QUESTIONS.length - 1;
+  const algoHtml = q.algo
+    ? `<div class="algo-block">${escHtml(q.algo)}</div>`
+    : '';
+
+  const optHtml = q.options.map((opt, i) => {
+    const letter = LETTERS[i];
+    let cls = 'option';
+    if (revealed[q.id]) {
+      cls += ' locked';
+      if (letter === q.correct) cls += ' correct';
+      else if (letter === answers[q.id]) cls += ' wrong';
+    } else if (answers[q.id] === letter) {
+      cls += ' selected';
+    }
+    return `<div class="${cls}" id="opt-${q.id}-${letter}" onclick="selectOption(${q.id},'${letter}')">
+      <span class="opt-letter">${letter}.</span>
+      <span class="opt-text">${escHtml(opt)}</span>
+    </div>`;
+  }).join('');
+
+  const vp = document.getElementById('question-viewport');
+  const newSlide = document.createElement('div');
+  newSlide.className = 'question-slide';
+  newSlide.innerHTML = `
+    <div class="q-meta">
+      Question ${idx + 1} <span class="q-topic-badge">${escHtml(q.topic)}</span>
+    </div>
+    <div class="q-text">${escHtml(q.text)}</div>
+    ${algoHtml}
+    <div class="options-list">${optHtml}</div>
+  `;
+
+  // Animate out existing
+  const existing = vp.querySelector('.question-slide.active');
+  if (existing) {
+    existing.classList.remove('active');
+    existing.classList.add('exit-left');
+    setTimeout(() => existing.remove(), 350);
+  }
+
+  vp.appendChild(newSlide);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => newSlide.classList.add('active'));
+  });
+
+  // UI updates
+  document.getElementById('q-current').textContent = idx + 1;
+  document.getElementById('progress-fill').style.width = ((idx + 1) / QUESTIONS.length * 100) + '%';
+  document.getElementById('btn-next-label').textContent = isLast ? 'Terminer' : 'Suivant';
+
+  // Reset feedback/next if not yet answered
+  if (revealed[q.id]) {
+    showFeedback(q.id);
+    document.getElementById('btn-next').classList.add('show');
+  } else {
+    document.getElementById('feedback-text').classList.remove('show');
+    document.getElementById('btn-next').classList.remove('show');
+  }
+
+  updateDots();
+}
+
+// ─── SELECT ────────────────────────────────────────────────────────────────────
+function selectOption(qid, letter) {
+  if (revealed[qid]) return;
+  const q = QUESTIONS.find(q => q.id === qid);
+  answers[qid] = letter;
+  revealed[qid] = true;
+
+  LETTERS.forEach(l => {
+    const el = document.getElementById(`opt-${qid}-${l}`);
+    if (!el) return;
+    el.classList.remove('selected');
+    el.classList.add('locked');
+    if (l === q.correct) el.classList.add('correct');
+    else if (l === letter && letter !== q.correct) el.classList.add('wrong');
+  });
+
+  showFeedback(qid);
+  document.getElementById('btn-next').classList.add('show');
+  updateDots();
+}
+
+function showFeedback(qid) {
+  const q = QUESTIONS.find(q => q.id === qid);
+  const isOk = answers[qid] === q.correct;
+  const el = document.getElementById('feedback-text');
+  el.className = 'feedback-text show ' + (isOk ? 'correct' : 'wrong');
+  document.getElementById('feedback-icon').textContent = isOk ? '✓' : '✗';
+  document.getElementById('feedback-msg').textContent = isOk
+    ? 'Bonne réponse !'
+    : `Incorrect — Bonne réponse : ${q.correct}. ${q.options[q.correct.charCodeAt(0)-65]}${q.explanation ? ' · ' + q.explanation : ''}`;
+}
+
+// ─── NEXT ──────────────────────────────────────────────────────────────────────
+function nextQuestion() {
+  if (currentIdx === QUESTIONS.length - 1) { showResults(); return; }
+  currentIdx++;
+  renderQuestion(currentIdx);
+}
+
+// ─── DOTS ──────────────────────────────────────────────────────────────────────
+function renderDots() {
+  const strip = document.getElementById('dots-strip');
+  strip.innerHTML = QUESTIONS.map((q, i) =>
+    `<div class="dot" id="dot-${i}"></div>`
+  ).join('');
+}
+
+function updateDots() {
+  QUESTIONS.forEach((q, i) => {
+    const dot = document.getElementById(`dot-${i}`);
+    if (!dot) return;
+    dot.className = 'dot';
+    if (i === currentIdx) dot.classList.add('current');
+    else if (revealed[q.id]) {
+      dot.classList.add(answers[q.id] === q.correct ? 'ok' : 'ko');
+    }
+  });
+}
+
+// ─── TIMER ─────────────────────────────────────────────────────────────────────
+function startTimer() {
+  timerRunning = true;
+  timerInterval = setInterval(() => {
+    secondsLeft--; elapsed++;
+    updateTimerDisplay();
+    if (secondsLeft <= 0) { clearInterval(timerInterval); timerRunning = false; showResults(); }
+  }, 1000);
+}
+
+function togglePause() {
+  if (timerRunning) {
+    clearInterval(timerInterval); timerRunning = false; paused = true;
+    document.getElementById('btn-pause').textContent = '▶';
+  } else {
+    startTimer(); paused = false;
+    document.getElementById('btn-pause').textContent = '⏸';
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(secondsLeft / 60), s = secondsLeft % 60;
+  const el = document.getElementById('timer');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.className = 'timer-display';
+  if (secondsLeft <= 120) el.classList.add('danger');
+  else if (secondsLeft <= 300) el.classList.add('warning');
+}
+
+// ─── RESULTS ──────────────────────────────────────────────────────────────────
+function showResults() {
+  if (timerRunning) { clearInterval(timerInterval); timerRunning = false; }
+
+  let score = 0;
+  const weakTopics = [], wrongAnswers = [];
+  QUESTIONS.forEach(q => {
+    if (answers[q.id] === q.correct) { score++; }
+    else {
+      weakTopics.push(q.topic);
+      wrongAnswers.push({ id: q.id, text: q.text, topic: q.topic, chosen: answers[q.id] || '—', correct: q.correct });
+    }
+  });
+
+  const pct = Math.round(score / QUESTIONS.length * 100);
+  const durationMin = Math.max(1, Math.round(elapsed / 60));
+
+  document.getElementById('results-screen').style.display = 'block';
+  window.scrollTo(0,0);
+
+  const scoreNum = document.getElementById('score-num');
+  scoreNum.textContent = score;
+  scoreNum.style.color = score >= 15 ? 'var(--green)' : score >= 10 ? 'var(--amber)' : 'var(--red)';
+
+  // Ring animation
+  const ringFill = document.getElementById('ring-fill');
+  const circumference = 408.41;
+  setTimeout(() => {
+    ringFill.style.strokeDashoffset = circumference - (circumference * pct / 100);
+    ringFill.style.stroke = score >= 15 ? 'var(--green)' : score >= 10 ? 'var(--amber)' : 'var(--red)';
+  }, 100);
+
+  document.getElementById('score-verdict').textContent =
+    score >= 16 ? 'Excellent — tu maîtrises cette épreuve.' :
+    score >= 12 ? 'Bon niveau — quelques points à consolider.' :
+    score >= 8  ? 'Moyen — ces thèmes demandent plus de travail.' :
+    'Difficultés importantes — reviens sur les bases.';
+
+  document.getElementById('stat-pct').textContent = pct + '%';
+  document.getElementById('stat-time').textContent = durationMin + ' min';
+  document.getElementById('stat-errors').textContent = wrongAnswers.length;
+
+  if (weakTopics.length) {
+    const unique = [...new Set(weakTopics)];
+    document.getElementById('weak-chips').innerHTML = unique.map(t => `<span class="weak-chip">${t}</span>`).join('');
+    document.getElementById('weak-section').style.display = 'block';
+
+    document.getElementById('review-list').innerHTML = wrongAnswers.map(w => `
+      <div class="review-item">
+        <div class="review-qnum">Q${w.id} · ${escHtml(w.topic)}</div>
+        <div class="review-qtext">${escHtml(w.text.substring(0, 90))}…</div>
+        <div class="review-answers">
+          <span class="given">Donné : ${w.chosen}</span>
+          <span class="corr">Correct : ${w.correct}</span>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('review-block').style.display = 'block';
+  }
+
+  // Save to localStorage
+  const sessionData = {
+    date: '2026-03-15', matiere: 'Compétences digitales',
+    score, total: 20, pct, duration_min: durationMin,
+    weak_topics: [...new Set(weakTopics)],
+    wrong_answers: wrongAnswers, all_answers: answers
+  };
+  try {
+    const sessions = JSON.parse(localStorage.getItem('sesame_sessions') || '[]');
+    // Replace if same date+matiere
+    const filtered = sessions.filter(s => !(s.date === sessionData.date && s.matiere === sessionData.matiere));
+    filtered.push(sessionData);
+    localStorage.setItem('sesame_sessions', JSON.stringify(filtered));
+  } catch(e) {}
+
+  sendResults(sessionData);
+}
+
+async function sendResults(data) {
+  const el = document.getElementById('send-status');
+  try {
+    const res = await fetch('http://localhost:8765/session', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) { el.className = 'send-status ok'; el.textContent = '✓ Résultats enregistrés dans ton suivi.'; }
+    else throw new Error();
+  } catch(e) {
+    el.className = 'send-status err';
+    el.textContent = '⚠ Serveur non démarré — lance tools/start-sesame.bat.';
+  }
+}
+
+function toggleTheme() {
+  const body = document.body;
+  const next = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  body.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀ Clair' : '☾ Sombre';
+  localStorage.setItem('sesame_theme', next);
+}
+// Apply saved theme
+const _t = localStorage.getItem('sesame_theme') || 'dark';
+document.body.setAttribute('data-theme', _t);
+document.addEventListener('DOMContentLoaded', () => {
+  const b = document.getElementById('theme-btn');
+  if (b) b.textContent = _t === 'dark' ? '☀ Clair' : '☾ Sombre';
+});
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sésame — 21 mars · ⏱ Simulation Séquence 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent: #6366f1;
+  --accent-dim: rgba(99,102,241,0.08);
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.12);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.10);
+  --amber: #fbbf24;
+}
+[data-theme="dark"] {
+  --bg: #08080f; --card: #0f0f1a; --border: #1e1e30;
+  --text: #e8e8f5; --muted: #606080;
+}
+[data-theme="light"] {
+  --bg: #f3f3fb; --card: #ffffff; --border: #e0e0f0;
+  --text: #0f0f1a; --muted: #8080a0;
+}
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── START SCREEN ─────────────────────────────────────────── */
+.start-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 300; padding: 32px; text-align: center;
+}
+.start-screen.gone { display: none; }
+
+.start-glow {
+  position: absolute; top: 50%; left: 50%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.start-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: #6366f1;
+  background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2);
+  padding: 5px 16px; border-radius: 20px; margin-bottom: 24px;
+  position: relative;
+}
+.start-pill {
+  display: inline-block; background: #6366f1; color: white;
+  font-size: 11px; font-weight: 700; padding: 4px 14px;
+  border-radius: 20px; margin-bottom: 20px; letter-spacing: 0.5px;
+  position: relative;
+}
+.start-title {
+  font-size: clamp(28px, 5vw, 48px); font-weight: 800; line-height: 1.15;
+  margin-bottom: 16px; position: relative;
+}
+.start-title .dig { color: #06d6f5; }
+.start-title .enj { color: #fbbf24; }
+.start-title .mat { color: #34d399; }
+.start-meta {
+  color: var(--muted); font-size: 14px; margin-bottom: 40px;
+  line-height: 1.8; position: relative;
+}
+.start-meta strong { color: var(--text); }
+.start-subjects {
+  display: flex; gap: 10px; margin-bottom: 36px; justify-content: center;
+  flex-wrap: wrap; position: relative;
+}
+.subject-pill {
+  font-size: 12px; font-weight: 700; padding: 6px 16px; border-radius: 20px;
+}
+.subject-pill.digital { background: rgba(6,214,245,0.12); color: #06d6f5; border: 1px solid rgba(6,214,245,0.2); }
+.subject-pill.enjeux { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+.subject-pill.maths { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
+.btn-start-session {
+  background: #6366f1; color: #fff;
+  border: none; padding: 18px 52px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; position: relative;
+  letter-spacing: 0.3px;
+}
+.btn-start-session:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(99,102,241,0.35);
+}
+.btn-resume {
+  margin-top: 12px; padding: 14px 36px; border-radius: 12px;
+  background: transparent; border: 2px solid #6366f1;
+  color: #6366f1; font-family: 'Sora', sans-serif;
+  font-size: 15px; font-weight: 700; cursor: pointer; transition: all .2s;
+}
+.btn-resume:hover { background: rgba(99,102,241,0.08); }
+.resume-info { margin-top: 10px; color: var(--muted); font-size: 13px; }
+.q-counter { font-size: 13px; color: var(--muted); font-weight: 500; }
+.q-counter strong { color: var(--text); font-weight: 700; }
+
+/* ── TOP BAR ──────────────────────────────────────────────── */
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(8,8,15,0.9); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+[data-theme="light"] .top-bar { background: rgba(243,243,251,0.92); }
+.subject-tag {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: #6366f1;
+  background: rgba(99,102,241,0.08); padding: 4px 12px;
+  border-radius: 20px; border: 1px solid rgba(99,102,241,0.2);
+  transition: all 0.4s;
+}
+.timer-wrap { display: flex; align-items: center; gap: 10px; }
+.timer-display {
+  font-size: 22px; font-weight: 700;
+  font-variant-numeric: tabular-nums; color: var(--text);
+  letter-spacing: -0.5px;
+}
+.timer-display.warning { color: var(--amber); }
+.timer-display.danger { color: var(--red); }
+.btn-pause {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  padding: 4px 12px; border-radius: 6px; font-size: 11px;
+  font-family: 'Sora', sans-serif; cursor: pointer; font-weight: 600;
+  transition: all 0.15s;
+}
+.btn-pause:hover { border-color: #6366f1; color: #6366f1; }
+
+/* ── PROGRESS STRIP ───────────────────────────────────────── */
+.progress-strip {
+  position: fixed; top: 60px; left: 0; right: 0;
+  height: 2px; background: var(--border); z-index: 100;
+}
+.progress-fill {
+  height: 100%; background: #6366f1; transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(99,102,241,0.5);
+}
+
+/* ── SECTION DIVIDER ──────────────────────────────────────── */
+.section-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 28px; padding: 14px 18px;
+  border-radius: 10px;
+}
+.section-divider.enjeux { background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.15); }
+.section-divider.maths { background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.15); }
+.section-divider-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.section-divider.enjeux .section-divider-dot { background: #fbbf24; }
+.section-divider.maths .section-divider-dot { background: #34d399; }
+.section-divider-label { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+.section-divider.enjeux .section-divider-label { color: #fbbf24; }
+.section-divider.maths .section-divider-label { color: #34d399; }
+.section-divider-sub { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+/* ── DOTS NAV ─────────────────────────────────────────────── */
+.dots-strip {
+  position: fixed; top: 62px; left: 0; right: 0;
+  height: 28px; z-index: 99;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  padding: 0 16px; overflow: hidden;
+}
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border); transition: all 0.25s; flex-shrink: 0;
+}
+.dot.current { background: var(--text); transform: scale(1.3); }
+.dot.ok { background: var(--green); }
+.dot.ko { background: var(--red); }
+.dot.divider { background: transparent; width: 6px; height: 2px; }
+
+/* ── QUIZ MAIN ────────────────────────────────────────────── */
+.quiz-main {
+  min-height: 100vh;
+  padding: 110px 24px 160px;
+  max-width: 660px; margin: 0 auto;
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+.question-viewport { position: relative; overflow: hidden; }
+
+.question-slide {
+  position: absolute; top: 0; left: 0; right: 0;
+  opacity: 0; transform: translateX(60px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.question-slide.active {
+  position: relative; opacity: 1; transform: translateX(0);
+  pointer-events: all;
+}
+.question-slide.exit-left {
+  opacity: 0; transform: translateX(-60px);
+}
+
+.q-meta {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 8px;
+}
+.q-topic-badge {
+  background: var(--border); padding: 2px 10px; border-radius: 10px;
+  font-size: 10px; color: var(--muted); font-weight: 600;
+}
+.q-topic-badge.digital { background: rgba(6,214,245,0.12); color: #06d6f5; }
+.q-topic-badge.enjeux { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.q-topic-badge.maths { background: rgba(52,211,153,0.12); color: #34d399; }
+
+.q-text {
+  font-size: 17px; line-height: 1.75; color: var(--text);
+  margin-bottom: 28px; font-weight: 400;
+}
+
+.options-list { display: flex; flex-direction: column; gap: 10px; }
+
+.option {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 15px 18px; border-radius: 10px;
+  border: 1.5px solid var(--border); cursor: pointer;
+  font-size: 14px; line-height: 1.55; transition: all 0.15s;
+  background: var(--card); user-select: none;
+}
+.option:hover:not(.locked) {
+  border-color: rgba(99,102,241,0.5);
+  background: rgba(99,102,241,0.04);
+}
+.option.selected { border-color: #6366f1; background: rgba(99,102,241,0.08); }
+.option.correct { border-color: var(--green); background: var(--green-dim); cursor: default; }
+.option.wrong { border-color: rgba(248,113,113,0.4); background: var(--red-dim); cursor: default; }
+.option.locked:not(.correct):not(.wrong) { cursor: default; }
+
+.opt-letter {
+  font-size: 12px; font-weight: 700; color: var(--muted);
+  min-width: 20px; padding-top: 1px; flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+.option.selected .opt-letter { color: #6366f1; }
+.option.correct .opt-letter { color: var(--green); }
+.option.wrong .opt-letter { color: var(--red); }
+.option.wrong .opt-text { text-decoration: line-through; color: var(--muted); }
+
+/* ── FOOTER ───────────────────────────────────────────────── */
+.quiz-footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+  padding: 20px 24px 28px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 16px;
+}
+
+.feedback-wrap { min-height: 40px; display: flex; align-items: center; flex: 1; }
+.feedback-text {
+  font-size: 13px; font-weight: 600;
+  opacity: 0; transition: opacity 0.3s;
+  display: flex; align-items: center; gap: 8px;
+  line-height: 1.5;
+}
+.feedback-text.show { opacity: 1; }
+.feedback-text.correct { color: var(--green); }
+.feedback-text.wrong { color: var(--red); }
+.feedback-icon { font-size: 18px; flex-shrink: 0; }
+
+.btn-next {
+  background: #6366f1; color: #fff; border: none;
+  padding: 15px 32px; border-radius: 10px;
+  font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.25s;
+  opacity: 0; pointer-events: none; transform: translateY(10px);
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.btn-next.show { opacity: 1; pointer-events: all; transform: translateY(0); }
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(99,102,241,0.35); }
+
+/* ── RESULTS ──────────────────────────────────────────────── */
+.results-screen {
+  display: none; position: fixed; inset: 0;
+  background: var(--bg); overflow-y: auto;
+  padding: 48px 24px; z-index: 200;
+}
+.results-inner { max-width: 600px; margin: 0 auto; }
+
+.results-header { text-align: center; margin-bottom: 40px; }
+.results-eyebrow {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); margin-bottom: 24px;
+}
+
+.score-ring {
+  width: 150px; height: 150px; margin: 0 auto 20px;
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-ring svg {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%; transform: rotate(-90deg);
+}
+.score-ring circle { fill: none; stroke-width: 8; stroke-linecap: round; }
+.ring-bg { stroke: var(--border); }
+.ring-fill { stroke: #6366f1; transition: stroke-dashoffset 1s ease; }
+.score-num { font-size: 44px; font-weight: 800; line-height: 1; position: relative; }
+.score-denom { font-size: 14px; color: var(--muted); position: relative; }
+.score-verdict { font-size: 15px; font-weight: 600; margin-top: 12px; }
+
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; text-align: center;
+}
+.stat-val { font-size: 22px; font-weight: 700; }
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+.results-by-subject { margin-bottom: 28px; }
+.subject-result {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 18px; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.subject-result-name { font-size: 13px; font-weight: 600; }
+.subject-result-score { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+.section-hl {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--muted); margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.review-block { margin-bottom: 28px; }
+
+.weak-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+.weak-chip {
+  background: var(--red-dim); border: 1px solid rgba(248,113,113,0.25);
+  color: #fca5a5; font-size: 12px; padding: 4px 12px; border-radius: 20px;
+}
+
+.review-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px; margin-bottom: 8px;
+  font-size: 13px;
+}
+.review-qnum { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.review-qtext { color: var(--text); margin-bottom: 8px; line-height: 1.5; }
+.review-answers { display: flex; gap: 16px; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+.given { color: var(--red); }
+.corr { color: var(--green); }
+
+.next-card {
+  background: var(--card); border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 12px; padding: 20px; margin-bottom: 20px;
+}
+.next-card-title { font-size: 11px; color: #6366f1; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.next-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.next-card strong { color: var(--text); }
+.next-card code {
+  background: var(--border); padding: 2px 8px; border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #6366f1;
+}
+
+.send-status { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+.send-status.ok { color: var(--green); font-weight: 600; }
+.send-status.err { color: var(--red); }
+
+.hub-back {
+  display: block; text-align: center; font-size: 13px;
+  color: var(--muted); text-decoration: none; padding: 8px;
+  transition: color 0.2s;
+}
+.hub-back:hover { color: #6366f1; }
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- THEME TOGGLE -->
+<button style="position:fixed;top:12px;right:12px;z-index:400;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);font-family:'Sora',sans-serif;" id="theme-btn" onclick="toggleTheme()">☀ Clair</button>
+
+<!-- ═══════════════════════════════ START SCREEN ═══════════════════════════════ -->
+<div class="start-screen" id="start-screen">
+  <div class="start-glow"></div>
+  <div class="start-badge">Sésame 2026 — Phase 1 Découverte · Samedi</div>
+  <div class="start-pill">⏱ Simulation concours — J-18</div>
+  <div class="start-title">
+    <span class="dig">Digital</span> +<br><span class="enj">Enjeux</span> + <span class="mat">Maths</span>
+  </div>
+  <div class="start-subjects">
+    <span class="subject-pill digital">💻 Digital · 10 Q</span>
+    <span class="subject-pill enjeux">🌍 Enjeux · 10 Q</span>
+    <span class="subject-pill maths">📐 Maths · 10 Q</span>
+  </div>
+  <div class="start-meta">
+    <strong>30 questions</strong> · <strong>1h30 chrono</strong> · conditions réelles<br>
+    Samedi 21 mars 2026 · Séquence 1 complète
+  </div>
+  <button class="btn-start-session" id="btn-start" onclick="startSession()">Lancer la simulation ▶</button>
+  <button class="btn-resume" id="btn-resume" onclick="resumeSession()" style="display:none">Reprendre où j'en étais ▶</button>
+  <div class="resume-info" id="resume-info" style="display:none"></div>
+</div>
+
+<!-- ═══════════════════════════════ TOP BAR ════════════════════════════════════ -->
+<div class="top-bar">
+  <div class="subject-tag" id="subject-tag">Digital</div>
+  <div class="timer-wrap">
+    <div class="timer-display" id="timer">90:00</div>
+    <button class="btn-pause" id="btn-pause" onclick="togglePause()">⏸</button>
+    <button class="btn-pause" id="btn-quit" onclick="quitSession()" title="Quitter et reprendre plus tard" style="margin-left:4px">✕</button>
+  </div>
+  <div class="q-counter">Q <strong id="q-current">1</strong> / 30</div>
+</div>
+
+<div class="progress-strip">
+  <div class="progress-fill" id="progress-fill" style="width:3.33%"></div>
+</div>
+
+<div class="dots-strip" id="dots-strip"></div>
+
+<!-- ═══════════════════════════════ QUIZ MAIN ══════════════════════════════════ -->
+<div class="quiz-main">
+  <div class="question-viewport" id="question-viewport"></div>
+</div>
+
+<!-- ═══════════════════════════════ FOOTER ════════════════════════════════════ -->
+<div class="quiz-footer">
+  <div class="feedback-wrap">
+    <div class="feedback-text" id="feedback-text">
+      <span class="feedback-icon" id="feedback-icon"></span>
+      <span id="feedback-msg"></span>
+    </div>
+  </div>
+  <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+    <span id="btn-next-label">Suivant</span> →
+  </button>
+</div>
+
+<!-- ═══════════════════════════════ RESULTS ═══════════════════════════════════ -->
+<div class="results-screen" id="results-screen">
+  <div class="results-inner">
+    <div class="results-header">
+      <div class="results-eyebrow">⏱ Simulation Séquence 1 · 21 mars 2026</div>
+      <div class="score-ring">
+        <svg viewBox="0 0 150 150">
+          <circle class="ring-bg" cx="75" cy="75" r="65" stroke-dasharray="408.41" stroke-dashoffset="0"/>
+          <circle class="ring-fill" id="ring-fill" cx="75" cy="75" r="65" stroke-dasharray="408.41" stroke-dashoffset="408.41"/>
+        </svg>
+        <div class="score-num" id="score-num">—</div>
+        <div class="score-denom">/ 30</div>
+      </div>
+      <div class="score-verdict" id="score-verdict">—</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="stat-pct">—</div>
+        <div class="stat-lbl">Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-time">—</div>
+        <div class="stat-lbl">Durée</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-errors">—</div>
+        <div class="stat-lbl">Erreurs</div>
+      </div>
+    </div>
+
+    <div class="results-by-subject" id="results-by-subject"></div>
+
+    <div id="weak-section" style="display:none; margin-bottom:28px;">
+      <div class="section-hl">Points à retravailler</div>
+      <div class="weak-chips" id="weak-chips"></div>
+    </div>
+
+    <div class="review-block" id="review-block" style="display:none">
+      <div class="section-hl">Questions ratées</div>
+      <div id="review-list"></div>
+    </div>
+
+    <div class="next-card">
+      <div class="next-card-title">Prochaine session</div>
+      <p>Demain dimanche — <strong>Session guidée</strong> sur les 2 matières les plus faibles.<br>
+      Lance <code>/daily-sesame</code> pour générer le plan du dimanche.</p>
+    </div>
+
+    <div class="send-status" id="send-status">Envoi des résultats…</div>
+    <a class="hub-back" href="../hub.html">← Retour</a>
+  </div>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  // ── COMPÉTENCES DIGITALES (Q1–10) ─────────────────────────────────────────
+  { id:1, subject:"digital", topic:"Phishing",
+    text:"Un utilisateur reçoit un email lui demandant de cliquer sur un lien pour 'confirmer ses identifiants bancaires'. De quel type d'attaque s'agit-il ?",
+    options:["Ransomware","Phishing","Spyware","Attaque DDoS"],
+    correct:"B",
+    explanation:"Le phishing (hameçonnage) consiste à usurper l'identité d'un organisme de confiance par email pour obtenir des informations sensibles. L'URL du lien est généralement falsifiée." },
+
+  { id:2, subject:"digital", topic:"HTML",
+    text:"Que signifie l'acronyme HTML ?",
+    options:["Hyper Text Markup Language","High Transfer Medium Language","Hyperlink Text Management Language","Hyper Text Management Language"],
+    correct:"A",
+    explanation:"HTML = HyperText Markup Language. C'est le langage de balisage standard pour créer des pages web. Les balises (comme <p>, <h1>, <a>) structurent le contenu affiché par les navigateurs." },
+
+  { id:3, subject:"digital", topic:"Cookie internet",
+    text:"À quoi sert principalement un cookie déposé par un site internet ?",
+    options:["Accélérer la vitesse de connexion","Chiffrer les données bancaires","Stocker des informations sur la navigation de l'utilisateur","Bloquer automatiquement les publicités"],
+    correct:"C",
+    explanation:"Un cookie est un petit fichier texte stocké par le navigateur qui permet au site de mémoriser des informations : session de connexion, préférences, panier d'achat, données de navigation." },
+
+  { id:4, subject:"digital", topic:"HTTPS",
+    text:"Que garantit le protocole HTTPS par rapport à HTTP ?",
+    options:["Une connexion internet plus rapide","Des téléchargements de fichiers plus volumineux","Le chiffrement des données échangées entre le navigateur et le serveur","L'absence de publicités sur le site"],
+    correct:"C",
+    explanation:"HTTPS (HTTP Secure) ajoute une couche de chiffrement SSL/TLS. Les données échangées sont cryptées, ce qui empêche leur interception par un tiers. Indispensable pour les sites bancaires et les formulaires." },
+
+  { id:5, subject:"digital", topic:"Résolution image",
+    text:"Une image numérique a une résolution de 1920 × 1080 pixels. Combien de pixels contient-elle au total ?",
+    options:["1 000 000 px","2 073 600 px","3 000 000 px","1 440 000 px"],
+    correct:"B",
+    explanation:"1920 × 1080 = 2 073 600 pixels ≈ 2 mégapixels. C'est la résolution Full HD standard. 4K = 3840×2160 = ~8,3 mégapixels." },
+
+  { id:6, subject:"digital", topic:"Stockage cloud",
+    text:"Quelle est la principale caractéristique du stockage en nuage (cloud) par rapport au stockage local ?",
+    options:["Les données sont stockées uniquement sur le disque dur de l'utilisateur","Les données sont accessibles depuis n'importe quel appareil connecté à internet","Les données sont automatiquement sauvegardées sur papier","Le stockage cloud est toujours gratuit et illimité"],
+    correct:"B",
+    explanation:"Le cloud permet d'accéder à ses données depuis tout appareil connecté (ordinateur, téléphone, tablette). Les données sont stockées sur des serveurs distants (data centers), pas localement." },
+
+  { id:7, subject:"digital", topic:"Algorithme — boucle",
+    text:"Combien de fois le corps de la boucle `for i in range(3)` s'exécute-t-il ?",
+    options:["2 fois","3 fois","4 fois","1 fois"],
+    correct:"B",
+    explanation:"range(3) génère les valeurs 0, 1, 2 — soit 3 itérations. En général, range(n) génère n valeurs entières de 0 à n-1." },
+
+  { id:8, subject:"digital", topic:"Formule tableur",
+    text:"Dans un tableur, si A1=2, A2=4, A3=6, A4=8, A5=10, que retourne la formule =SOMME(A1:A5) ?",
+    options:["25","28","30","32"],
+    correct:"C",
+    explanation:"2+4+6+8+10 = 30. La fonction SOMME additionne toutes les valeurs dans la plage spécifiée. La notation A1:A5 désigne les cellules de A1 à A5 inclus." },
+
+  { id:9, subject:"digital", topic:"Adresse IP",
+    text:"Qu'est-ce qu'une adresse IP ?",
+    options:["Un mot de passe réseau attribué par l'opérateur","Un identifiant numérique unique attribué à chaque appareil sur un réseau","Un type de fichier compressé utilisé pour les images","Un protocole de sécurité pour les transactions bancaires"],
+    correct:"B",
+    explanation:"Une adresse IP (Internet Protocol) identifie de façon unique un appareil sur un réseau. Elle peut être en IPv4 (ex: 192.168.1.1) ou IPv6. Elle permet l'acheminement des données entre expéditeur et destinataire." },
+
+  { id:10, subject:"digital", topic:"Extensions fichiers",
+    text:"Parmi ces extensions de fichier reçues par email d'un inconnu, laquelle est potentiellement la plus dangereuse à ouvrir ?",
+    options:[".pdf",".jpg",".exe",".txt"],
+    correct:"C",
+    explanation:".exe est un fichier exécutable Windows : il lance directement un programme lors de l'ouverture. Un .exe malveillant peut installer un virus, un ransomware ou un spyware. Ne jamais ouvrir un .exe d'origine inconnue." },
+
+  // ── ENJEUX CONTEMPORAINS (Q11–20) ─────────────────────────────────────────
+  { id:11, subject:"enjeux", topic:"Centenaire Surréalisme 2025", sectionStart:true,
+    text:"En 2025, Paris a célébré le centenaire de la publication du premier manifeste d'un mouvement artistique majeur du XXe siècle. Lequel ?",
+    options:["Le Cubisme","Le Surréalisme","Le Dadaïsme","L'Art Nouveau"],
+    correct:"B",
+    explanation:"Le premier Manifeste du Surréalisme, écrit par André Breton, a été publié en 1924. En 2025, le centenaire a été célébré avec de nombreuses expositions à Paris, notamment au Centre Pompidou." },
+
+  { id:12, subject:"enjeux", topic:"Grève médecins UK 2025",
+    text:"En 2025, au Royaume-Uni, quel corps de métier a mené une grève prolongée qui a fortement impacté le NHS (National Health Service) ?",
+    options:["Les infirmiers","Les médecins internes (junior doctors)","Les enseignants","Les conducteurs de métro"],
+    correct:"B",
+    explanation:"Les 'junior doctors' (médecins en formation/internes) britanniques ont mené de longues grèves en 2024-2025 pour obtenir des revalorisations salariales, entraînant des centaines de milliers d'annulations de rendez-vous au NHS." },
+
+  { id:13, subject:"enjeux", topic:"Température record Copernicus",
+    text:"Selon le service climatique européen Copernicus, quel mois de 2025 a été le plus chaud jamais enregistré à l'échelle mondiale ?",
+    options:["Juillet 2025","Juin 2025","Août 2025","Octobre 2025"],
+    correct:"C",
+    explanation:"Copernicus a confirmé qu'août 2025 a été le mois d'août le plus chaud jamais enregistré dans les archives mondiales, poursuivant une série de records mensuels de températures depuis mi-2023." },
+
+  { id:14, subject:"enjeux", topic:"CAC 40 — Stellantis 2025",
+    text:"En 2025, quel constructeur automobile a connu une chute spectaculaire de son titre boursier au CAC 40, pesant sur l'ensemble de l'indice ?",
+    options:["Stellantis","Renault","Volkswagen","BMW"],
+    correct:"A",
+    explanation:"Stellantis (groupe Fiat/PSA/Chrysler) a annoncé fin 2024 et en 2025 des révisions à la baisse de ses objectifs financiers et le départ de son PDG, provoquant une forte chute de son action et impactant le CAC 40." },
+
+  { id:15, subject:"enjeux", topic:"Trump retrait UNESCO",
+    text:"En 2025, sous la présidence de Donald Trump, les États-Unis ont annoncé le retrait de quelle organisation internationale, répétant un choix effectué lors du premier mandat (2017) ?",
+    options:["L'OMS (Organisation Mondiale de la Santé)","L'OTAN","L'UNESCO","Le FMI"],
+    correct:"C",
+    explanation:"L'UNESCO (Organisation des Nations Unies pour l'Éducation, la Science et la Culture) a vu les États-Unis se retirer en 2017 puis à nouveau en 2025. Washington invoque notamment des biais politiques anti-israéliens au sein de l'organisation." },
+
+  { id:16, subject:"enjeux", topic:"Box-office animation 2025",
+    text:"En 2025, quel film d'animation est devenu le plus gros succès mondial du cinéma d'animation, dépassant les records historiques au box-office ?",
+    options:["Toy Story 5 (Pixar)","Ne Zha 2 (animation chinoise)","Moana 2 (Disney)","Astérix — Le Secret de la Potion Magique 2"],
+    correct:"B",
+    explanation:"Ne Zha 2, film d'animation chinois de Jiaozi, a battu des records mondiaux en 2025 avec plus de 2 milliards de dollars de recettes, dépassant Le Roi Lion. Il illustre la montée en puissance de l'animation chinoise." },
+
+  { id:17, subject:"enjeux", topic:"Accord UE-Mercosur",
+    text:"En 2025, quel pays européen s'est le plus fermement opposé à la finalisation de l'accord de libre-échange entre l'Union européenne et le Mercosur ?",
+    options:["L'Allemagne","L'Espagne","La France","L'Italie"],
+    correct:"C",
+    explanation:"La France, notamment par la voix de ses agriculteurs et du gouvernement, s'est opposée à l'accord UE-Mercosur, craignant une concurrence déloyale des produits agricoles d'Amérique du Sud soumis à des normes environnementales moins strictes." },
+
+  { id:18, subject:"enjeux", topic:"Cambriolage Musée du Louvre 2025",
+    text:"En 2025, un vol spectaculaire a eu lieu au Musée du Louvre à Paris. Qu'a-t-on dérobé ?",
+    options:["Un tableau de Rembrandt","Des bijoux de la couronne française","Une statue grecque antique","Des bijoux exposés dans des vitrines de l'espace Mode & Textile"],
+    correct:"D",
+    explanation:"Des bijoux exposés dans des vitrines ont été volés lors d'un cambriolage nocturne au Louvre en 2025. L'événement a mis en lumière les questions de sécurité dans les musées nationaux." },
+
+  { id:19, subject:"enjeux", topic:"Inflation USA 2025",
+    text:"En juillet 2025, quel était approximativement le taux d'inflation aux États-Unis (en glissement annuel), après plusieurs années de politique monétaire restrictive de la Fed ?",
+    options:["5,5 %","2,9 %","1,2 %","4,1 %"],
+    correct:"B",
+    explanation:"En juillet 2025, l'inflation américaine s'établissait autour de 2,9%, proche de l'objectif de 2% de la Fed. Après le pic de 9,1% en juin 2022, les hausses successives de taux avaient ramené l'inflation vers des niveaux plus normaux." },
+
+  { id:20, subject:"enjeux", topic:"NBA All-Star Game 2025",
+    text:"En 2025, le NBA All-Star Game a adopté un nouveau format pour relancer l'intérêt des spectateurs. Lequel ?",
+    options:["Retour au format Est vs Ouest classique","Tournoi à 4 équipes avec des capitaines","Mini-tournoi éliminatoire à 4 équipes sur un week-end","Format 1 contre 1 entre les meilleurs joueurs"],
+    correct:"C",
+    explanation:"La NBA a réformé son All-Star Game en 2025 en adoptant un format de mini-tournoi éliminatoire à 4 équipes, pour pallier le manque d'intensité compétitive critiqué dans le format traditionnel Est/Ouest." },
+
+  // ── MATHÉMATIQUES (Q21–30) ─────────────────────────────────────────────────
+  { id:21, subject:"maths", topic:"Évaluation de fonction", sectionStart:true,
+    text:"Soit f(x) = 2x² − 3x + 1. Quelle est la valeur de f(2) ?",
+    options:["1","2","3","4"],
+    correct:"C",
+    explanation:"f(2) = 2×(2²) − 3×2 + 1 = 2×4 − 6 + 1 = 8 − 6 + 1 = 3." },
+
+  { id:22, subject:"maths", topic:"Théorème de Pythagore",
+    text:"Un triangle rectangle a deux côtés mesurant 3 cm et 4 cm (côtés de l'angle droit). Quelle est la longueur de son hypoténuse ?",
+    options:["5 cm","6 cm","7 cm","√7 cm"],
+    correct:"A",
+    explanation:"c² = a² + b² = 3² + 4² = 9 + 16 = 25, donc c = 5 cm. Le triplet (3, 4, 5) est le plus classique du théorème de Pythagore — à mémoriser !" },
+
+  { id:23, subject:"maths", topic:"Logarithme décimal",
+    text:"Quelle est la valeur de log₁₀(1000) ?",
+    options:["2","3","4","10"],
+    correct:"B",
+    explanation:"log₁₀(1000) = log₁₀(10³) = 3. Rappel : log₁₀(10ⁿ) = n. Donc log(10)=1, log(100)=2, log(1000)=3, log(10000)=4." },
+
+  { id:24, subject:"maths", topic:"Probabilités — nombre pair",
+    text:"On lance un dé équilibré à 6 faces. Quelle est la probabilité d'obtenir un nombre pair ?",
+    options:["1/3","1/4","1/2","2/3"],
+    correct:"C",
+    explanation:"Les nombres pairs sur un dé sont {2, 4, 6} : 3 cas favorables sur 6 possibles. P(pair) = 3/6 = 1/2." },
+
+  { id:25, subject:"maths", topic:"Identité remarquable",
+    text:"Quel est le développement de (x + 3)² ?",
+    options:["x² + 6","x² + 6x","x² + 6x + 9","x² + 9"],
+    correct:"C",
+    explanation:"(a + b)² = a² + 2ab + b². Ici : (x + 3)² = x² + 2×x×3 + 3² = x² + 6x + 9. Ne pas oublier le terme 2ab !" },
+
+  { id:26, subject:"maths", topic:"Dérivée — polynôme",
+    text:"Quelle est la dérivée de f(x) = x³ + 2x ?",
+    options:["3x² + x","x² + 2","3x² + 2","3x + 2"],
+    correct:"C",
+    explanation:"La dérivée de xⁿ est nxⁿ⁻¹ ; la dérivée d'une constante fois x est cette constante. Donc (x³)' = 3x² et (2x)' = 2. Résultat : f'(x) = 3x² + 2." },
+
+  { id:27, subject:"maths", topic:"Équation du 1er degré",
+    text:"Résoudre l'équation : 3x + 7 = 22. Quelle est la valeur de x ?",
+    options:["3","5","4","6"],
+    correct:"B",
+    explanation:"3x = 22 − 7 = 15, donc x = 15 ÷ 3 = 5. Vérification : 3×5 + 7 = 15 + 7 = 22. ✓" },
+
+  { id:28, subject:"maths", topic:"PGCD",
+    text:"Quel est le Plus Grand Commun Diviseur (PGCD) de 48 et 36 ?",
+    options:["6","9","12","18"],
+    correct:"C",
+    explanation:"Diviseurs de 48 : 1,2,3,4,6,8,12,16,24,48. Diviseurs de 36 : 1,2,3,4,6,9,12,18,36. PGCD = 12. Avec l'algorithme d'Euclide : 48 = 36×1 + 12 ; 36 = 12×3 + 0. PGCD = 12." },
+
+  { id:29, subject:"maths", topic:"Suite arithmétique",
+    text:"Une suite arithmétique a comme premier terme u₁ = 2 et comme raison r = 3. Quelle est la valeur de u₅ ?",
+    options:["12","14","16","8"],
+    correct:"B",
+    explanation:"uₙ = u₁ + (n−1)×r. u₅ = 2 + (5−1)×3 = 2 + 4×3 = 2 + 12 = 14. Ou en comptant : 2 → 5 → 8 → 11 → 14." },
+
+  { id:30, subject:"maths", topic:"Aire d'un disque",
+    text:"Quelle est l'aire d'un disque de rayon 5 cm ? (Utiliser π ≈ 3,14)",
+    options:["31,4 cm²","62,8 cm²","78,5 cm²","50 cm²"],
+    correct:"C",
+    explanation:"Aire = π × r² = 3,14 × 5² = 3,14 × 25 = 78,5 cm². À ne pas confondre avec le périmètre (circonférence) = 2πr = 31,4 cm." }
+];
+
+const SUBJECT_COLORS = {
+  digital: { accent: '#06d6f5', dim: 'rgba(6,214,245,0.08)', border: 'rgba(6,214,245,0.2)', label: '💻 Digital' },
+  enjeux:  { accent: '#fbbf24', dim: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)', label: '🌍 Enjeux' },
+  maths:   { accent: '#34d399', dim: 'rgba(52,211,153,0.08)', border: 'rgba(52,211,153,0.2)', label: '📐 Maths' }
+};
+
+const LETTERS = ["A","B","C","D"];
+let currentIdx = 0;
+let answers = {};
+let revealed = {};
+let timerInterval = null;
+let secondsLeft = 90 * 60;
+let elapsed = 0;
+let timerRunning = false;
+let paused = false;
+
+const SAVE_KEY = 'sesame_pause_2026-03-21';
+
+// ─── PERSISTENCE ──────────────────────────────────────────────────────────────
+function saveState() {
+  localStorage.setItem(SAVE_KEY, JSON.stringify({ currentIdx, answers, revealed, secondsLeft, elapsed }));
+}
+
+function clearState() {
+  localStorage.removeItem(SAVE_KEY);
+}
+
+function checkSavedState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (!saved || saved.currentIdx === undefined) return;
+    const m = Math.floor(saved.secondsLeft / 60), s = saved.secondsLeft % 60;
+    const remaining = m + 'min' + (s ? s + 's' : '');
+    document.getElementById('btn-resume').style.display = 'inline-block';
+    document.getElementById('resume-info').style.display = 'block';
+    document.getElementById('resume-info').textContent =
+      `Question ${saved.currentIdx + 1}/30 · ${remaining} restantes`;
+  } catch(e) {}
+}
+
+// ─── START ────────────────────────────────────────────────────────────────────
+function startSession() {
+  clearState();
+  document.getElementById('start-screen').classList.add('gone');
+  renderDots();
+  renderQuestion(0);
+  startTimer();
+  updateSubjectUI(QUESTIONS[0].subject);
+}
+
+function resumeSession() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    currentIdx = saved.currentIdx || 0;
+    answers = saved.answers || {};
+    revealed = saved.revealed || {};
+    secondsLeft = saved.secondsLeft || 90 * 60;
+    elapsed = saved.elapsed || 0;
+  } catch(e) {}
+  document.getElementById('start-screen').classList.add('gone');
+  renderDots();
+  renderQuestion(currentIdx);
+  startTimer();
+  updateSubjectUI(QUESTIONS[currentIdx].subject);
+}
+
+function quitSession() {
+  if (!timerRunning && !paused) return;
+  if (timerRunning) { clearInterval(timerInterval); timerRunning = false; paused = true; }
+  saveState();
+  window.location.href = '../hub.html';
+}
+
+window.addEventListener('beforeunload', () => { if (timerRunning || paused) saveState(); });
+checkSavedState();
+
+// ─── SUBJECT UI ───────────────────────────────────────────────────────────────
+function updateSubjectUI(subject) {
+  const c = SUBJECT_COLORS[subject];
+  const tag = document.getElementById('subject-tag');
+  tag.textContent = c.label;
+  tag.style.color = c.accent;
+  tag.style.background = c.dim;
+  tag.style.borderColor = c.border;
+  document.documentElement.style.setProperty('--accent', c.accent);
+  document.documentElement.style.setProperty('--accent-dim', c.dim);
+  document.querySelector('.progress-fill').style.boxShadow = `0 0 10px ${c.accent}88`;
+  document.querySelector('.progress-fill').style.background = c.accent;
+  document.querySelector('.btn-next').style.background = c.accent;
+}
+
+// ─── RENDER QUESTION ──────────────────────────────────────────────────────────
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  const isLast = idx === QUESTIONS.length - 1;
+
+  let dividerHtml = '';
+  if (q.sectionStart && q.subject === 'enjeux') {
+    dividerHtml = `
+      <div class="section-divider enjeux">
+        <div class="section-divider-dot"></div>
+        <div class="section-divider-label">Enjeux contemporains</div>
+        <div class="section-divider-sub">Questions 11–20 · 30 min</div>
+      </div>`;
+  } else if (q.sectionStart && q.subject === 'maths') {
+    dividerHtml = `
+      <div class="section-divider maths">
+        <div class="section-divider-dot"></div>
+        <div class="section-divider-label">Mathématiques</div>
+        <div class="section-divider-sub">Questions 21–30 · 40 min</div>
+      </div>`;
+  }
+
+  const badgeCls = `q-topic-badge ${q.subject}`;
+
+  const optHtml = q.options.map((opt, i) => {
+    const letter = LETTERS[i];
+    let cls = 'option';
+    if (revealed[q.id]) {
+      cls += ' locked';
+      if (letter === q.correct) cls += ' correct';
+      else if (letter === answers[q.id]) cls += ' wrong';
+    } else if (answers[q.id] === letter) {
+      cls += ' selected';
+    }
+    return `<div class="${cls}" id="opt-${q.id}-${letter}" onclick="selectOption(${q.id},'${letter}')">
+      <span class="opt-letter">${letter}.</span>
+      <span class="opt-text">${escHtml(opt)}</span>
+    </div>`;
+  }).join('');
+
+  const vp = document.getElementById('question-viewport');
+  const newSlide = document.createElement('div');
+  newSlide.className = 'question-slide';
+  newSlide.innerHTML = `
+    ${dividerHtml}
+    <div class="q-meta">
+      Question ${idx + 1} <span class="${badgeCls}">${escHtml(q.topic)}</span>
+    </div>
+    <div class="q-text">${escHtml(q.text)}</div>
+    <div class="options-list">${optHtml}</div>
+  `;
+
+  const existing = vp.querySelector('.question-slide.active');
+  if (existing) {
+    existing.classList.remove('active');
+    existing.classList.add('exit-left');
+    setTimeout(() => existing.remove(), 350);
+  }
+
+  vp.appendChild(newSlide);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => newSlide.classList.add('active'));
+  });
+
+  document.getElementById('q-current').textContent = idx + 1;
+  document.getElementById('progress-fill').style.width = ((idx + 1) / QUESTIONS.length * 100) + '%';
+  document.getElementById('btn-next-label').textContent = isLast ? 'Terminer' : 'Suivant';
+
+  updateSubjectUI(q.subject);
+
+  if (revealed[q.id]) {
+    showFeedback(q.id);
+    document.getElementById('btn-next').classList.add('show');
+  } else {
+    document.getElementById('feedback-text').classList.remove('show');
+    document.getElementById('btn-next').classList.remove('show');
+  }
+
+  updateDots();
+}
+
+// ─── SELECT ────────────────────────────────────────────────────────────────────
+function selectOption(qid, letter) {
+  if (revealed[qid]) return;
+  const q = QUESTIONS.find(q => q.id === qid);
+  answers[qid] = letter;
+  revealed[qid] = true;
+  saveState();
+
+  LETTERS.forEach(l => {
+    const el = document.getElementById(`opt-${qid}-${l}`);
+    if (!el) return;
+    el.classList.remove('selected');
+    el.classList.add('locked');
+    if (l === q.correct) el.classList.add('correct');
+    else if (l === letter && letter !== q.correct) el.classList.add('wrong');
+  });
+
+  showFeedback(qid);
+  document.getElementById('btn-next').classList.add('show');
+  updateDots();
+}
+
+function showFeedback(qid) {
+  const q = QUESTIONS.find(q => q.id === qid);
+  const isOk = answers[qid] === q.correct;
+  const el = document.getElementById('feedback-text');
+  el.className = 'feedback-text show ' + (isOk ? 'correct' : 'wrong');
+  document.getElementById('feedback-icon').textContent = isOk ? '✓' : '✗';
+  document.getElementById('feedback-msg').textContent = isOk
+    ? 'Bonne réponse !'
+    : `Incorrect — Bonne réponse : ${q.correct}. ${q.options[q.correct.charCodeAt(0)-65]}${q.explanation ? ' · ' + q.explanation : ''}`;
+}
+
+// ─── NEXT ──────────────────────────────────────────────────────────────────────
+function nextQuestion() {
+  if (currentIdx === QUESTIONS.length - 1) { showResults(); return; }
+  currentIdx++;
+  renderQuestion(currentIdx);
+}
+
+// ─── DOTS ──────────────────────────────────────────────────────────────────────
+function renderDots() {
+  const strip = document.getElementById('dots-strip');
+  strip.innerHTML = QUESTIONS.map((q, i) => {
+    const divider = (i === 10 || i === 20) ? '<div class="dot divider"></div>' : '';
+    return `${divider}<div class="dot" id="dot-${i}"></div>`;
+  }).join('');
+}
+
+function updateDots() {
+  QUESTIONS.forEach((q, i) => {
+    const dot = document.getElementById(`dot-${i}`);
+    if (!dot) return;
+    dot.className = 'dot';
+    if (i === currentIdx) dot.classList.add('current');
+    else if (revealed[q.id]) {
+      dot.classList.add(answers[q.id] === q.correct ? 'ok' : 'ko');
+    }
+  });
+}
+
+// ─── TIMER ─────────────────────────────────────────────────────────────────────
+function startTimer() {
+  timerRunning = true;
+  timerInterval = setInterval(() => {
+    secondsLeft--; elapsed++;
+    updateTimerDisplay();
+    if (secondsLeft <= 0) { clearInterval(timerInterval); timerRunning = false; showResults(); }
+  }, 1000);
+}
+
+function togglePause() {
+  if (timerRunning) {
+    clearInterval(timerInterval); timerRunning = false; paused = true;
+    document.getElementById('btn-pause').textContent = '▶';
+  } else {
+    startTimer(); paused = false;
+    document.getElementById('btn-pause').textContent = '⏸';
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(secondsLeft / 60), s = secondsLeft % 60;
+  const el = document.getElementById('timer');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.className = 'timer-display';
+  if (secondsLeft <= 300) el.classList.add('danger');
+  else if (secondsLeft <= 900) el.classList.add('warning');
+}
+
+// ─── RESULTS ──────────────────────────────────────────────────────────────────
+function showResults() {
+  if (timerRunning) { clearInterval(timerInterval); timerRunning = false; }
+  clearState();
+
+  let score = 0;
+  let scoreDigital = 0, scoreEnjeux = 0, scoreMaths = 0;
+  const weakTopics = [], wrongAnswers = [];
+
+  QUESTIONS.forEach(q => {
+    const ok = answers[q.id] === q.correct;
+    if (ok) {
+      score++;
+      if (q.subject === 'digital') scoreDigital++;
+      else if (q.subject === 'enjeux') scoreEnjeux++;
+      else scoreMaths++;
+    } else {
+      weakTopics.push(q.topic);
+      wrongAnswers.push({ id: q.id, text: q.text, topic: q.topic, subject: q.subject, chosen: answers[q.id] || '—', correct: q.correct });
+    }
+  });
+
+  const pct = Math.round(score / QUESTIONS.length * 100);
+  const durationMin = Math.max(1, Math.round(elapsed / 60));
+
+  document.getElementById('results-screen').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  const scoreNum = document.getElementById('score-num');
+  scoreNum.textContent = score;
+  scoreNum.style.color = score >= 24 ? 'var(--green)' : score >= 18 ? 'var(--amber)' : 'var(--red)';
+
+  const ringFill = document.getElementById('ring-fill');
+  const circumference = 408.41;
+  setTimeout(() => {
+    ringFill.style.strokeDashoffset = circumference - (circumference * pct / 100);
+    ringFill.style.stroke = score >= 24 ? 'var(--green)' : score >= 18 ? 'var(--amber)' : 'var(--red)';
+  }, 100);
+
+  const verdicts = [
+    [24, 'Excellent — tu maîtrises bien la Séquence 1 !'],
+    [21, 'Bon niveau — quelques points à consolider avant le concours.'],
+    [15, 'Moyen — identifie les matières faibles et intensifie la révision.'],
+    [0,  'Difficultés importantes — reprends les fondamentaux des 3 matières.']
+  ];
+  document.getElementById('score-verdict').textContent =
+    verdicts.find(([min]) => score >= min)[1];
+
+  document.getElementById('stat-pct').textContent = pct + '%';
+  document.getElementById('stat-time').textContent = durationMin + ' min';
+  document.getElementById('stat-errors').textContent = wrongAnswers.length;
+
+  const colorFor = (s, max) => s >= max*0.8 ? 'var(--green)' : s >= max*0.6 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('results-by-subject').innerHTML = `
+    <div class="section-hl" style="margin-bottom:12px;">Scores par matière</div>
+    <div class="subject-result">
+      <span class="subject-result-name" style="color:#06d6f5">💻 Compétences digitales</span>
+      <span class="subject-result-score" style="color:${colorFor(scoreDigital,10)}">${scoreDigital}/10</span>
+    </div>
+    <div class="subject-result">
+      <span class="subject-result-name" style="color:#fbbf24">🌍 Enjeux contemporains</span>
+      <span class="subject-result-score" style="color:${colorFor(scoreEnjeux,10)}">${scoreEnjeux}/10</span>
+    </div>
+    <div class="subject-result">
+      <span class="subject-result-name" style="color:#34d399">📐 Mathématiques</span>
+      <span class="subject-result-score" style="color:${colorFor(scoreMaths,10)}">${scoreMaths}/10</span>
+    </div>
+  `;
+
+  if (weakTopics.length) {
+    const unique = [...new Set(weakTopics)];
+    document.getElementById('weak-chips').innerHTML = unique.map(t => `<span class="weak-chip">${escHtml(t)}</span>`).join('');
+    document.getElementById('weak-section').style.display = 'block';
+
+    document.getElementById('review-list').innerHTML = wrongAnswers.map(w => `
+      <div class="review-item">
+        <div class="review-qnum">Q${w.id} · ${escHtml(w.topic)}</div>
+        <div class="review-qtext">${escHtml(w.text.substring(0, 100))}…</div>
+        <div class="review-answers">
+          <span class="given">Donné : ${w.chosen}</span>
+          <span class="corr">Correct : ${w.correct}</span>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('review-block').style.display = 'block';
+  }
+
+  const sessionData = {
+    date: '2026-03-21',
+    type: 'simulation',
+    matiere: 'Digital + Enjeux + Maths (Séquence 1)',
+    score, total: 30, pct, duration_min: durationMin,
+    score_digital: scoreDigital, score_enjeux: scoreEnjeux, score_maths: scoreMaths,
+    weak_topics: [...new Set(weakTopics)],
+    wrong_answers: wrongAnswers, all_answers: answers
+  };
+
+  try {
+    const sessions = JSON.parse(localStorage.getItem('sesame_sessions') || '[]');
+    const filtered = sessions.filter(s => !(s.date === sessionData.date && s.type === 'simulation'));
+    filtered.push(sessionData);
+    localStorage.setItem('sesame_sessions', JSON.stringify(filtered));
+  } catch(e) {}
+
+  sendResults(sessionData);
+}
+
+async function sendResults(data) {
+  const el = document.getElementById('send-status');
+  try {
+    const res = await fetch('http://localhost:8765/session', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) { el.className = 'send-status ok'; el.textContent = '✓ Résultats enregistrés dans ton suivi.'; }
+    else throw new Error();
+  } catch(e) {
+    el.className = 'send-status err';
+    el.textContent = '⚠ Serveur non démarré — lance tools/start-sesame.bat.';
+  }
+}
+
+function toggleTheme() {
+  const body = document.body;
+  const next = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  body.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀ Clair' : '☾ Sombre';
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

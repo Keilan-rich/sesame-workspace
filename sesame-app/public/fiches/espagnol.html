@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08080f">
+<link rel="manifest" href="/manifest.json">
+<title>Fiche mémo — Espagnol</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[data-theme="dark"]  { --bg:#08080f; --bg2:#0a0a14; --card:#0f0f1a; --card2:#121220; --border:#1c1c2e; --text:#e8e8f5; --muted:#606080; --shadow:rgba(0,0,0,0.5); }
+[data-theme="light"] { --bg:#f3f3fb; --bg2:#eaeaf5; --card:#ffffff; --card2:#f8f8ff; --border:#e0e0f0; --text:#0f0f1a; --muted:#8080a0; --shadow:rgba(0,0,0,0.07); }
+:root { --accent:#f43f5e; }
+
+body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:32px 20px 80px; transition:background .2s,color .2s; }
+.wrap { max-width:900px; margin:0 auto; }
+
+/* ── TOP NAV ─── */
+.topnav { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:12px; }
+.back { font-size:13px; color:var(--muted); text-decoration:none; }
+.back:hover { color:var(--accent); }
+.theme-toggle { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); }
+.theme-toggle:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ── HERO ─── */
+.hero { margin-bottom:40px; }
+.hero-tag { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+.hero-title { font-size:clamp(28px,5vw,44px); font-weight:800; line-height:1.1; margin-bottom:8px; }
+.hero-title span { color:var(--accent); }
+.hero-meta { font-size:13px; color:var(--muted); display:flex; gap:20px; flex-wrap:wrap; }
+.hero-meta strong { color:var(--text); }
+
+/* ── SECTIONS ─── */
+.section-title {
+  font-size:10px; font-weight:800; letter-spacing:3px; text-transform:uppercase;
+  color:var(--accent); margin-bottom:16px; padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ── INFOGRAPHIC GRID ─── */
+.info-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-bottom:32px; }
+
+.info-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+  border-left:3px solid var(--c, var(--accent));
+}
+.info-card-icon { font-size:20px; margin-bottom:10px; }
+.info-card-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; }
+.info-card ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.info-card li { font-size:12px; color:var(--muted); line-height:1.5; display:flex; gap:8px; }
+.info-card li::before { content:'→'; color:var(--accent); flex-shrink:0; font-size:11px; }
+.info-card li strong { color:var(--text); }
+.info-card li code {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.15);
+  padding:1px 6px; border-radius:4px; color:var(--accent);
+}
+
+/* ── ALGO BLOC ─── */
+.algo-section { margin-bottom:32px; }
+.algo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.algo-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+}
+.algo-card-title { font-size:12px; font-weight:700; color:var(--accent); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; }
+.algo-block {
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  line-height:1.8; color:#d4a0aa; margin-bottom:10px;
+  white-space:pre-wrap; overflow-x:auto;
+}
+[data-theme="light"] .algo-block { color:#7a2030; }
+.algo-note { font-size:11px; color:var(--muted); line-height:1.6; }
+.algo-note strong { color:var(--text); }
+
+/* ── PIÈGE TABLE ─── */
+.traps { margin-bottom:32px; }
+.trap-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:14px 18px; margin-bottom:8px;
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  font-size:12px; box-shadow:0 1px 6px var(--shadow);
+}
+@media(max-width:500px){ .trap-row { grid-template-columns:1fr; } }
+.trap-wrong { color:#f87171; }
+.trap-right { color:#34d399; }
+.trap-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; opacity:.7; }
+
+/* ── QUIZ RAPIDE ─── */
+.quiz-section { margin-bottom:32px; }
+.qr-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:18px; margin-bottom:10px;
+  box-shadow:0 1px 6px var(--shadow); cursor:pointer;
+}
+.qr-q { font-size:13px; font-weight:600; margin-bottom:10px; line-height:1.5; }
+.qr-answer {
+  font-size:12px; color:var(--accent); display:none;
+  padding-top:10px; border-top:1px solid var(--border); line-height:1.6;
+}
+.qr-card.open .qr-answer { display:block; }
+.qr-hint { font-size:11px; color:var(--muted); margin-top:6px; }
+
+/* ── BACK LINK ─── */
+.back-footer { text-align:center; margin-top:40px; }
+.back-footer a { font-size:13px; color:var(--muted); text-decoration:none; }
+.back-footer a:hover { color:var(--accent); }
+@supports (padding-top: env(safe-area-inset-top)) {
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topnav">
+    <a class="back" href="index.html">← Fiches mémo</a>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+  </div>
+
+  <!-- ═══ HERO ═════════════════════════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-tag">Séquence 2 — Fiche mémo</div>
+    <div class="hero-title">Espagnol<br><span>LV2</span></div>
+    <div class="hero-meta">
+      <span><strong>40 questions</strong> · 30 min</span>
+      <span><strong>8 notions</strong> clés</span>
+      <span><strong>6 pièges</strong> classiques</span>
+    </div>
+  </div>
+
+  <!-- ═══ NOTIONS CLÉS ══════════════════════════════════════════════════════ -->
+  <div class="section-title">Notions clés</div>
+  <div class="info-grid">
+
+    <div class="info-card" style="--c:#f43f5e">
+      <div class="info-card-icon">⚔️</div>
+      <div class="info-card-title">SER vs ESTAR (piège n°1)</div>
+      <ul>
+        <li><strong>SER</strong> = caractéristiques permanentes : identité, nationalité, profession, origine, heure</li>
+        <li><code>Soy estudiante</code> · <code>Son las 3</code></li>
+        <li><strong>ESTAR</strong> = états temporaires, localisation, résultat d'un changement</li>
+        <li><code>Estoy cansado</code> · <code>El hospital está aquí</code></li>
+        <li>Piège : <code>estar muerto</code>=état (mort) · <code>ser malo</code>=caractère mauvais · <code>estar malo</code>=être malade</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fb923c">
+      <div class="info-card-icon">🏠</div>
+      <div class="info-card-title">HAY vs ESTAR (piège n°2)</div>
+      <ul>
+        <li><strong>HAY</strong> = existence indéfinie : <code>Hay un hospital</code> (il y a un hôpital)</li>
+        <li><strong>ESTAR</strong> = localisation d'un élément défini : <code>El hospital está en la calle Mayor</code></li>
+        <li>Règle : article indéfini / pas d'article → <strong>hay</strong></li>
+        <li>Règle : article défini → <strong>está / están</strong></li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#a78bfa">
+      <div class="info-card-icon">🔀</div>
+      <div class="info-card-title">POR vs PARA (piège n°3)</div>
+      <ul>
+        <li><strong>POR</strong> = cause, moyen, durée, échange, agent passif</li>
+        <li><code>Lo hago por ti</code> · <code>por avión</code> · <code>por 3 horas</code></li>
+        <li><strong>PARA</strong> = but, destination, opinion, délai</li>
+        <li><code>Voy para Madrid</code> · <code>para mí</code> · <code>para el lunes</code></li>
+        <li>Mnémo : POR = raison passée/cause · PARA = objectif futur/but</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#34d399">
+      <div class="info-card-icon">🔀</div>
+      <div class="info-card-title">Les 3 hypothèses avec "si"</div>
+      <ul>
+        <li><strong>Réel</strong> : si + présent → futur</li>
+        <li><code>Si llueve, no iré</code></li>
+        <li><strong>Potentiel</strong> : si + imparfait subj. → conditionnel</li>
+        <li><code>Si tuviera dinero, viajaría</code></li>
+        <li><strong>Irréel passé</strong> : si + plus-que-parfait subj. → conditionnel passé</li>
+        <li><code>Si hubieras venido, lo habrías visto</code></li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#06d6f5">
+      <div class="info-card-icon">🌍</div>
+      <div class="info-card-title">L'espace andin</div>
+      <ul>
+        <li><strong>7 pays</strong> traversés par les Andes : Venezuela, Colombie, Équateur, Pérou, Bolivie, Chili, Argentine</li>
+        <li>Héritage inca : Machu Picchu, quechua, aymara</li>
+        <li>Défis : pauvreté, inégalités, déforestation, migration urbaine</li>
+        <li>Diversité ethnique : métis, indigènes, descendants coloniaux</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fbbf24">
+      <div class="info-card-icon">📝</div>
+      <div class="info-card-title">Subjonctif espagnol</div>
+      <ul>
+        <li><strong>Souhaits / volonté</strong> : <code>quiero que</code>, <code>ojalá</code> + subj.</li>
+        <li><strong>Doute / opinion négative</strong> : <code>no creo que</code>, <code>dudo que</code></li>
+        <li><strong>Nécessité</strong> : <code>es importante que</code>, <code>es necesario que</code></li>
+        <li><strong>Sentiment</strong> : <code>me alegra que</code>, <code>me sorprende que</code></li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#f43f5e">
+      <div class="info-card-icon">🔗</div>
+      <div class="info-card-title">Articulateurs du discours</div>
+      <ul>
+        <li><strong>Chronologiques</strong> : en primer lugar, luego, después, finalmente</li>
+        <li><strong>Opposition</strong> : sin embargo, no obstante, aunque</li>
+        <li><strong>Cause</strong> : porque, ya que, puesto que</li>
+        <li><strong>Conséquence</strong> : por eso, por lo tanto, así que</li>
+        <li><strong>Addition</strong> : además, también, incluso</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#34d399">
+      <div class="info-card-icon">🚫</div>
+      <div class="info-card-title">Négations espagnoles</div>
+      <ul>
+        <li><code>no...nunca</code> (jamais) · <code>no...nadie</code> (personne) · <code>no...nada</code> (rien)</li>
+        <li><code>ya no</code> (ne plus) · <code>tampoco</code> (non plus)</li>
+        <li>Si le mot négatif est <strong>avant</strong> le verbe, pas besoin de "no"</li>
+        <li><code>Nunca como tarde</code> = <code>No como nunca tarde</code> — les deux sont corrects !</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ═══ CONJUGAISON ════════════════════════════════════════════════════════ -->
+  <div class="algo-section">
+    <div class="section-title">Conjugaison — 4 blocs structurés</div>
+    <div class="algo-grid">
+
+      <div class="algo-card">
+        <div class="algo-card-title">⚡ Présent irréguliers clés</div>
+        <div class="algo-block">SER  : soy / eres / es / somos / sois / son
+ESTAR: estoy / estás / está / estamos / estáis / están
+IR   : voy / vas / va / vamos / vais / van
+TENER: tengo / tienes / tiene / tenemos / tenéis / tienen
+HACER: hago / haces / hace / hacemos / hacéis / hacen</div>
+        <div class="algo-note">
+          <strong>Astuce :</strong> la 1re pers. sg. est souvent irrégulière (tengo, hago, voy…). Les autres suivent généralement un schéma régulier.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">⏳ Les 3 passés</div>
+        <div class="algo-block">IMPERFECTO   → état / habitude passée
+  hablar : hablaba / hablabas / hablaba
+  vivir  : vivía / vivías / vivía
+
+INDEFINIDO   → action délimitée dans le temps
+  hablar : hablé / hablaste / habló
+  vivir  : viví / viviste / vivió
+
+PLUSCUAMPERFECTO → avant une autre action passée
+  había comido / habías comido / había comido</div>
+        <div class="algo-note">
+          <strong>Règle :</strong> Indefinido = action précise, ponctuelle. Imperfecto = description, répétition, contexte. Plus-que-parfait = antériorité dans le passé.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">🔮 Futur &amp; conditionnel</div>
+        <div class="algo-block">FUTURO SIMPLE
+  hablaré / hablarás / hablará
+  hablaremos / hablaréis / hablarán
+
+CONDICIONAL
+  hablaría / hablarías / hablaría
+  hablaríamos / hablaríais / hablarían
+
+FUTURO PRÓXIMO (ir + a + inf.)
+  voy a hablar / vas a comer / va a vivir</div>
+        <div class="algo-note">
+          <strong>Piège :</strong> jamais de conditionnel après "si" hypothétique ! Si + imparfait subj. (tuviera) → conditionnel dans la principale (viajaría).
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">🔁 Verbes pronominaux &amp; gustar</div>
+        <div class="algo-block">RÉFLÉCHIS : lavarse (se laver)
+  me lavo / te lavas / se lava
+
+RÉCIPROQUES : llamarse
+  me llamo / te llamas / se llama
+
+GUSTAR (verbe à l'envers !)
+  me gusta / te gusta / le gusta (sing.)
+  me gustan / te gustan / le gustan (plur.)
+
+DOLER (avoir mal)
+  me duele la cabeza / me duelen los pies</div>
+        <div class="algo-note">
+          <strong>Clé :</strong> avec <em>gustar</em> / <em>doler</em>, c'est la chose aimée/douloureuse qui est sujet — accord avec elle, pas avec la personne.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ PIÈGES CLASSIQUES ═════════════════════════════════════════════════ -->
+  <div class="traps">
+    <div class="section-title">Pièges classiques — erreurs fréquentes</div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"Estoy estudiante"</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">"Soy estudiante" — la profession est une caractéristique permanente → SER, pas ESTAR.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"Hay el hospital aquí"</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">"El hospital está aquí" — élément défini (article défini) + localisation → ESTAR, pas HAY.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"Si vendría…"</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Jamais de conditionnel après "si" hypothétique ! → "Si viniera…" (imparfait du subjonctif).</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"dirección" = uniquement direction</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Faux-ami partiel : "dirección" = direction ET adresse. Toujours vérifier le contexte.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"No como nunca tarde" est incorrect</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Les deux formes sont correctes ! "No como nunca tarde" (double négation) = "Nunca como tarde" — la double négation est grammaticale en espagnol.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">"Para mí" = "Por mí" (équivalents)</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">"Para mí, tiene razón" = selon moi (opinion). "Por mí, puede ir" = en ce qui me concerne / à cause de moi (cause/permission). Sens très différents !</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ QUIZ RAPIDE ═══════════════════════════════════════════════════════ -->
+  <div class="quiz-section">
+    <div class="section-title">Quiz éclair — clique pour voir la réponse</div>
+
+    <div class="qr-card">
+      <div class="qr-q">SER ou ESTAR : "La soupe est froide"</div>
+      <div class="qr-answer">
+        <strong>Está fría</strong> — état temporaire (la soupe peut se réchauffer) → ESTAR. Si c'était une caractéristique permanente, on utiliserait SER.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">HAY ou ESTÁ : "Il y a une pharmacie près d'ici"</div>
+      <div class="qr-answer">
+        <strong>Hay una farmacia cerca de aquí</strong> — existence indéfinie (une pharmacie, pas "la pharmacie") → HAY avec article indéfini.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">POR ou PARA : "Je t'appelle pour te remercier"</div>
+      <div class="qr-answer">
+        <strong>Te llamo para agradecerte</strong> — but / objectif → PARA. (POR exprimerait la cause : "Te llamo por el problema" = je t'appelle à cause du problème.)
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">Citez 3 pays traversés par les Andes</div>
+      <div class="qr-answer">
+        Au choix parmi les <strong>7 pays andins</strong> : Venezuela, Colombie, Équateur, Pérou, Bolivie, Chili, Argentine. Les Andes traversent toute la côte ouest de l'Amérique du Sud.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">Traduire : "Si j'avais de l'argent, je voyagerais"</div>
+      <div class="qr-answer">
+        <strong>Si tuviera dinero, viajaría</strong> — hypothèse potentielle : si + imparfait du subjonctif (tuviera) → conditionnel (viajaría). Jamais "Si tendría…" !
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+  </div>
+
+  <div class="back-footer">
+    <a href="index.html">← Retour aux fiches</a>
+  </div>
+
+</div>
+<script>
+function toggleTheme(){const h=document.documentElement;const t=h.getAttribute('data-theme');const n=t==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('theme',n);document.getElementById('theme-btn').textContent=n==='dark'?'☀ Clair':'🌙 Sombre';}
+window.addEventListener('DOMContentLoaded',()=>{const t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-btn').textContent=t==='dark'?'☀ Clair':'🌙 Sombre';});
+document.querySelectorAll('.qr-card').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('open')));
+</script>
+</body>
+</html>

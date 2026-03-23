@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiche mémo — Analyse Documentaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[data-theme="dark"]  { --bg:#08080f; --bg2:#0a0a14; --card:#0f0f1a; --card2:#121220; --border:#1c1c2e; --text:#e8e8f5; --muted:#606080; --shadow:rgba(0,0,0,0.5); }
+[data-theme="light"] { --bg:#f3f3fb; --bg2:#eaeaf5; --card:#ffffff; --card2:#f8f8ff; --border:#e0e0f0; --text:#0f0f1a; --muted:#8080a0; --shadow:rgba(0,0,0,0.07); }
+:root { --accent:#10b981; }
+
+body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:32px 20px 80px; transition:background .2s,color .2s; }
+.wrap { max-width:900px; margin:0 auto; }
+
+/* ── TOP NAV ─── */
+.topnav { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:12px; }
+.back { font-size:13px; color:var(--muted); text-decoration:none; }
+.back:hover { color:var(--accent); }
+.theme-toggle { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); }
+.theme-toggle:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ── HERO ─── */
+.hero { margin-bottom:40px; }
+.hero-tag { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+.hero-title { font-size:clamp(28px,5vw,44px); font-weight:800; line-height:1.1; margin-bottom:8px; }
+.hero-title span { color:var(--accent); }
+.hero-meta { font-size:13px; color:var(--muted); display:flex; gap:20px; flex-wrap:wrap; }
+.hero-meta strong { color:var(--text); }
+.hero-rule {
+  margin-top:16px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25);
+  border-radius:10px; padding:12px 16px; font-size:13px; color:var(--accent);
+  font-weight:600; line-height:1.5;
+}
+
+/* ── SECTIONS ─── */
+.section-title {
+  font-size:10px; font-weight:800; letter-spacing:3px; text-transform:uppercase;
+  color:var(--accent); margin-bottom:16px; padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ── INFOGRAPHIC GRID ─── */
+.info-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-bottom:32px; }
+
+.info-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+  border-left:3px solid var(--c, var(--accent));
+}
+.info-card-icon { font-size:20px; margin-bottom:10px; }
+.info-card-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; }
+.info-card ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.info-card li { font-size:12px; color:var(--muted); line-height:1.5; display:flex; gap:8px; }
+.info-card li::before { content:'→'; color:var(--accent); flex-shrink:0; font-size:11px; }
+.info-card li strong { color:var(--text); }
+.info-card li code {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2);
+  padding:1px 6px; border-radius:4px; color:var(--accent);
+}
+.warn { color:#fbbf24 !important; }
+
+/* ── ALGO BLOC ─── */
+.algo-section { margin-bottom:32px; }
+.algo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.algo-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+}
+.algo-card-title { font-size:12px; font-weight:700; color:var(--accent); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; }
+.algo-block {
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  line-height:1.8; color:#6ee7b7; margin-bottom:10px;
+  white-space:pre-wrap; overflow-x:auto;
+}
+[data-theme="light"] .algo-block { color:#065f46; }
+.algo-note { font-size:11px; color:var(--muted); line-height:1.6; }
+.algo-note strong { color:var(--text); }
+
+/* ── PIÈGE TABLE ─── */
+.traps { margin-bottom:32px; }
+.trap-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:14px 18px; margin-bottom:8px;
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  font-size:12px; box-shadow:0 1px 6px var(--shadow);
+}
+@media(max-width:500px){ .trap-row { grid-template-columns:1fr; } }
+.trap-wrong { color:#f87171; }
+.trap-right { color:#34d399; }
+.trap-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; opacity:.7; }
+
+/* ── QUIZ RAPIDE ─── */
+.quiz-section { margin-bottom:32px; }
+.qr-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:18px; margin-bottom:10px;
+  box-shadow:0 1px 6px var(--shadow); cursor:pointer;
+  transition:border-color .2s;
+}
+.qr-card:hover { border-color:var(--accent); }
+.qr-q { font-size:13px; font-weight:600; margin-bottom:0; line-height:1.5; }
+.qr-hint { font-size:11px; color:var(--muted); margin-top:4px; }
+.qr-answer {
+  font-size:12px; color:var(--accent); display:none;
+  padding-top:10px; border-top:1px solid var(--border); line-height:1.6;
+  margin-top:10px;
+}
+.qr-card.open .qr-answer { display:block; }
+
+/* ── BACK LINK ─── */
+.back-footer { text-align:center; margin-top:40px; }
+.back-footer a { font-size:13px; color:var(--muted); text-decoration:none; }
+.back-footer a:hover { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topnav">
+    <a class="back" href="index.html">← Fiches mémo</a>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+  </div>
+
+  <!-- ═══ HERO ═════════════════════════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-tag">Séquence 3 — Fiche mémo</div>
+    <div class="hero-title">Analyse<br><span>documentaire</span></div>
+    <div class="hero-meta">
+      <span><strong>20 questions</strong> · 2h</span>
+      <span><strong>3 parties</strong> progressives</span>
+      <span><strong>Dossier documentaire</strong> fourni</span>
+    </div>
+    <div class="hero-rule">
+      ⚠ Règle d'or — Répondre UNIQUEMENT avec les documents. Jamais avec ses connaissances personnelles.
+    </div>
+  </div>
+
+  <!-- ═══ STRUCTURE DE L'ÉPREUVE ═══════════════════════════════════════════ -->
+  <div class="section-title">Structure de l'épreuve</div>
+  <div class="info-grid">
+
+    <div class="info-card" style="--c:#10b981">
+      <div class="info-card-icon">📍</div>
+      <div class="info-card-title">Partie 1 — Repérage (6 pts)</div>
+      <ul>
+        <li><strong>6 questions</strong> / 4 propositions / <strong>1 seule bonne réponse</strong></li>
+        <li>Objectif : <strong>REPÉRER</strong> une info dans <strong>UN seul document</strong></li>
+        <li>Lire tableaux, courbes, histogrammes, diagrammes circulaires</li>
+        <li>Compétence : localiser rapidement une donnée précise</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fbbf24">
+      <div class="info-card-icon">🔍</div>
+      <div class="info-card-title">Partie 2 — Analyse (6 pts)</div>
+      <ul>
+        <li><strong>6 questions</strong> / 6 propositions / <strong>PLUSIEURS bonnes réponses</strong></li>
+        <li>Objectif : <strong>ANALYSER et RELIER</strong> des infos de <strong>PLUSIEURS documents</strong></li>
+        <li class="warn"><strong>⚠ 1 mauvaise sélectionnée = 0 point à TOUTE la question</strong></li>
+        <li>Stratégie : brouillon obligatoire avant de cocher</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#a78bfa">
+      <div class="info-card-icon">🏗️</div>
+      <div class="info-card-title">Partie 3 — Synthèse (8 pts)</div>
+      <ul>
+        <li><strong>8 questions</strong> / 4 propositions / <strong>1 seule bonne réponse</strong></li>
+        <li>Objectif : <strong>CONSTRUIRE UN RAISONNEMENT</strong> sur l'intro, le plan, le développement, la conclusion</li>
+        <li><strong>Plan dialectique</strong> : thèse / antithèse / synthèse</li>
+        <li><strong>Plan analytique</strong> : 3 axes descriptifs</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#06d6f5">
+      <div class="info-card-icon">📊</div>
+      <div class="info-card-title">Outils statistiques requis</div>
+      <ul>
+        <li><code>% répartition</code> = valeur / total × 100</li>
+        <li><code>Taux variation</code> = (Vf − Vi) / Vi × 100</li>
+        <li><code>Coeff. multiplicateur</code> = Vf / Vi</li>
+        <li><code>Indice simple</code> = (valeur / valeur_base) × 100</li>
+        <li><strong>Quantiles</strong> : médiane (50 %), quartiles (25 %/75 %), déciles</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#f87171">
+      <div class="info-card-icon">⏱️</div>
+      <div class="info-card-title">Stratégie temporelle</div>
+      <ul>
+        <li><strong>2h au total</strong> pour ~20 questions</li>
+        <li>Lire <strong>TOUT</strong> le dossier en premier (~45–60 min)</li>
+        <li>Ne jamais sauter la lecture complète</li>
+        <li>Temps restant : répondre + relecture</li>
+        <li>Partie 2 (analyse) : faire <strong>brouillon</strong> avant de cocher</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#f43f5e">
+      <div class="info-card-icon">🚫</div>
+      <div class="info-card-title">Règle fondamentale</div>
+      <ul>
+        <li><strong>JAMAIS</strong> utiliser ses connaissances personnelles</li>
+        <li>TOUT doit venir des documents fournis</li>
+        <li>Si ça n'est pas dans le dossier → ce n'est pas la bonne réponse</li>
+        <li>L'épreuve teste la <strong>méthode</strong>, pas la culture générale</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ═══ MÉTHODE LECTURE DOCUMENTS ════════════════════════════════════════ -->
+  <div class="algo-section">
+    <div class="section-title">Méthode — Lecture des documents</div>
+    <div class="algo-grid">
+
+      <div class="algo-card">
+        <div class="algo-card-title">📋 Lire un tableau</div>
+        <div class="algo-block">1. Lire le TITRE
+2. Lire les EN-TÊTES (lignes + colonnes)
+3. Identifier l'UNITÉ (€, %, milliers…)
+4. Vérifier la SOURCE
+5. Repérer la BASE (total = 100% pour répartition)
+→ Puis seulement : calculer / comparer</div>
+        <div class="algo-note">
+          <strong>Piège :</strong> confondre lignes et colonnes lors du croisement. Repérer le total général avant tout calcul de répartition.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">📈 Lire une courbe / graphique</div>
+        <div class="algo-block">1. Lire le TITRE
+2. Identifier les AXES (x = temps? catégorie?)
+3. Lire la LÉGENDE (plusieurs séries?)
+4. Identifier l'UNITÉ de chaque axe
+5. Dégager la TENDANCE (hausse / baisse / stable)
+→ Si nécessaire : calculer la variation</div>
+        <div class="algo-note">
+          <strong>Méthode variation :</strong> taux = (Vf − Vi) / Vi × 100. Toujours vérifier l'unité de l'axe Y avant de lire une valeur.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">🔗 Croiser des documents (Partie 2)</div>
+        <div class="algo-block">Pour chaque proposition :
+  → Dans QUEL document se trouve l'info ?
+  → Existe-t-il une PREUVE textuelle
+    ou statistique dans ce doc ?
+  → OUI → cocher  /  NON → ne pas cocher
+
+Brouillon : numéroter les docs (D1, D2…)
+            noter les liens entre eux</div>
+        <div class="algo-note">
+          <strong>Rappel :</strong> 1 erreur = 0 point sur la question entière. Mieux vaut cocher 3 certaines que 5 approximatives.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">🏗️ Structure d'une synthèse correcte</div>
+        <div class="algo-block">INTRODUCTION
+  Accroche    → chiffre / fait frappant du dossier
+  Définition  → termes du sujet
+  Problématique → question centrale
+  Annonce     → plan en 2 ou 3 parties
+
+DÉVELOPPEMENT
+  Thèse       → argument + illustration docs
+  Antithèse   → nuance / contre-argument
+  Synthèse    → dépassement (si dialectique)
+
+CONCLUSION
+  Bilan       → réponse à la problématique
+  Ouverture   → perspective / question plus large</div>
+        <div class="algo-note">
+          <strong>Choix du plan :</strong> dialectique si sujet débattu (pour/contre). Analytique si sujet à décrire/analyser sans opposition.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ PIÈGES CLASSIQUES ══════════════════════════════════════════════════ -->
+  <div class="traps">
+    <div class="section-title">Pièges classiques</div>
+
+    <div class="trap-row">
+      <div class="trap-wrong">
+        <div class="trap-label">❌ Erreur</div>
+        Utiliser une connaissance perso non présente dans le dossier
+      </div>
+      <div class="trap-right">
+        <div class="trap-label">✅ Bonne pratique</div>
+        Si c'est pas dans les docs, c'est faux — point final
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div class="trap-wrong">
+        <div class="trap-label">❌ Erreur</div>
+        En Partie 2 : cocher "presque toutes" les propositions par précaution
+      </div>
+      <div class="trap-right">
+        <div class="trap-label">✅ Bonne pratique</div>
+        1 erreur = 0 point total. Cocher uniquement ce qui est certain avec preuve documentaire
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div class="trap-wrong">
+        <div class="trap-label">❌ Erreur</div>
+        Confondre taux de variation et coefficient multiplicateur
+      </div>
+      <div class="trap-right">
+        <div class="trap-label">✅ Bonne pratique</div>
+        CM = 1,25 ≠ taux = 25 %. Relation : CM = 1 + taux/100. Ex : hausse de 50 % → CM = 1,5
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div class="trap-wrong">
+        <div class="trap-label">❌ Erreur</div>
+        Lire une répartition comme une évolution dans le temps
+      </div>
+      <div class="trap-right">
+        <div class="trap-label">✅ Bonne pratique</div>
+        Répartition = parts du gâteau à UN instant T, pas une comparaison temporelle
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div class="trap-wrong">
+        <div class="trap-label">❌ Erreur</div>
+        Plan dialectique pour un sujet non polémique / purement descriptif
+      </div>
+      <div class="trap-right">
+        <div class="trap-label">✅ Bonne pratique</div>
+        Dialectique = pour les débats (pour/contre). Analytique = pour descriptions et analyses neutres
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div class="trap-wrong">
+        <div class="trap-label">❌ Erreur</div>
+        Commencer à répondre sans avoir lu tout le dossier
+      </div>
+      <div class="trap-right">
+        <div class="trap-label">✅ Bonne pratique</div>
+        Des documents plus loin peuvent contredire ou compléter les premiers. Lire TOUT d'abord
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ QUIZ ÉCLAIR ════════════════════════════════════════════════════════ -->
+  <div class="quiz-section">
+    <div class="section-title">Quiz éclair — Cliquer pour révéler la réponse</div>
+
+    <div class="qr-card">
+      <div class="qr-q">Un document montre que les ventes sont passées de 80 à 120. Quel est le CM ?</div>
+      <div class="qr-hint">→ Cliquer pour voir la réponse</div>
+      <div class="qr-answer">CM = 120 / 80 = <strong>1,5</strong> — ce qui correspond à une hausse de <strong>50 %</strong><br>Taux de variation = (120 − 80) / 80 × 100 = 50 %</div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">En Partie 2, tu n'es sûr(e) que de 3 propositions sur 6. Tu fais quoi ?</div>
+      <div class="qr-hint">→ Cliquer pour voir la réponse</div>
+      <div class="qr-answer">Ne cocher que les <strong>3 certaines</strong>. 1 erreur = 0 point total sur toute la question. La prudence est rentable.</div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">Quelle est la structure d'une introduction de synthèse ?</div>
+      <div class="qr-hint">→ Cliquer pour voir la réponse</div>
+      <div class="qr-answer"><strong>Accroche</strong> (chiffre frappant du dossier) → <strong>Définition</strong> des termes du sujet → <strong>Problématique</strong> → <strong>Annonce du plan</strong></div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">Différence entre plan dialectique et plan analytique ?</div>
+      <div class="qr-hint">→ Cliquer pour voir la réponse</div>
+      <div class="qr-answer"><strong>Dialectique</strong> = thèse / antithèse / synthèse → pour les sujets débattus (pour/contre, avantages/inconvénients)<br><strong>Analytique</strong> = 3 axes descriptifs → pour les sujets à analyser sans opposition frontale</div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">Un indice passe de 100 à 135. Quelle est l'évolution en % ?</div>
+      <div class="qr-hint">→ Cliquer pour voir la réponse</div>
+      <div class="qr-answer"><strong>+35 %</strong> — L'indice 135 en base 100 signifie une hausse de 35 points, soit 35 % par rapport à la valeur de base.</div>
+    </div>
+
+  </div>
+
+  <div class="back-footer">
+    <a href="index.html">← Retour aux fiches mémo</a>
+  </div>
+
+</div>
+
+<script>
+function toggleTheme(){const h=document.documentElement;const t=h.getAttribute('data-theme');const n=t==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('theme',n);document.getElementById('theme-btn').textContent=n==='dark'?'☀ Clair':'🌙 Sombre';}
+window.addEventListener('DOMContentLoaded',()=>{const t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-btn').textContent=t==='dark'?'☀ Clair':'🌙 Sombre';});
+document.querySelectorAll('.qr-card').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('open')));
+</script>
+</body>
+</html>

@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sésame — 18 mars · Enjeux contemporains + Français (reprise)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent: #fbbf24;
+  --accent-dim: rgba(251,191,36,0.08);
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.12);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.10);
+  --amber: #fbbf24;
+}
+[data-theme="dark"] {
+  --bg: #08080f; --card: #0f0f1a; --border: #1e1e30;
+  --text: #e8e8f5; --muted: #606080;
+}
+[data-theme="light"] {
+  --bg: #f3f3fb; --card: #ffffff; --border: #e0e0f0;
+  --text: #0f0f1a; --muted: #8080a0;
+}
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── START SCREEN ─────────────────────────────────────────── */
+.start-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 300; padding: 32px; text-align: center;
+}
+.start-screen.gone { display: none; }
+
+.start-glow {
+  position: absolute; top: 50%; left: 50%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(251,191,36,0.10) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.start-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--accent);
+  background: var(--accent-dim); border: 1px solid rgba(251,191,36,0.2);
+  padding: 5px 16px; border-radius: 20px; margin-bottom: 24px;
+  position: relative;
+}
+.start-pill {
+  display: inline-block; background: var(--red); color: white;
+  font-size: 11px; font-weight: 700; padding: 4px 14px;
+  border-radius: 20px; margin-bottom: 20px; letter-spacing: 0.5px;
+  position: relative;
+}
+.start-title {
+  font-size: clamp(28px, 5vw, 44px); font-weight: 800; line-height: 1.15;
+  margin-bottom: 16px; position: relative;
+}
+.start-title .enjeux { color: #fbbf24; }
+.start-title .fr { color: #818cf8; }
+.start-meta {
+  color: var(--muted); font-size: 14px; margin-bottom: 48px;
+  line-height: 1.8; position: relative;
+}
+.start-meta strong { color: var(--text); }
+.start-subjects {
+  display: flex; gap: 12px; margin-bottom: 32px; justify-content: center;
+  position: relative;
+}
+.subject-pill {
+  font-size: 12px; font-weight: 700; padding: 6px 16px; border-radius: 20px;
+}
+.subject-pill.enjeux { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+.subject-pill.francais { background: rgba(129,140,248,0.12); color: #818cf8; border: 1px solid rgba(129,140,248,0.2); }
+.btn-start-session {
+  background: var(--accent); color: #000;
+  border: none; padding: 18px 52px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; position: relative;
+  letter-spacing: 0.3px;
+}
+.btn-start-session:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(251,191,36,0.30);
+}
+.btn-resume {
+  margin-top: 12px; padding: 14px 36px; border-radius: 12px;
+  background: transparent; border: 2px solid var(--accent);
+  color: var(--accent); font-family: 'Sora', sans-serif;
+  font-size: 15px; font-weight: 700; cursor: pointer; transition: all .2s;
+}
+.btn-resume:hover { background: var(--accent-dim); }
+.resume-info { margin-top: 10px; color: var(--muted); font-size: 13px; }
+.q-counter { font-size: 13px; color: var(--muted); font-weight: 500; }
+.q-counter strong { color: var(--text); font-weight: 700; }
+
+/* ── TOP BAR ──────────────────────────────────────────────── */
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(8,8,15,0.9); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+[data-theme="light"] .top-bar { background: rgba(243,243,251,0.92); }
+.subject-tag {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--accent);
+  background: var(--accent-dim); padding: 4px 12px;
+  border-radius: 20px; border: 1px solid rgba(251,191,36,0.2);
+  transition: all 0.4s;
+}
+.timer-wrap { display: flex; align-items: center; gap: 10px; }
+.timer-display {
+  font-size: 22px; font-weight: 700;
+  font-variant-numeric: tabular-nums; color: var(--text);
+  letter-spacing: -0.5px;
+}
+.timer-display.warning { color: var(--amber); }
+.timer-display.danger { color: var(--red); }
+.btn-pause {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  padding: 4px 12px; border-radius: 6px; font-size: 11px;
+  font-family: 'Sora', sans-serif; cursor: pointer; font-weight: 600;
+  transition: all 0.15s;
+}
+.btn-pause:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── PROGRESS STRIP ───────────────────────────────────────── */
+.progress-strip {
+  position: fixed; top: 60px; left: 0; right: 0;
+  height: 2px; background: var(--border); z-index: 100;
+}
+.progress-fill {
+  height: 100%; background: var(--accent); transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(251,191,36,0.5);
+}
+
+/* ── SECTION DIVIDER ──────────────────────────────────────── */
+.section-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 28px; padding: 14px 18px;
+  border-radius: 10px;
+}
+.section-divider.enjeux { background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.15); }
+.section-divider.francais { background: rgba(129,140,248,0.06); border: 1px solid rgba(129,140,248,0.15); }
+.section-divider-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.section-divider.enjeux .section-divider-dot { background: #fbbf24; }
+.section-divider.francais .section-divider-dot { background: #818cf8; }
+.section-divider-label { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+.section-divider.enjeux .section-divider-label { color: #fbbf24; }
+.section-divider.francais .section-divider-label { color: #818cf8; }
+.section-divider-sub { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+/* ── DOTS NAV ─────────────────────────────────────────────── */
+.dots-strip {
+  position: fixed; top: 62px; left: 0; right: 0;
+  height: 28px; z-index: 99;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 0 16px; overflow: hidden;
+}
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); transition: all 0.25s; flex-shrink: 0;
+}
+.dot.current { background: var(--text); transform: scale(1.3); }
+.dot.ok { background: var(--green); }
+.dot.ko { background: var(--red); }
+.dot.divider { background: transparent; width: 2px; height: 2px; }
+
+/* ── QUIZ MAIN ────────────────────────────────────────────── */
+.quiz-main {
+  min-height: 100vh;
+  padding: 110px 24px 160px;
+  max-width: 660px; margin: 0 auto;
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+.question-viewport { position: relative; overflow: hidden; }
+
+.question-slide {
+  position: absolute; top: 0; left: 0; right: 0;
+  opacity: 0; transform: translateX(60px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.question-slide.active {
+  position: relative; opacity: 1; transform: translateX(0);
+  pointer-events: all;
+}
+.question-slide.exit-left {
+  opacity: 0; transform: translateX(-60px);
+}
+
+.q-meta {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 8px;
+}
+.q-topic-badge {
+  background: var(--border); padding: 2px 10px; border-radius: 10px;
+  font-size: 10px; color: var(--muted); font-weight: 600;
+}
+.q-topic-badge.enjeux { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.q-topic-badge.francais { background: rgba(129,140,248,0.12); color: #818cf8; }
+
+.q-text {
+  font-size: 17px; line-height: 1.75; color: var(--text);
+  margin-bottom: 28px; font-weight: 400;
+}
+
+.options-list { display: flex; flex-direction: column; gap: 10px; }
+
+.option {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 15px 18px; border-radius: 10px;
+  border: 1.5px solid var(--border); cursor: pointer;
+  font-size: 14px; line-height: 1.55; transition: all 0.15s;
+  background: var(--card); user-select: none;
+}
+.option:hover:not(.locked) {
+  border-color: rgba(251,191,36,0.5);
+  background: rgba(251,191,36,0.04);
+}
+.option.selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.option.correct {
+  border-color: var(--green); background: var(--green-dim); cursor: default;
+}
+.option.wrong {
+  border-color: rgba(248,113,113,0.4); background: var(--red-dim); cursor: default;
+}
+.option.locked:not(.correct):not(.wrong) { cursor: default; }
+
+.opt-letter {
+  font-size: 12px; font-weight: 700; color: var(--muted);
+  min-width: 20px; padding-top: 1px; flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+.option.selected .opt-letter { color: var(--accent); }
+.option.correct .opt-letter { color: var(--green); }
+.option.wrong .opt-letter { color: var(--red); }
+.option.wrong .opt-text { text-decoration: line-through; color: var(--muted); }
+
+/* ── FOOTER ───────────────────────────────────────────────── */
+.quiz-footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+  padding: 20px 24px 28px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 16px;
+}
+
+.feedback-wrap { min-height: 40px; display: flex; align-items: center; flex: 1; }
+.feedback-text {
+  font-size: 13px; font-weight: 600;
+  opacity: 0; transition: opacity 0.3s;
+  display: flex; align-items: center; gap: 8px;
+  line-height: 1.5;
+}
+.feedback-text.show { opacity: 1; }
+.feedback-text.correct { color: var(--green); }
+.feedback-text.wrong { color: var(--red); }
+.feedback-icon { font-size: 18px; flex-shrink: 0; }
+
+.btn-next {
+  background: var(--accent); color: #000; border: none;
+  padding: 15px 32px; border-radius: 10px;
+  font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.25s;
+  opacity: 0; pointer-events: none; transform: translateY(10px);
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.btn-next.show { opacity: 1; pointer-events: all; transform: translateY(0); }
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(251,191,36,0.30); }
+
+/* ── RESULTS ──────────────────────────────────────────────── */
+.results-screen {
+  display: none; position: fixed; inset: 0;
+  background: var(--bg); overflow-y: auto;
+  padding: 48px 24px; z-index: 200;
+}
+.results-inner { max-width: 600px; margin: 0 auto; }
+
+.results-header { text-align: center; margin-bottom: 40px; }
+.results-eyebrow {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); margin-bottom: 24px;
+}
+
+.score-ring {
+  width: 150px; height: 150px; margin: 0 auto 20px;
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-ring svg {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%; transform: rotate(-90deg);
+}
+.score-ring circle {
+  fill: none; stroke-width: 8; stroke-linecap: round;
+}
+.ring-bg { stroke: var(--border); }
+.ring-fill { stroke: var(--accent); transition: stroke-dashoffset 1s ease; }
+.score-num { font-size: 44px; font-weight: 800; line-height: 1; position: relative; }
+.score-denom { font-size: 14px; color: var(--muted); position: relative; }
+.score-verdict { font-size: 15px; font-weight: 600; margin-top: 12px; }
+
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; text-align: center;
+}
+.stat-val { font-size: 22px; font-weight: 700; }
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+.results-by-subject { margin-bottom: 28px; }
+.subject-result {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 18px; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.subject-result-name { font-size: 13px; font-weight: 600; }
+.subject-result-score { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+.section-hl {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--muted); margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.review-block { margin-bottom: 28px; }
+
+.weak-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+.weak-chip {
+  background: var(--red-dim); border: 1px solid rgba(248,113,113,0.25);
+  color: #fca5a5; font-size: 12px; padding: 4px 12px; border-radius: 20px;
+}
+
+.review-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px; margin-bottom: 8px;
+  font-size: 13px;
+}
+.review-qnum { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.review-qtext { color: var(--text); margin-bottom: 8px; line-height: 1.5; }
+.review-answers { display: flex; gap: 16px; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+.given { color: var(--red); }
+.corr { color: var(--green); }
+
+.next-card {
+  background: var(--card); border: 1px solid rgba(251,191,36,0.2);
+  border-radius: 12px; padding: 20px; margin-bottom: 20px;
+}
+.next-card-title { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.next-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.next-card strong { color: var(--text); }
+.next-card code {
+  background: var(--border); padding: 2px 8px; border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent);
+}
+
+.send-status { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+.send-status.ok { color: var(--green); font-weight: 600; }
+.send-status.err { color: var(--red); }
+
+.hub-back {
+  display: block; text-align: center; font-size: 13px;
+  color: var(--muted); text-decoration: none; padding: 8px;
+  transition: color 0.2s;
+}
+.hub-back:hover { color: var(--accent); }
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- THEME TOGGLE -->
+<button style="position:fixed;top:12px;right:12px;z-index:400;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);font-family:'Sora',sans-serif;" id="theme-btn" onclick="toggleTheme()">☀ Clair</button>
+
+<!-- ═══════════════════════════════ START SCREEN ═══════════════════════════════ -->
+<div class="start-screen" id="start-screen">
+  <div class="start-glow"></div>
+  <div class="start-badge">Sésame 2026 — Phase 1 Découverte · Reprise J3</div>
+  <div class="start-pill">J-21 avant le concours</div>
+  <div class="start-title">
+    <span class="enjeux">Enjeux</span> +<br><span class="fr">Français</span>
+  </div>
+  <div class="start-subjects">
+    <span class="subject-pill enjeux">🌍 Enjeux contemporains · 10 Q</span>
+    <span class="subject-pill francais">📝 Français · 10 Q</span>
+  </div>
+  <div class="start-meta">
+    <strong>20 questions</strong> · <strong>20 minutes</strong><br>
+    Mercredi 18 mars 2026 · Reprise session du 16 mars
+  </div>
+  <button class="btn-start-session" id="btn-start" onclick="startSession()">Recommencer depuis le début ▶</button>
+  <button class="btn-resume" id="btn-resume" onclick="resumeSession()" style="display:none">Reprendre où j'en étais ▶</button>
+  <div class="resume-info" id="resume-info" style="display:none"></div>
+</div>
+
+<!-- ═══════════════════════════════ TOP BAR ════════════════════════════════════ -->
+<div class="top-bar">
+  <div class="subject-tag" id="subject-tag">Enjeux contemporains</div>
+  <div class="timer-wrap">
+    <div class="timer-display" id="timer">20:00</div>
+    <button class="btn-pause" id="btn-pause" onclick="togglePause()">⏸</button>
+    <button class="btn-pause" id="btn-quit" onclick="quitSession()" title="Quitter et reprendre plus tard" style="margin-left:4px">✕</button>
+  </div>
+  <div class="q-counter">Q <strong id="q-current">1</strong> / 20</div>
+</div>
+
+<div class="progress-strip">
+  <div class="progress-fill" id="progress-fill" style="width:5%"></div>
+</div>
+
+<div class="dots-strip" id="dots-strip"></div>
+
+<!-- ═══════════════════════════════ QUIZ MAIN ══════════════════════════════════ -->
+<div class="quiz-main">
+  <div class="question-viewport" id="question-viewport"></div>
+</div>
+
+<!-- ═══════════════════════════════ FOOTER ════════════════════════════════════ -->
+<div class="quiz-footer">
+  <div class="feedback-wrap">
+    <div class="feedback-text" id="feedback-text">
+      <span class="feedback-icon" id="feedback-icon"></span>
+      <span id="feedback-msg"></span>
+    </div>
+  </div>
+  <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+    <span id="btn-next-label">Suivant</span> →
+  </button>
+</div>
+
+<!-- ═══════════════════════════════ RESULTS ═══════════════════════════════════ -->
+<div class="results-screen" id="results-screen">
+  <div class="results-inner">
+    <div class="results-header">
+      <div class="results-eyebrow">Session terminée · 18 mars 2026</div>
+      <div class="score-ring">
+        <svg viewBox="0 0 150 150">
+          <circle class="ring-bg" cx="75" cy="75" r="65" stroke-dasharray="408.41" stroke-dashoffset="0"/>
+          <circle class="ring-fill" id="ring-fill" cx="75" cy="75" r="65" stroke-dasharray="408.41" stroke-dashoffset="408.41"/>
+        </svg>
+        <div class="score-num" id="score-num">—</div>
+        <div class="score-denom">/ 20</div>
+      </div>
+      <div class="score-verdict" id="score-verdict">—</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="stat-pct">—</div>
+        <div class="stat-lbl">Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-time">—</div>
+        <div class="stat-lbl">Durée</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-errors">—</div>
+        <div class="stat-lbl">Erreurs</div>
+      </div>
+    </div>
+
+    <div class="results-by-subject" id="results-by-subject"></div>
+
+    <div id="weak-section" style="display:none; margin-bottom:28px;">
+      <div class="section-hl">Points à retravailler</div>
+      <div class="weak-chips" id="weak-chips"></div>
+    </div>
+
+    <div class="review-block" id="review-block" style="display:none">
+      <div class="section-hl">Questions ratées</div>
+      <div id="review-list"></div>
+    </div>
+
+    <div class="next-card">
+      <div class="next-card-title">Prochaine session</div>
+      <p>Demain jeudi — <strong>Maths Ex1-10</strong> + <strong>Compétences digitales Q11-20</strong> (~20 min).<br>
+      Lance <code>/daily-sesame</code> pour obtenir ton plan du jour.</p>
+    </div>
+
+    <div class="send-status" id="send-status">Envoi des résultats…</div>
+    <a class="hub-back" href="../hub.html">← Retour</a>
+  </div>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  // ── ENJEUX CONTEMPORAINS ──────────────────────────────────────────────────
+  { id:1, subject:"enjeux", topic:"ODD — Nations Unies",
+    text:"Laquelle de ces affirmations sur les Objectifs de Développement Durable (ODD) est incorrecte ?",
+    options:[
+      "Les ODD sont au nombre de 17",
+      "Ils ont été adoptés par l'ONU en 2015 pour être atteints d'ici 2030",
+      "L'un des ODD vise à éliminer la pauvreté dans le monde",
+      "Les ODD ont été créés par l'Union Européenne"
+    ], correct:"D",
+    explanation:"Les ODD ont été adoptés par l'Assemblée générale de l'ONU en septembre 2015 dans le cadre du Programme 2030. L'UE n'en est pas l'auteur." },
+
+  { id:2, subject:"enjeux", topic:"Commerce mondial — Chine",
+    text:"Depuis quelle année la Chine est-elle devenue le premier exportateur mondial de marchandises ?",
+    options:["1995","2001","2009","2018"], correct:"C",
+    explanation:"La Chine a dépassé l'Allemagne en 2009 pour devenir le premier exportateur mondial de marchandises, grâce à son intégration dans les chaînes de valeur mondiales." },
+
+  { id:3, subject:"enjeux", topic:"OMC",
+    text:"Quel est le rôle principal de l'Organisation Mondiale du Commerce (OMC) ?",
+    options:[
+      "Gérer les zones de libre-échange en Europe",
+      "Financer le développement économique des pays émergents",
+      "Réguler le commerce international et résoudre les différends commerciaux entre nations",
+      "Coordonner la politique monétaire mondiale"
+    ], correct:"C",
+    explanation:"L'OMC, créée en 1995 pour succéder au GATT, régule les règles du commerce international et dispose d'un organe de règlement des différends entre États membres." },
+
+  { id:4, subject:"enjeux", topic:"Énergie — pétrole",
+    text:"Quel est le premier producteur mondial de pétrole brut en 2024 ?",
+    options:["Arabie Saoudite","Russie","États-Unis","Irak"], correct:"C",
+    explanation:"Les États-Unis sont le premier producteur mondial de pétrole depuis 2018, grâce à l'essor du pétrole de schiste (shale oil). Ils produisent environ 13 millions de barils/jour." },
+
+  { id:5, subject:"enjeux", topic:"Climat — GIEC",
+    text:"Selon les derniers rapports du GIEC, de combien la température mondiale moyenne a-t-elle déjà augmenté par rapport à l'ère préindustrielle ?",
+    options:["Environ +0,5°C","Environ +1,1°C","Environ +2°C","Environ +3°C"], correct:"B",
+    explanation:"Le rapport de synthèse du GIEC (2023) indique un réchauffement d'environ +1,1°C par rapport à la période 1850–1900. L'accord de Paris vise à limiter ce réchauffement à +1,5°C." },
+
+  { id:6, subject:"enjeux", topic:"PIB — définition",
+    text:"Le PIB (Produit Intérieur Brut) d'un pays est défini comme :",
+    options:[
+      "La valeur totale de ses exportations sur une année",
+      "La valeur totale des biens et services produits sur son territoire en une année",
+      "Le revenu moyen des ménages du pays",
+      "La somme de ses recettes fiscales annuelles"
+    ], correct:"B",
+    explanation:"Le PIB mesure la richesse créée sur le territoire national sur une année, quelle que soit la nationalité des producteurs. C'est le principal indicateur de la taille d'une économie." },
+
+  { id:7, subject:"enjeux", topic:"Union Européenne — Maastricht",
+    text:"En quelle année a été signé le traité de Maastricht, fondateur de l'Union Européenne ?",
+    options:["1986","1992","1997","2004"], correct:"B",
+    explanation:"Le traité de Maastricht a été signé le 7 février 1992 et est entré en vigueur le 1ᵉʳ novembre 1993. Il a créé officiellement l'Union Européenne et posé les bases de la monnaie unique." },
+
+  { id:8, subject:"enjeux", topic:"Intelligence artificielle — emploi",
+    text:"Selon les études récentes (FMI, OCDE), quel type d'emplois est le plus directement exposé à la disruption par l'intelligence artificielle générative ?",
+    options:[
+      "Agriculture et extraction minière",
+      "Bâtiment et travaux publics",
+      "Services administratifs, traitement de l'information et conseil",
+      "Transport maritime et logistique lourde"
+    ], correct:"C",
+    explanation:"L'IA générative affecte en priorité les emplois dits 'de bureau' : rédaction, analyse, traitement de données, conseil. Le FMI estime que 40% des emplois mondiaux y sont exposés." },
+
+  { id:9, subject:"enjeux", topic:"Géopolitique — définition",
+    text:"La géopolitique est l'étude de :",
+    options:[
+      "La politique économique internationale et des échanges monétaires",
+      "L'influence de la géographie sur les rapports de force politiques et stratégiques entre États",
+      "Les traités de paix et la diplomatie internationale",
+      "Les mouvements migratoires et leurs impacts sociaux"
+    ], correct:"B",
+    explanation:"La géopolitique, terme popularisé par Ratzel et Mackinder au XIXᵉ siècle, analyse comment le territoire, les ressources naturelles et la géographie façonnent les rivalités entre puissances." },
+
+  { id:10, subject:"enjeux", topic:"Démographie mondiale 2024",
+    text:"Quel est le pays le plus peuplé au monde en 2024 ?",
+    options:["Chine","Inde","États-Unis","Indonésie"], correct:"B",
+    explanation:"L'Inde a dépassé la Chine en 2023 pour devenir le pays le plus peuplé au monde, avec plus de 1,44 milliard d'habitants. La Chine connaît un déclin démographique depuis 2022." },
+
+  // ── FRANÇAIS ──────────────────────────────────────────────────────────────
+  { id:11, subject:"francais", topic:"Littérature — Victor Hugo", sectionStart:true,
+    text:"Lequel de ces romans n'est PAS de Victor Hugo ?",
+    options:["Les Misérables","Notre-Dame de Paris","Germinal","L'Homme qui rit"], correct:"C",
+    explanation:"Germinal (1885) est un roman d'Émile Zola, chef-d'œuvre du naturalisme retraçant la lutte des mineurs du Nord. Les trois autres sont bien de Victor Hugo." },
+
+  { id:12, subject:"francais", topic:"Vocabulaire — synonyme",
+    text:"Dans un contexte officiel, quel mot est le synonyme le plus proche de « refusé » ?",
+    options:["Rejeté","Reporté","Ajourné","Validé"], correct:"A",
+    explanation:"« Rejeté » est le synonyme direct de « refusé » dans un cadre officiel (une demande rejetée = refusée). « Ajourné » et « reporté » impliquent une décision remise à plus tard." },
+
+  { id:13, subject:"francais", topic:"Vocabulaire — félicité",
+    text:"Quel est le synonyme de « félicité » ?",
+    options:["Mélancolie","Labeur","Béatitude","Austérité"], correct:"C",
+    explanation:"La « félicité » désigne un bonheur parfait, une joie profonde et sereine. Son synonyme est « béatitude ». Mélancolie (tristesse), labeur (travail dur) et austérité (rigueur) s'y opposent." },
+
+  { id:14, subject:"francais", topic:"Vocabulaire — antonyme",
+    text:"Dans le proverbe « Qui ne risque rien n'a rien », quel est l'antonyme du verbe « risquer » ?",
+    options:["Éviter","Tenter","Espérer","Perdre"], correct:"A",
+    explanation:"L'antonyme de « risquer » (s'exposer à un danger) est « éviter » (s'en prémunir, ne pas s'y exposer). « Tenter » est au contraire un quasi-synonyme de risquer." },
+
+  { id:15, subject:"francais", topic:"Littérature — siècles",
+    text:"Molière est un auteur dramatique du :",
+    options:["XVIᵉ siècle","XVIIᵉ siècle","XVIIIᵉ siècle","XIXᵉ siècle"], correct:"B",
+    explanation:"Jean-Baptiste Poquelin, dit Molière (1622–1673), est l'un des plus grands dramaturges du XVIIᵉ siècle, le siècle classique de Louis XIV. Ses pièces : Tartuffe, L'Avare, Le Bourgeois gentilhomme…" },
+
+  { id:16, subject:"francais", topic:"Vocabulaire — intrus",
+    text:"Quel mot est l'intrus dans cette liste : optimiste, confiant, crédule, naïf, enthousiaste, … ?",
+    options:["Positif","Jovial","Ouvert","Sceptique"], correct:"D",
+    explanation:"Optimiste, confiant, crédule, naïf, enthousiaste et positif désignent des attitudes ouvertes ou bienveillantes. « Sceptique » est l'intrus car il implique le doute et la méfiance." },
+
+  { id:17, subject:"francais", topic:"Grammaire — participe passé",
+    text:"« Les lettres qu'il a écrites sont magnifiques. » Le participe passé « écrites » s'accorde au féminin pluriel car :",
+    options:[
+      "Il est conjugué avec l'auxiliaire être",
+      "Le COD « les lettres » est placé avant le verbe avoir",
+      "Il suit un pronom relatif sujet féminin",
+      "Le sujet de la phrase principale est féminin"
+    ], correct:"B",
+    explanation:"Avec l'auxiliaire avoir, le participe passé s'accorde avec le COD uniquement si celui-ci est placé AVANT le verbe. Ici, « les lettres » est COD de « a écrites » et le précède → accord féminin pluriel." },
+
+  { id:18, subject:"francais", topic:"Orthographe — homophones",
+    text:"Choisissez la bonne orthographe pour compléter : « Je viendrai ___ tu seras prêt. »",
+    options:["quant","qu'en","quand","quant à"], correct:"C",
+    explanation:"« Quand » est une conjonction de subordination temporelle (= lorsque, au moment où). « Quant à » signifie « en ce qui concerne ». « Qu'en » = « que en » (pronom + préposition)." },
+
+  { id:19, subject:"francais", topic:"Latin — expressions",
+    text:"Que signifie l'expression latine « ad vitam aeternam » ?",
+    options:[
+      "Pour le bien commun",
+      "Depuis les temps anciens",
+      "En toutes circonstances",
+      "Pour toujours, éternellement"
+    ], correct:"D",
+    explanation:"« Ad vitam aeternam » signifie littéralement « pour la vie éternelle », employé figurément pour « pour toujours ». Autres locutions : in extremis (au dernier moment), a posteriori (après coup)." },
+
+  { id:20, subject:"francais", topic:"Littérature — romans",
+    text:"« Le Rouge et le Noir » (1830), roman qui raconte l'ascension sociale de Julien Sorel, est l'œuvre de :",
+    options:["Stendhal","Balzac","Flaubert","Zola"], correct:"A",
+    explanation:"Le Rouge et le Noir (1830) est l'œuvre maîtresse de Stendhal (Henri Beyle). Il dépeint l'ambition d'un fils de charpentier sous la Restauration. À ne pas confondre avec Balzac (Père Goriot) ou Flaubert (Madame Bovary)." }
+];
+
+const SUBJECT_COLORS = {
+  enjeux: { accent: '#fbbf24', dim: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)', label: 'Enjeux contemporains' },
+  francais: { accent: '#818cf8', dim: 'rgba(129,140,248,0.08)', border: 'rgba(129,140,248,0.2)', label: 'Français' }
+};
+
+const LETTERS = ["A","B","C","D"];
+let currentIdx = 0;
+let answers = {};
+let revealed = {};
+let timerInterval = null;
+let secondsLeft = 20 * 60;
+let elapsed = 0;
+let timerRunning = false;
+let paused = false;
+
+// Même SAVE_KEY que les sessions précédentes → reprise depuis la pause possible
+const SAVE_KEY = 'sesame_pause_2026-03-16';
+
+// ─── PERSISTENCE ──────────────────────────────────────────────────────────────
+function saveState() {
+  localStorage.setItem(SAVE_KEY, JSON.stringify({ currentIdx, answers, revealed, secondsLeft, elapsed }));
+}
+
+function clearState() {
+  localStorage.removeItem(SAVE_KEY);
+}
+
+function checkSavedState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (!saved || saved.currentIdx === undefined) return;
+    const remaining = Math.floor(saved.secondsLeft / 60) + 'min' + (saved.secondsLeft % 60 ? (saved.secondsLeft % 60) + 's' : '');
+    document.getElementById('btn-resume').style.display = 'inline-block';
+    document.getElementById('resume-info').style.display = 'block';
+    document.getElementById('resume-info').textContent =
+      `Question ${saved.currentIdx + 1}/20 · ${remaining} restantes`;
+  } catch(e) {}
+}
+
+// ─── START ────────────────────────────────────────────────────────────────────
+function startSession() {
+  clearState();
+  document.getElementById('start-screen').classList.add('gone');
+  renderDots();
+  renderQuestion(0);
+  startTimer();
+  updateSubjectUI(QUESTIONS[0].subject);
+}
+
+function resumeSession() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    currentIdx = saved.currentIdx || 0;
+    answers = saved.answers || {};
+    revealed = saved.revealed || {};
+    secondsLeft = saved.secondsLeft || 20 * 60;
+    elapsed = saved.elapsed || 0;
+  } catch(e) {}
+  document.getElementById('start-screen').classList.add('gone');
+  renderDots();
+  renderQuestion(currentIdx);
+  startTimer();
+  updateSubjectUI(QUESTIONS[currentIdx].subject);
+}
+
+function quitSession() {
+  if (!timerRunning && !paused) return;
+  togglePause();
+  saveState();
+  window.location.href = '../hub.html';
+}
+
+// Auto-save après chaque réponse et avant de quitter
+window.addEventListener('beforeunload', () => { if (timerRunning || paused) saveState(); });
+
+// Vérifie s'il y a une session en cours au chargement
+checkSavedState();
+
+// ─── SUBJECT UI ───────────────────────────────────────────────────────────────
+function updateSubjectUI(subject) {
+  const c = SUBJECT_COLORS[subject];
+  const tag = document.getElementById('subject-tag');
+  tag.textContent = c.label;
+  tag.style.color = c.accent;
+  tag.style.background = c.dim;
+  tag.style.borderColor = c.border;
+  document.documentElement.style.setProperty('--accent', c.accent);
+  document.documentElement.style.setProperty('--accent-dim', c.dim);
+  document.querySelector('.progress-fill').style.boxShadow = `0 0 10px ${c.accent}88`;
+  document.querySelector('.progress-fill').style.background = c.accent;
+  document.querySelector('.btn-next').style.background = c.accent;
+}
+
+// ─── RENDER QUESTION ──────────────────────────────────────────────────────────
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  const isLast = idx === QUESTIONS.length - 1;
+
+  let dividerHtml = '';
+  if (q.sectionStart) {
+    dividerHtml = `
+      <div class="section-divider francais">
+        <div class="section-divider-dot"></div>
+        <div class="section-divider-label">Français</div>
+        <div class="section-divider-sub">Questions 11–20 · 10 min</div>
+      </div>`;
+  }
+
+  const badgeCls = q.subject === 'enjeux' ? 'q-topic-badge enjeux' : 'q-topic-badge francais';
+
+  const optHtml = q.options.map((opt, i) => {
+    const letter = LETTERS[i];
+    let cls = 'option';
+    if (revealed[q.id]) {
+      cls += ' locked';
+      if (letter === q.correct) cls += ' correct';
+      else if (letter === answers[q.id]) cls += ' wrong';
+    } else if (answers[q.id] === letter) {
+      cls += ' selected';
+    }
+    return `<div class="${cls}" id="opt-${q.id}-${letter}" onclick="selectOption(${q.id},'${letter}')">
+      <span class="opt-letter">${letter}.</span>
+      <span class="opt-text">${escHtml(opt)}</span>
+    </div>`;
+  }).join('');
+
+  const vp = document.getElementById('question-viewport');
+  const newSlide = document.createElement('div');
+  newSlide.className = 'question-slide';
+  newSlide.innerHTML = `
+    ${dividerHtml}
+    <div class="q-meta">
+      Question ${idx + 1} <span class="${badgeCls}">${escHtml(q.topic)}</span>
+    </div>
+    <div class="q-text">${escHtml(q.text)}</div>
+    <div class="options-list">${optHtml}</div>
+  `;
+
+  const existing = vp.querySelector('.question-slide.active');
+  if (existing) {
+    existing.classList.remove('active');
+    existing.classList.add('exit-left');
+    setTimeout(() => existing.remove(), 350);
+  }
+
+  vp.appendChild(newSlide);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => newSlide.classList.add('active'));
+  });
+
+  document.getElementById('q-current').textContent = idx + 1;
+  document.getElementById('progress-fill').style.width = ((idx + 1) / QUESTIONS.length * 100) + '%';
+  document.getElementById('btn-next-label').textContent = isLast ? 'Terminer' : 'Suivant';
+
+  updateSubjectUI(q.subject);
+
+  if (revealed[q.id]) {
+    showFeedback(q.id);
+    document.getElementById('btn-next').classList.add('show');
+  } else {
+    document.getElementById('feedback-text').classList.remove('show');
+    document.getElementById('btn-next').classList.remove('show');
+  }
+
+  updateDots();
+}
+
+// ─── SELECT ────────────────────────────────────────────────────────────────────
+function selectOption(qid, letter) {
+  if (revealed[qid]) return;
+  const q = QUESTIONS.find(q => q.id === qid);
+  answers[qid] = letter;
+  revealed[qid] = true;
+  saveState();
+
+  LETTERS.forEach(l => {
+    const el = document.getElementById(`opt-${qid}-${l}`);
+    if (!el) return;
+    el.classList.remove('selected');
+    el.classList.add('locked');
+    if (l === q.correct) el.classList.add('correct');
+    else if (l === letter && letter !== q.correct) el.classList.add('wrong');
+  });
+
+  showFeedback(qid);
+  document.getElementById('btn-next').classList.add('show');
+  updateDots();
+}
+
+function showFeedback(qid) {
+  const q = QUESTIONS.find(q => q.id === qid);
+  const isOk = answers[qid] === q.correct;
+  const el = document.getElementById('feedback-text');
+  el.className = 'feedback-text show ' + (isOk ? 'correct' : 'wrong');
+  document.getElementById('feedback-icon').textContent = isOk ? '✓' : '✗';
+  document.getElementById('feedback-msg').textContent = isOk
+    ? 'Bonne réponse !'
+    : `Incorrect — Bonne réponse : ${q.correct}. ${q.options[q.correct.charCodeAt(0)-65]}${q.explanation ? ' · ' + q.explanation : ''}`;
+}
+
+// ─── NEXT ──────────────────────────────────────────────────────────────────────
+function nextQuestion() {
+  if (currentIdx === QUESTIONS.length - 1) { showResults(); return; }
+  currentIdx++;
+  renderQuestion(currentIdx);
+}
+
+// ─── DOTS ──────────────────────────────────────────────────────────────────────
+function renderDots() {
+  const strip = document.getElementById('dots-strip');
+  strip.innerHTML = QUESTIONS.map((q, i) => {
+    const divider = (i === 10) ? '<div class="dot divider"></div>' : '';
+    return `${divider}<div class="dot" id="dot-${i}"></div>`;
+  }).join('');
+}
+
+function updateDots() {
+  QUESTIONS.forEach((q, i) => {
+    const dot = document.getElementById(`dot-${i}`);
+    if (!dot) return;
+    dot.className = 'dot';
+    if (i === currentIdx) dot.classList.add('current');
+    else if (revealed[q.id]) {
+      dot.classList.add(answers[q.id] === q.correct ? 'ok' : 'ko');
+    }
+  });
+}
+
+// ─── TIMER ─────────────────────────────────────────────────────────────────────
+function startTimer() {
+  timerRunning = true;
+  timerInterval = setInterval(() => {
+    secondsLeft--; elapsed++;
+    updateTimerDisplay();
+    if (secondsLeft <= 0) { clearInterval(timerInterval); timerRunning = false; showResults(); }
+  }, 1000);
+}
+
+function togglePause() {
+  if (timerRunning) {
+    clearInterval(timerInterval); timerRunning = false; paused = true;
+    document.getElementById('btn-pause').textContent = '▶';
+  } else {
+    startTimer(); paused = false;
+    document.getElementById('btn-pause').textContent = '⏸';
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(secondsLeft / 60), s = secondsLeft % 60;
+  const el = document.getElementById('timer');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.className = 'timer-display';
+  if (secondsLeft <= 120) el.classList.add('danger');
+  else if (secondsLeft <= 300) el.classList.add('warning');
+}
+
+// ─── RESULTS ──────────────────────────────────────────────────────────────────
+function showResults() {
+  if (timerRunning) { clearInterval(timerInterval); timerRunning = false; }
+  clearState();
+
+  let score = 0;
+  let scoreEnjeux = 0, scoreFrancais = 0;
+  const weakTopics = [], wrongAnswers = [];
+
+  QUESTIONS.forEach(q => {
+    const ok = answers[q.id] === q.correct;
+    if (ok) {
+      score++;
+      if (q.subject === 'enjeux') scoreEnjeux++;
+      else scoreFrancais++;
+    } else {
+      weakTopics.push(q.topic);
+      wrongAnswers.push({ id: q.id, text: q.text, topic: q.topic, subject: q.subject, chosen: answers[q.id] || '—', correct: q.correct });
+    }
+  });
+
+  const pct = Math.round(score / QUESTIONS.length * 100);
+  const durationMin = Math.max(1, Math.round(elapsed / 60));
+
+  document.getElementById('results-screen').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  const scoreNum = document.getElementById('score-num');
+  scoreNum.textContent = score;
+  scoreNum.style.color = score >= 16 ? 'var(--green)' : score >= 12 ? 'var(--amber)' : 'var(--red)';
+
+  const ringFill = document.getElementById('ring-fill');
+  const circumference = 408.41;
+  setTimeout(() => {
+    ringFill.style.strokeDashoffset = circumference - (circumference * pct / 100);
+    ringFill.style.stroke = score >= 16 ? 'var(--green)' : score >= 12 ? 'var(--amber)' : 'var(--red)';
+  }, 100);
+
+  document.getElementById('score-verdict').textContent =
+    score >= 16 ? 'Excellent — tu maîtrises ces deux épreuves.' :
+    score >= 12 ? 'Bon niveau — quelques points à consolider.' :
+    score >= 8  ? 'Moyen — ces thèmes demandent plus de travail.' :
+    'Difficultés importantes — reviens sur les bases.';
+
+  document.getElementById('stat-pct').textContent = pct + '%';
+  document.getElementById('stat-time').textContent = durationMin + ' min';
+  document.getElementById('stat-errors').textContent = wrongAnswers.length;
+
+  const subjectEl = document.getElementById('results-by-subject');
+  subjectEl.innerHTML = `
+    <div class="section-hl" style="margin-bottom:12px;">Scores par matière</div>
+    <div class="subject-result">
+      <span class="subject-result-name" style="color:#fbbf24">🌍 Enjeux contemporains</span>
+      <span class="subject-result-score" style="color:${scoreEnjeux>=8?'var(--green)':scoreEnjeux>=6?'var(--amber)':'var(--red)'}">${scoreEnjeux}/10</span>
+    </div>
+    <div class="subject-result">
+      <span class="subject-result-name" style="color:#818cf8">📝 Français</span>
+      <span class="subject-result-score" style="color:${scoreFrancais>=8?'var(--green)':scoreFrancais>=6?'var(--amber)':'var(--red)'}">${scoreFrancais}/10</span>
+    </div>
+  `;
+
+  if (weakTopics.length) {
+    const unique = [...new Set(weakTopics)];
+    document.getElementById('weak-chips').innerHTML = unique.map(t => `<span class="weak-chip">${escHtml(t)}</span>`).join('');
+    document.getElementById('weak-section').style.display = 'block';
+
+    document.getElementById('review-list').innerHTML = wrongAnswers.map(w => `
+      <div class="review-item">
+        <div class="review-qnum">Q${w.id} · ${escHtml(w.topic)}</div>
+        <div class="review-qtext">${escHtml(w.text.substring(0, 90))}…</div>
+        <div class="review-answers">
+          <span class="given">Donné : ${w.chosen}</span>
+          <span class="corr">Correct : ${w.correct}</span>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('review-block').style.display = 'block';
+  }
+
+  const sessionData = {
+    date: '2026-03-18', matiere: 'Enjeux contemporains + Français',
+    score, total: 20, pct, duration_min: durationMin,
+    score_enjeux: scoreEnjeux, score_francais: scoreFrancais,
+    weak_topics: [...new Set(weakTopics)],
+    wrong_answers: wrongAnswers, all_answers: answers
+  };
+  try {
+    const sessions = JSON.parse(localStorage.getItem('sesame_sessions') || '[]');
+    const filtered = sessions.filter(s => !(s.date === sessionData.date && s.matiere === sessionData.matiere));
+    filtered.push(sessionData);
+    localStorage.setItem('sesame_sessions', JSON.stringify(filtered));
+  } catch(e) {}
+
+  sendResults(sessionData);
+}
+
+async function sendResults(data) {
+  const el = document.getElementById('send-status');
+  try {
+    const res = await fetch('http://localhost:8765/session', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) { el.className = 'send-status ok'; el.textContent = '✓ Résultats enregistrés dans ton suivi.'; }
+    else throw new Error();
+  } catch(e) {
+    el.className = 'send-status err';
+    el.textContent = '⚠ Serveur non démarré — lance tools/start-sesame.bat.';
+  }
+}
+
+function toggleTheme() {
+  const body = document.body;
+  const next = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  body.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀ Clair' : '☾ Sombre';
+  localStorage.setItem('sesame_theme', next);
+}
+const _t = localStorage.getItem('sesame_theme') || 'dark';
+document.body.setAttribute('data-theme', _t);
+document.addEventListener('DOMContentLoaded', () => {
+  const b = document.getElementById('theme-btn');
+  if (b) b.textContent = _t === 'dark' ? '☀ Clair' : '☾ Sombre';
+});
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>

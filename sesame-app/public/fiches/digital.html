@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08080f">
+<link rel="manifest" href="/manifest.json">
+<title>Fiche mémo — Compétences digitales</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[data-theme="dark"]  { --bg:#08080f; --bg2:#0a0a14; --card:#0f0f1a; --card2:#121220; --border:#1c1c2e; --text:#e8e8f5; --muted:#606080; --shadow:rgba(0,0,0,0.5); }
+[data-theme="light"] { --bg:#f3f3fb; --bg2:#eaeaf5; --card:#ffffff; --card2:#f8f8ff; --border:#e0e0f0; --text:#0f0f1a; --muted:#8080a0; --shadow:rgba(0,0,0,0.07); }
+:root { --accent:#06d6f5; }
+
+body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:32px 20px 80px; transition:background .2s,color .2s; }
+.wrap { max-width:900px; margin:0 auto; }
+
+/* ── TOP NAV ─── */
+.topnav { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:12px; }
+.back { font-size:13px; color:var(--muted); text-decoration:none; }
+.back:hover { color:var(--accent); }
+.theme-toggle { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); }
+.theme-toggle:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ── HERO ─── */
+.hero { margin-bottom:40px; }
+.hero-tag { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+.hero-title { font-size:clamp(28px,5vw,44px); font-weight:800; line-height:1.1; margin-bottom:8px; }
+.hero-title span { color:var(--accent); }
+.hero-meta { font-size:13px; color:var(--muted); display:flex; gap:20px; flex-wrap:wrap; }
+.hero-meta strong { color:var(--text); }
+
+/* ── SECTIONS ─── */
+.section-title {
+  font-size:10px; font-weight:800; letter-spacing:3px; text-transform:uppercase;
+  color:var(--accent); margin-bottom:16px; padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ── INFOGRAPHIC GRID ─── */
+.info-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-bottom:32px; }
+
+.info-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+  border-left:3px solid var(--c, var(--accent));
+}
+.info-card-icon { font-size:20px; margin-bottom:10px; }
+.info-card-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; }
+.info-card ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.info-card li { font-size:12px; color:var(--muted); line-height:1.5; display:flex; gap:8px; }
+.info-card li::before { content:'→'; color:var(--accent); flex-shrink:0; font-size:11px; }
+.info-card li strong { color:var(--text); }
+.info-card li code {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  background:rgba(6,214,245,0.08); border:1px solid rgba(6,214,245,0.15);
+  padding:1px 6px; border-radius:4px; color:var(--accent);
+}
+
+/* ── ALGO BLOC ─── */
+.algo-section { margin-bottom:32px; }
+.algo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.algo-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+}
+.algo-card-title { font-size:12px; font-weight:700; color:var(--accent); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; }
+.algo-block {
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  line-height:1.8; color:#a0c4d4; margin-bottom:10px;
+  white-space:pre; overflow-x:auto;
+}
+[data-theme="light"] .algo-block { color:#2a6080; }
+.algo-note { font-size:11px; color:var(--muted); line-height:1.6; }
+.algo-note strong { color:var(--text); }
+
+/* ── PIÈGE TABLE ─── */
+.traps { margin-bottom:32px; }
+.trap-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:14px 18px; margin-bottom:8px;
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  font-size:12px; box-shadow:0 1px 6px var(--shadow);
+}
+@media(max-width:500px){ .trap-row { grid-template-columns:1fr; } }
+.trap-wrong { color:#f87171; }
+.trap-right { color:#34d399; }
+.trap-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; opacity:.7; }
+
+/* ── QUIZ RAPIDE ─── */
+.quiz-section { margin-bottom:32px; }
+.qr-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:18px; margin-bottom:10px;
+  box-shadow:0 1px 6px var(--shadow); cursor:pointer;
+}
+.qr-q { font-size:13px; font-weight:600; margin-bottom:10px; line-height:1.5; }
+.qr-answer {
+  font-size:12px; color:var(--accent); display:none;
+  padding-top:10px; border-top:1px solid var(--border); line-height:1.6;
+}
+.qr-card.open .qr-answer { display:block; }
+.qr-hint { font-size:11px; color:var(--muted); margin-top:6px; }
+
+/* ── BACK LINK ─── */
+.back-footer { text-align:center; margin-top:40px; }
+.back-footer a { font-size:13px; color:var(--muted); text-decoration:none; }
+.back-footer a:hover { color:var(--accent); }
+@supports (padding-top: env(safe-area-inset-top)) {
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topnav">
+    <a class="back" href="index.html">← Fiches mémo</a>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+  </div>
+
+  <!-- ═══ HERO ═════════════════════════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-tag">Séquence 1 — Fiche mémo</div>
+    <div class="hero-title">Compétences<br><span>digitales</span></div>
+    <div class="hero-meta">
+      <span><strong>20 questions</strong> · 20 min</span>
+      <span><strong>7 thèmes</strong> couverts</span>
+      <span><strong>4 algos</strong> à maîtriser</span>
+    </div>
+  </div>
+
+  <!-- ═══ NOTIONS CLÉS ══════════════════════════════════════════════════════ -->
+  <div class="section-title">Notions clés</div>
+  <div class="info-grid">
+
+    <div class="info-card" style="--c:#06d6f5">
+      <div class="info-card-icon">📡</div>
+      <div class="info-card-title">Flux RSS & information</div>
+      <ul>
+        <li><strong>RSS</strong> = Really Simple Syndication — flux d'info automatisé</li>
+        <li>Recevoir l'info sans aller la chercher = <strong>agrégation</strong></li>
+        <li>Outil : agrégateur de flux (ex: Feedly)</li>
+        <li>≠ concaténation (assemblage de texte), diffusion (1→tous)</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fbbf24">
+      <div class="info-card-icon">🔍</div>
+      <div class="info-card-title">Moteurs de recherche</div>
+      <ul>
+        <li>Efficacité = <strong>bien choisir ses mots-clés</strong></li>
+        <li>Questions longues → moins précis</li>
+        <li>1 seul mot-clé → trop large</li>
+        <li>Opérateurs : guillemets pour exact, "-" pour exclure</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#a78bfa">
+      <div class="info-card-icon">🏷️</div>
+      <div class="info-card-title">Métadonnées</div>
+      <ul>
+        <li>Données <em>sur</em> les données : auteur, titre, date, description</li>
+        <li><strong>PAS</strong> une métadonnée : les valeurs d'un formulaire</li>
+        <li>Utilisées par les moteurs de recherche (SEO)</li>
+        <li>Exemple : EXIF dans une photo (GPS, appareil, date)</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#34d399">
+      <div class="info-card-icon">🗜️</div>
+      <div class="info-card-title">Compression de fichiers</div>
+      <ul>
+        <li>Logiciels : 7ZIP, WinZIP, WinRAR</li>
+        <li>Permet : réduire taille, archiver plusieurs fichiers, protéger par mot de passe</li>
+        <li><strong>Ne permet PAS</strong> : diviser en parties de tailles identiques (≠ split)</li>
+        <li>Archive = conteneur compressé</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#06d6f5">
+      <div class="info-card-icon">📊</div>
+      <div class="info-card-title">Tableur — références</div>
+      <ul>
+        <li>Référence <strong>relative</strong> : <code>A1</code> → se déplace à la recopie</li>
+        <li>Référence <strong>absolue</strong> : <code>$A$1</code> → fixe (2 symboles $)</li>
+        <li>Référence <strong>mixte</strong> : <code>$A1</code> ou <code>A$1</code></li>
+        <li>Formule TVA correcte : <code>=B2*$E$2</code> (fixer E2, pas B2)</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#f87171">
+      <div class="info-card-icon">📧</div>
+      <div class="info-card-title">Communication numérique</div>
+      <ul>
+        <li><strong>Newsletter</strong> → envoyée via liste de diffusion</li>
+        <li><strong>Mode collaboratif</strong> = plusieurs utilisateurs sur 1 document partagé</li>
+        <li>Indicateur de visibilité = vues, partages, visites</li>
+        <li><strong>PAS</strong> un indicateur : nombre de médias publiés</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fb923c">
+      <div class="info-card-icon">📁</div>
+      <div class="info-card-title">Formats de fichiers</div>
+      <ul>
+        <li><code>.docx</code> = Word (texte)</li>
+        <li><code>.xlsx</code> = Excel (tableur)</li>
+        <li><code>.xlsm</code> = Excel avec macros → <strong>risque virus</strong></li>
+        <li><code>.zip</code> / <code>.arj</code> = archives compressées ≠ texte</li>
+        <li>PDF créé par : Acrobat, Word, Excel — <strong>pas</strong> Visual Studio</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#34d399">
+      <div class="info-card-icon">🔒</div>
+      <div class="info-card-title">Sécurité numérique</div>
+      <ul>
+        <li><strong>Double authentification</strong> : SMS, email, empreinte digitale</li>
+        <li><strong>PAS</strong> une 2e auth : ressaisir son nom d'utilisateur</li>
+        <li>Usurpation d'identité → <strong>utiliser un pseudonyme</strong></li>
+        <li>Fichier dangereux par email : <code>.xlsm</code> (macros)</li>
+        <li>Data centers ≈ impact GES du <strong>transport aérien</strong> mondial</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ═══ ALGORITHMES ════════════════════════════════════════════════════════ -->
+  <div class="algo-section">
+    <div class="section-title">Algorithmes — 4 types à maîtriser</div>
+    <div class="algo-grid">
+
+      <div class="algo-card">
+        <div class="algo-card-title">🔁 Boucle Pour (for)</div>
+        <div class="algo-block">N = 1
+pour i de 1 à 10 faire
+    N = N + 2
+fin pour
+afficher(N)  → <strong style="color:#06d6f5">21</strong></div>
+        <div class="algo-note">
+          <strong>Méthode :</strong> 10 itérations × (+2) = +20. N démarre à 1 → <strong>1+20 = 21</strong><br>
+          Attention : la boucle s'exécute <em>N fois</em>, pas N-1.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">🔄 Répéter Jusqu'à</div>
+        <div class="algo-block">A=2, B=17
+répéter
+    B = B - A   → 15, 13, 11, 9, 7, 5, 3, 1
+jusqu'à B >= A  → stop quand 1 >= 2 ? NON
+                → stop quand 3 >= 2 ? OUI → <strong style="color:#06d6f5">afficher 1</strong></div>
+        <div class="algo-note">
+          <strong>Piège :</strong> la condition est évaluée <em>après</em> l'exécution. Simuler pas à pas : 17→15→13→11→9→7→5→3→1. On s'arrête quand B≥A, donc quand B revient à 1 (après avoir été soustrait une dernière fois de 3).
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">📋 Listes (tableaux)</div>
+        <div class="algo-block">N=5, Valeurs[i] = i*2+1
+→ [3, 5, 7, 9, 11]
+
+puis Valeurs[i] += Valeurs[i-1]
+i=2: 5+3=8
+i=3: 7+8=15
+i=4: 9+15=24
+i=5: 11+24=<strong style="color:#06d6f5">35</strong></div>
+        <div class="algo-note">
+          <strong>Méthode :</strong> 2 passes. 1re : remplir le tableau. 2e : accumuler. Chaque case devient la somme avec la précédente.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">✅ Booléen & Répéter</div>
+        <div class="algo-block">i=3, k=15, N=1, Continu=VRAI
+répéter
+    Continu = (k > i)   → T, T, T, T, F
+    k = k - i           → 12, 9, 6, 3, 0
+    N = N + 1           → 2, 3, 4, 5, 6
+jusqu'à Continu         → stop quand Continu=VRAI (après itération)</div>
+        <div class="algo-note">
+          <strong>Résultat :</strong> N=6 et k=0. <strong>Piège :</strong> "jusqu'à Continu" = s'arrête quand Continu est VRAI, pas faux. La condition est testée après que k et N ont été mis à jour.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ PIÈGES CLASSIQUES ═════════════════════════════════════════════════ -->
+  <div class="traps">
+    <div class="section-title">Pièges classiques — confusion fréquente</div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">Agrégation = concaténation</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Agrégation = collecter/regrouper des flux. Concaténation = assembler des chaînes de texte.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">Référence absolue = 1 seul $</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Référence absolue = <code>$A$1</code> (2 symboles $). Mixte = 1 seul $.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">ZIP peut diviser un fichier en parties identiques</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Non — c'est le "split" qui fait ça. ZIP compresse et archive, il ne divise pas.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">Nombre de médias publiés = indicateur de visibilité</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Non — publier beaucoup ≠ être vu. Les vrais indicateurs sont vues, partages, visites.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">Visual Studio crée des PDF</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Non — VS est un IDE pour coder. Les PDF sont créés par Word, Excel, Acrobat Reader.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ QUIZ RAPIDE ═══════════════════════════════════════════════════════ -->
+  <div class="quiz-section">
+    <div class="section-title">Quiz éclair — clique pour voir la réponse</div>
+
+    <div class="qr-card" onclick="this.classList.toggle('open')">
+      <div class="qr-q">Quelle est la formule correcte pour calculer le prix TTC en colonne C en fixant le taux de TVA en E2 ?</div>
+      <div class="qr-answer">
+        <strong>=B2*$E$2</strong> — B2 est relatif (se déplace à la recopie), $E$2 est absolu (fixe le taux de TVA).
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card" onclick="this.classList.toggle('open')">
+      <div class="qr-q">Quel format de fichier joint dans un mail représente un risque de virus particulier ?</div>
+      <div class="qr-answer">
+        <strong>.xlsm</strong> — fichier Excel avec macros. Les macros peuvent contenir du code malveillant qui s'exécute à l'ouverture.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card" onclick="this.classList.toggle('open')">
+      <div class="qr-q">Qu'affiche l'algo : N=1, pour i de 1 à 10, N=N+2 ?</div>
+      <div class="qr-answer">
+        <strong>21</strong> — N part de 1, on ajoute 2 dix fois : 1 + (10×2) = 21.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card" onclick="this.classList.toggle('open')">
+      <div class="qr-q">Quel moyen n'est PAS utilisé dans la double authentification ?</div>
+      <div class="qr-answer">
+        <strong>Ressaisir son nom d'utilisateur</strong> — Ce n'est pas une vérification d'identité supplémentaire, c'est déjà la 1re étape.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card" onclick="this.classList.toggle('open')">
+      <div class="qr-q">L'impact des data centers sur les GES est comparable à quel moyen de transport mondial ?</div>
+      <div class="qr-answer">
+        <strong>Transport aérien</strong> — Les data centers consomment énormément d'électricité et représentent ~2-3% des émissions mondiales, similaire à l'aviation.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+  </div>
+
+  <div class="back-footer">
+    <a href="index.html">← Retour aux fiches</a> &nbsp;·&nbsp;
+    <a href="/">Tableau de bord</a>
+  </div>
+
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀ Clair' : '☾ Sombre';
+  localStorage.setItem('sesame_theme', next);
+}
+const saved = localStorage.getItem('sesame_theme') || 'light';
+document.documentElement.setAttribute('data-theme', saved);
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀ Clair' : '☾ Sombre';
+});
+</script>
+</body>
+</html>

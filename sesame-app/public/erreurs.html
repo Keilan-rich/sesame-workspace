@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08080f">
+<link rel="manifest" href="/manifest.json">
+<title>Révision des erreurs — Sésame</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  :root { --bg:#0f1117; --card:#1a1d27; --border:#2a2d3a; --text:#e8eaf0; --sub:#8b8fa8; --accent:#06d6f5; --red:#f43f5e; --green:#10b981; --amber:#fbbf24; }
+  body { margin:0; font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:2rem 1rem; }
+  .back { align-self:flex-start; color:var(--sub); text-decoration:none; font-size:.85rem; margin-bottom:2rem; }
+  .back:hover { color:var(--accent); }
+  h1 { font-size:1.6rem; font-weight:700; margin:0 0 .4rem; }
+  .subtitle { color:var(--sub); font-size:.9rem; margin-bottom:2rem; }
+  .empty { color:var(--sub); text-align:center; margin-top:4rem; font-size:1rem; }
+  /* Session */
+  .session-wrap { width:100%; max-width:640px; }
+  .progress-bar { background:var(--border); border-radius:4px; height:4px; margin-bottom:2rem; }
+  .progress-fill { height:4px; border-radius:4px; background:var(--accent); transition:width .4s; }
+  .q-counter { color:var(--sub); font-size:.85rem; margin-bottom:1.2rem; }
+  .question-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.8rem; margin-bottom:1.5rem; }
+  .q-meta { font-size:.78rem; color:var(--sub); margin-bottom:.8rem; display:flex; gap:.6rem; }
+  .q-meta span { background:var(--border); border-radius:4px; padding:.2rem .5rem; }
+  .q-text { font-size:1.1rem; font-weight:600; line-height:1.5; margin-bottom:1.4rem; }
+  .options { display:flex; flex-direction:column; gap:.7rem; }
+  .opt { padding:.9rem 1.2rem; border-radius:8px; border:1.5px solid var(--border); cursor:pointer; font-size:.95rem; transition:all .15s; background:transparent; color:var(--text); text-align:left; font-family:'Sora',sans-serif; }
+  .opt:hover:not(:disabled) { border-color:var(--accent); background:rgba(6,214,245,.06); }
+  .opt.correct { border-color:var(--green); background:rgba(16,185,129,.12); color:var(--green); }
+  .opt.wrong   { border-color:var(--red);   background:rgba(244,63,94,.12);  color:var(--red); }
+  .opt.reveal  { border-color:var(--green); background:rgba(16,185,129,.08); }
+  .feedback { margin-top:1.2rem; padding:1rem 1.2rem; border-radius:8px; background:rgba(251,191,36,.07); border:1px solid rgba(251,191,36,.2); color:var(--amber); font-size:.9rem; line-height:1.5; }
+  .btn-next { margin-top:1.2rem; padding:.8rem 1.8rem; border-radius:8px; background:var(--accent); color:#0f1117; font-weight:700; border:none; cursor:pointer; font-size:.95rem; font-family:'Sora',sans-serif; }
+  .btn-next:hover { opacity:.9; }
+  /* Bilan */
+  .bilan { width:100%; max-width:640px; text-align:center; padding:3rem 0; }
+  .bilan-score { font-size:3.5rem; font-weight:700; color:var(--green); }
+  .bilan-sub { color:var(--sub); margin:.5rem 0 2rem; }
+  .btn-hub { display:inline-block; padding:.9rem 2.2rem; border-radius:8px; background:var(--accent); color:#0f1117; font-weight:700; text-decoration:none; font-size:1rem; }
+  @media(max-width:600px) {
+    body { padding:1rem .6rem; }
+    h1 { font-size:1.3rem; }
+    .question-card { padding:1.2rem; }
+    .q-text { font-size:1rem; }
+    .opt { padding:.7rem 1rem; font-size:.9rem; }
+  }
+@supports (padding-top: env(safe-area-inset-top)) {
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+}
+</style>
+</head>
+<body>
+<a class="back" href="/">← Tableau de bord</a>
+<h1>Révision des erreurs</h1>
+<div class="subtitle" id="subtitle">Chargement…</div>
+<div id="main"></div>
+
+<script>
+const SUPABASE_URL = 'https://gkcxenxcyybgwdsgsuep.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY3hlbnhjeXliZ3dkc2dzdWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjcyMjMsImV4cCI6MjA4OTUwMzIyM30.fSS4MJpilWlfVyu6uPUKK-cWhO3S5KA_NUkKFLRPiBo';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let questions = [];
+let idx = 0;
+let answered = 0;
+let correct = 0;
+
+async function init() {
+  // Auth check
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user) { window.location.href = '/'; return; }
+  const uid = session.user.id;
+
+  // 1. Fetch user's wrong answers from Supabase (per-user)
+  const { data: userResults } = await sb
+    .from('session_results').select('wrong_answers, subject, date')
+    .eq('user_id', uid).order('created_at', { ascending: false }).limit(30);
+
+  // 2. Collect unique question IDs from wrong_answers
+  const wrongMap = {};
+  (userResults || []).forEach(r => {
+    if (r.wrong_answers && Array.isArray(r.wrong_answers)) {
+      r.wrong_answers.forEach(w => {
+        if (w && w.id && !wrongMap[w.id]) {
+          wrongMap[w.id] = { subject: w.subject || r.subject || '', date: r.date || '', chosen: w.chosen || '' };
+        }
+      });
+    }
+  });
+
+  const wrongIds = Object.keys(wrongMap);
+  if (!wrongIds.length) {
+    document.getElementById('subtitle').textContent = '';
+    document.getElementById('main').innerHTML = '<p class="empty">Aucune erreur enregistrée.<br>Fais une session d\'abord, puis reviens ici.</p>';
+    return;
+  }
+
+  // 3. Fetch full question data from Supabase (text, options, explanation)
+  const { data: fullQuestions } = await sb
+    .from('questions')
+    .select('id, text, options, correct, explanation, subject')
+    .in('id', wrongIds);
+
+  if (fullQuestions) {
+    fullQuestions.forEach(q => {
+      const meta = wrongMap[q.id] || {};
+      const opts = q.options || {};
+      questions.push({
+        question: q.text,
+        options: Array.isArray(opts) ? opts : [opts.A, opts.B, opts.C, opts.D].filter(Boolean),
+        correct: q.correct || 'A',
+        explanation: q.explanation || '',
+        matiere: q.subject || meta.subject || '',
+        session_date: meta.date || ''
+      });
+    });
+  }
+
+  if (!questions.length) {
+    document.getElementById('subtitle').textContent = '';
+    document.getElementById('main').innerHTML = '<p class="empty">Aucune erreur enregistrée.<br>Fais une session d\'abord, puis reviens ici.</p>';
+    return;
+  }
+  document.getElementById('subtitle').textContent = `${questions.length} question${questions.length>1?'s':''} à retravailler`;
+  render();
+}
+
+function render() {
+  if (idx >= questions.length) { showBilan(); return; }
+  const q = questions[idx];
+  const opts = ['A','B','C','D'].map((l,i) => {
+    const optText = Array.isArray(q.options) ? q.options[i] : (q.options && q.options[l]);
+    return optText ? `<button class="opt" onclick="answer('${l}','${q.correct}')">${l}. ${optText}</button>` : '';
+  }).join('');
+  const pct = Math.round((idx/questions.length)*100);
+  document.getElementById('main').innerHTML = `
+    <div class="session-wrap">
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="q-counter">${idx+1} / ${questions.length}</div>
+      <div class="question-card">
+        <div class="q-meta">
+          ${q.matiere ? `<span>${q.matiere}</span>` : ''}
+          ${q.session_date ? `<span>${q.session_date}</span>` : ''}
+        </div>
+        <div class="q-text">${q.question}</div>
+        <div class="options">${opts}</div>
+        <div class="feedback" id="feedback" style="display:none"></div>
+        <button class="btn-next" id="btn-next" style="display:none" onclick="next()">Suivant →</button>
+      </div>
+    </div>`;
+}
+
+function answer(chosen, correct_ans) {
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  const q = questions[idx];
+  const opts = document.querySelectorAll('.opt');
+  opts.forEach((b,i) => {
+    const l = String.fromCharCode(65+i);
+    if (l === correct_ans) b.classList.add('correct');
+    else if (l === chosen) b.classList.add('wrong');
+  });
+  answered++;
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'block';
+  if (chosen === correct_ans) {
+    correct++;
+    fb.textContent = '✓ Correct !';
+    fb.style.background = 'rgba(16,185,129,.07)';
+    fb.style.borderColor = 'rgba(16,185,129,.2)';
+    fb.style.color = 'var(--green)';
+  } else {
+    const optArr = Array.isArray(q.options) ? q.options : Object.values(q.options || {});
+    const optText = optArr[correct_ans.charCodeAt(0)-65] || '';
+    fb.innerHTML = `✗ Bonne réponse : <strong>${correct_ans}. ${optText}</strong>${q.explanation ? '<br>' + q.explanation : ''}`;
+  }
+  document.getElementById('btn-next').style.display = 'inline-block';
+}
+
+function next() { idx++; render(); }
+
+function showBilan() {
+  const pct = Math.round((correct/questions.length)*100);
+  document.getElementById('main').innerHTML = `
+    <div class="bilan">
+      <div class="bilan-score">${correct}/${questions.length}</div>
+      <div class="bilan-sub">${pct}% de réussite sur tes erreurs passées</div>
+      <a class="btn-hub" href="/">← Retour au tableau de bord</a>
+    </div>`;
+}
+
+init();
+</script>
+</body>
+</html>

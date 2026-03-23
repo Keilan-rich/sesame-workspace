@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sésame — 20 mars · Anglais + Espagnol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent: #a78bfa;
+  --accent-dim: rgba(167,139,250,0.08);
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.12);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.10);
+  --amber: #fbbf24;
+}
+[data-theme="dark"] {
+  --bg: #08080f; --card: #0f0f1a; --border: #1e1e30;
+  --text: #e8e8f5; --muted: #606080;
+}
+[data-theme="light"] {
+  --bg: #f3f3fb; --card: #ffffff; --border: #e0e0f0;
+  --text: #0f0f1a; --muted: #8080a0;
+}
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── START SCREEN ─────────────────────────────────────────── */
+.start-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 300; padding: 32px; text-align: center;
+}
+.start-screen.gone { display: none; }
+
+.start-glow {
+  position: absolute; top: 50%; left: 50%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(167,139,250,0.10) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.start-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--accent);
+  background: var(--accent-dim); border: 1px solid rgba(167,139,250,0.2);
+  padding: 5px 16px; border-radius: 20px; margin-bottom: 24px;
+  position: relative;
+}
+.start-pill {
+  display: inline-block; background: var(--red); color: white;
+  font-size: 11px; font-weight: 700; padding: 4px 14px;
+  border-radius: 20px; margin-bottom: 20px; letter-spacing: 0.5px;
+  position: relative;
+}
+.start-title {
+  font-size: clamp(28px, 5vw, 44px); font-weight: 800; line-height: 1.15;
+  margin-bottom: 16px; position: relative;
+}
+.start-title .ang { color: #a78bfa; }
+.start-title .esp { color: #f87171; }
+.start-meta {
+  color: var(--muted); font-size: 14px; margin-bottom: 48px;
+  line-height: 1.8; position: relative;
+}
+.start-meta strong { color: var(--text); }
+.start-subjects {
+  display: flex; gap: 12px; margin-bottom: 32px; justify-content: center;
+  position: relative;
+}
+.subject-pill {
+  font-size: 12px; font-weight: 700; padding: 6px 16px; border-radius: 20px;
+}
+.subject-pill.anglais { background: rgba(167,139,250,0.12); color: #a78bfa; border: 1px solid rgba(167,139,250,0.2); }
+.subject-pill.espagnol { background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.2); }
+.btn-start-session {
+  background: var(--accent); color: #fff;
+  border: none; padding: 18px 52px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; position: relative;
+  letter-spacing: 0.3px;
+}
+.btn-start-session:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(167,139,250,0.30);
+}
+.btn-resume {
+  margin-top: 12px; padding: 14px 36px; border-radius: 12px;
+  background: transparent; border: 2px solid var(--accent);
+  color: var(--accent); font-family: 'Sora', sans-serif;
+  font-size: 15px; font-weight: 700; cursor: pointer; transition: all .2s;
+}
+.btn-resume:hover { background: var(--accent-dim); }
+.resume-info { margin-top: 10px; color: var(--muted); font-size: 13px; }
+.q-counter { font-size: 13px; color: var(--muted); font-weight: 500; }
+.q-counter strong { color: var(--text); font-weight: 700; }
+
+/* ── TOP BAR ──────────────────────────────────────────────── */
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(8,8,15,0.9); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+[data-theme="light"] .top-bar { background: rgba(243,243,251,0.92); }
+.subject-tag {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--accent);
+  background: var(--accent-dim); padding: 4px 12px;
+  border-radius: 20px; border: 1px solid rgba(167,139,250,0.2);
+  transition: all 0.4s;
+}
+.timer-wrap { display: flex; align-items: center; gap: 10px; }
+.timer-display {
+  font-size: 22px; font-weight: 700;
+  font-variant-numeric: tabular-nums; color: var(--text);
+  letter-spacing: -0.5px;
+}
+.timer-display.warning { color: var(--amber); }
+.timer-display.danger { color: var(--red); }
+.btn-pause {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  padding: 4px 12px; border-radius: 6px; font-size: 11px;
+  font-family: 'Sora', sans-serif; cursor: pointer; font-weight: 600;
+  transition: all 0.15s;
+}
+.btn-pause:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── PROGRESS STRIP ───────────────────────────────────────── */
+.progress-strip {
+  position: fixed; top: 60px; left: 0; right: 0;
+  height: 2px; background: var(--border); z-index: 100;
+}
+.progress-fill {
+  height: 100%; background: var(--accent); transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(167,139,250,0.5);
+}
+
+/* ── SECTION DIVIDER ──────────────────────────────────────── */
+.section-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 28px; padding: 14px 18px;
+  border-radius: 10px;
+}
+.section-divider.anglais { background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.15); }
+.section-divider.espagnol { background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.15); }
+.section-divider-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.section-divider.anglais .section-divider-dot { background: #a78bfa; }
+.section-divider.espagnol .section-divider-dot { background: #f87171; }
+.section-divider-label { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+.section-divider.anglais .section-divider-label { color: #a78bfa; }
+.section-divider.espagnol .section-divider-label { color: #f87171; }
+.section-divider-sub { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+/* ── DOTS NAV ─────────────────────────────────────────────── */
+.dots-strip {
+  position: fixed; top: 62px; left: 0; right: 0;
+  height: 28px; z-index: 99;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 0 16px; overflow: hidden;
+}
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); transition: all 0.25s; flex-shrink: 0;
+}
+.dot.current { background: var(--text); transform: scale(1.3); }
+.dot.ok { background: var(--green); }
+.dot.ko { background: var(--red); }
+.dot.divider { background: transparent; width: 2px; height: 2px; }
+
+/* ── QUIZ MAIN ────────────────────────────────────────────── */
+.quiz-main {
+  min-height: 100vh;
+  padding: 110px 24px 160px;
+  max-width: 660px; margin: 0 auto;
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+.question-viewport { position: relative; overflow: hidden; }
+
+.question-slide {
+  position: absolute; top: 0; left: 0; right: 0;
+  opacity: 0; transform: translateX(60px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.question-slide.active {
+  position: relative; opacity: 1; transform: translateX(0);
+  pointer-events: all;
+}
+.question-slide.exit-left {
+  opacity: 0; transform: translateX(-60px);
+}
+
+.q-meta {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 8px;
+}
+.q-topic-badge {
+  background: var(--border); padding: 2px 10px; border-radius: 10px;
+  font-size: 10px; color: var(--muted); font-weight: 600;
+}
+.q-topic-badge.anglais { background: rgba(167,139,250,0.12); color: #a78bfa; }
+.q-topic-badge.espagnol { background: rgba(248,113,113,0.12); color: #f87171; }
+
+.q-text {
+  font-size: 17px; line-height: 1.75; color: var(--text);
+  margin-bottom: 28px; font-weight: 400;
+}
+
+.options-list { display: flex; flex-direction: column; gap: 10px; }
+
+.option {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 15px 18px; border-radius: 10px;
+  border: 1.5px solid var(--border); cursor: pointer;
+  font-size: 14px; line-height: 1.55; transition: all 0.15s;
+  background: var(--card); user-select: none;
+}
+.option:hover:not(.locked) {
+  border-color: rgba(167,139,250,0.5);
+  background: rgba(167,139,250,0.04);
+}
+.option.selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.option.correct {
+  border-color: var(--green); background: var(--green-dim); cursor: default;
+}
+.option.wrong {
+  border-color: rgba(248,113,113,0.4); background: var(--red-dim); cursor: default;
+}
+.option.locked:not(.correct):not(.wrong) { cursor: default; }
+
+.opt-letter {
+  font-size: 12px; font-weight: 700; color: var(--muted);
+  min-width: 20px; padding-top: 1px; flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+.option.selected .opt-letter { color: var(--accent); }
+.option.correct .opt-letter { color: var(--green); }
+.option.wrong .opt-letter { color: var(--red); }
+.option.wrong .opt-text { text-decoration: line-through; color: var(--muted); }
+
+/* ── FOOTER ───────────────────────────────────────────────── */
+.quiz-footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+  padding: 20px 24px 28px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 16px;
+}
+
+.feedback-wrap { min-height: 40px; display: flex; align-items: center; flex: 1; }
+.feedback-text {
+  font-size: 13px; font-weight: 600;
+  opacity: 0; transition: opacity 0.3s;
+  display: flex; align-items: center; gap: 8px;
+  line-height: 1.5;
+}
+.feedback-text.show { opacity: 1; }
+.feedback-text.correct { color: var(--green); }
+.feedback-text.wrong { color: var(--red); }
+.feedback-icon { font-size: 18px; flex-shrink: 0; }
+
+.btn-next {
+  background: var(--accent); color: #fff; border: none;
+  padding: 15px 32px; border-radius: 10px;
+  font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.25s;
+  opacity: 0; pointer-events: none; transform: translateY(10px);
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.btn-next.show { opacity: 1; pointer-events: all; transform: translateY(0); }
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(167,139,250,0.30); }
+
+/* ── RESULTS ──────────────────────────────────────────────── */
+.results-screen {
+  display: none; position: fixed; inset: 0;
+  background: var(--bg); overflow-y: auto;
+  padding: 48px 24px; z-index: 200;
+}
+.results-inner { max-width: 600px; margin: 0 auto; }
+
+.results-header { text-align: center; margin-bottom: 40px; }
+.results-eyebrow {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); margin-bottom: 24px;
+}
+
+.score-ring {
+  width: 150px; height: 150px; margin: 0 auto 20px;
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-ring svg {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%; transform: rotate(-90deg);
+}
+.score-ring circle {
+  fill: none; stroke-width: 8; stroke-linecap: round;
+}
+.ring-bg { stroke: var(--border); }
+.ring-fill { stroke: var(--accent); transition: stroke-dashoffset 1s ease; }
+.score-num { font-size: 44px; font-weight: 800; line-height: 1; position: relative; }
+.score-denom { font-size: 14px; color: var(--muted); position: relative; }
+.score-verdict { font-size: 15px; font-weight: 600; margin-top: 12px; }
+
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; text-align: center;
+}
+.stat-val { font-size: 22px; font-weight: 700; }
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+.results-by-subject { margin-bottom: 28px; }
+.subject-result {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 18px; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.subject-result-name { font-size: 13px; font-weight: 600; }
+.subject-result-score { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+.section-hl {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--muted); margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.review-block { margin-bottom: 28px; }
+
+.weak-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+.weak-chip {
+  background: var(--red-dim); border: 1px solid rgba(248,113,113,0.25);
+  color: #fca5a5; font-size: 12px; padding: 4px 12px; border-radius: 20px;
+}
+
+.review-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px; margin-bottom: 8px;
+  font-size: 13px;
+}
+.review-qnum { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.review-qtext { color: var(--text); margin-bottom: 8px; line-height: 1.5; }
+.review-answers { display: flex; gap: 16px; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+.given { color: var(--red); }
+.corr { color: var(--green); }
+
+.next-card {
+  background: var(--card); border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 12px; padding: 20px; margin-bottom: 20px;
+}
+.next-card-title { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.next-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.next-card strong { color: var(--text); }
+.next-card code {
+  background: var(--border); padding: 2px 8px; border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent);
+}
+
+.send-status { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+.send-status.ok { color: var(--green); font-weight: 600; }
+.send-status.err { color: var(--red); }
+
+.hub-back {
+  display: block; text-align: center; font-size: 13px;
+  color: var(--muted); text-decoration: none; padding: 8px;
+  transition: color 0.2s;
+}
+.hub-back:hover { color: var(--accent); }
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- THEME TOGGLE -->
+<button style="position:fixed;top:12px;right:12px;z-index:400;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);font-family:'Sora',sans-serif;" id="theme-btn" onclick="toggleTheme()">☀ Clair</button>
+
+<!-- ═══════════════════════════════ START SCREEN ═══════════════════════════════ -->
+<div class="start-screen" id="start-screen">
+  <div class="start-glow"></div>
+  <div class="start-badge">Sésame 2026 — Phase 1 Découverte · Vendredi</div>
+  <div class="start-pill">J-19 avant le concours</div>
+  <div class="start-title">
+    <span class="ang">Anglais</span> +<br><span class="esp">Espagnol</span>
+  </div>
+  <div class="start-subjects">
+    <span class="subject-pill anglais">🇬🇧 Anglais · 10 Q</span>
+    <span class="subject-pill espagnol">🇪🇸 Espagnol · 10 Q</span>
+  </div>
+  <div class="start-meta">
+    <strong>20 questions</strong> · <strong>20 minutes</strong><br>
+    Vendredi 20 mars 2026 · Grammaire, vocabulaire, faux amis
+  </div>
+  <button class="btn-start-session" id="btn-start" onclick="startSession()">Commencer ▶</button>
+  <button class="btn-resume" id="btn-resume" onclick="resumeSession()" style="display:none">Reprendre où j'en étais ▶</button>
+  <div class="resume-info" id="resume-info" style="display:none"></div>
+</div>
+
+<!-- ═══════════════════════════════ TOP BAR ════════════════════════════════════ -->
+<div class="top-bar">
+  <div class="subject-tag" id="subject-tag">Anglais</div>
+  <div class="timer-wrap">
+    <div class="timer-display" id="timer">20:00</div>
+    <button class="btn-pause" id="btn-pause" onclick="togglePause()">⏸</button>
+    <button class="btn-pause" id="btn-quit" onclick="quitSession()" title="Quitter et reprendre plus tard" style="margin-left:4px">✕</button>
+  </div>
+  <div class="q-counter">Q <strong id="q-current">1</strong> / 20</div>
+</div>
+
+<div class="progress-strip">
+  <div class="progress-fill" id="progress-fill" style="width:5%"></div>
+</div>
+
+<div class="dots-strip" id="dots-strip"></div>
+
+<!-- ═══════════════════════════════ QUIZ MAIN ══════════════════════════════════ -->
+<div class="quiz-main">
+  <div class="question-viewport" id="question-viewport"></div>
+</div>
+
+<!-- ═══════════════════════════════ FOOTER ════════════════════════════════════ -->
+<div class="quiz-footer">
+  <div class="feedback-wrap">
+    <div class="feedback-text" id="feedback-text">
+      <span class="feedback-icon" id="feedback-icon"></span>
+      <span id="feedback-msg"></span>
+    </div>
+  </div>
+  <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+    <span id="btn-next-label">Suivant</span> →
+  </button>
+</div>
+
+<!-- ═══════════════════════════════ RESULTS ═══════════════════════════════════ -->
+<div class="results-screen" id="results-screen">
+  <div class="results-inner">
+    <div class="results-header">
+      <div class="results-eyebrow">Session terminée · 20 mars 2026</div>
+      <div class="score-ring">
+        <svg viewBox="0 0 150 150">
+          <circle class="ring-bg" cx="75" cy="75" r="65" stroke-dasharray="408.41" stroke-dashoffset="0"/>
+          <circle class="ring-fill" id="ring-fill" cx="75" cy="75" r="65" stroke-dasharray="408.41" stroke-dashoffset="408.41"/>
+        </svg>
+        <div class="score-num" id="score-num">—</div>
+        <div class="score-denom">/ 20</div>
+      </div>
+      <div class="score-verdict" id="score-verdict">—</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="stat-pct">—</div>
+        <div class="stat-lbl">Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-time">—</div>
+        <div class="stat-lbl">Durée</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-errors">—</div>
+        <div class="stat-lbl">Erreurs</div>
+      </div>
+    </div>
+
+    <div class="results-by-subject" id="results-by-subject"></div>
+
+    <div id="weak-section" style="display:none; margin-bottom:28px;">
+      <div class="section-hl">Points à retravailler</div>
+      <div class="weak-chips" id="weak-chips"></div>
+    </div>
+
+    <div class="review-block" id="review-block" style="display:none">
+      <div class="section-hl">Questions ratées</div>
+      <div id="review-list"></div>
+    </div>
+
+    <div class="next-card">
+      <div class="next-card-title">Prochaine session</div>
+      <p>Demain samedi — <strong>Simulation Séquence 1</strong> (Digital + Enjeux + Maths · 1h30).<br>
+      Lance <code>/daily-sesame</code> pour générer le fichier simulation.</p>
+    </div>
+
+    <div class="send-status" id="send-status">Envoi des résultats…</div>
+    <a class="hub-back" href="../hub.html">← Retour</a>
+  </div>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  // ── ANGLAIS ───────────────────────────────────────────────────────────────
+  { id:1, subject:"anglais", topic:"Prépositions",
+    text:"Choose the correct prepositions: 'She _____ her parents for financial support and is _____ managing the household budget.'",
+    options:[
+      "depends of / responsible of",
+      "depends on / responsible for",
+      "depends from / responsible to",
+      "depends on / responsible of"
+    ], correct:"B",
+    explanation:"'Depend on' et 'responsible for' sont des collocations fixes en anglais. On dit toujours 'depend ON someone' et 'responsible FOR something'." },
+
+  { id:2, subject:"anglais", topic:"Since vs For",
+    text:"She has been working at this company _____ 2018.",
+    options:["for","during","since","from"], correct:"C",
+    explanation:"'Since' introduit un point précis dans le temps (2018 = une date). 'For' introduit une durée (for 6 years). 'During' s'emploie avec un nom de période (during the summer), pas une date." },
+
+  { id:3, subject:"anglais", topic:"Articles — noms géographiques",
+    text:"I have always dreamed of visiting _____ Mississippi.",
+    options:["— (no article)","the","a","an"], correct:"A",
+    explanation:"En anglais, les noms d'États américains ne prennent pas d'article (unlike rivers/mountain ranges). On dit 'visit Mississippi', 'live in California', mais 'the Mississippi River' (avec le mot 'River')." },
+
+  { id:4, subject:"anglais", topic:"Nombre en lettres",
+    text:"Which of the following correctly writes the number 13,748 in English?",
+    options:[
+      "thirteen thousands and seven hundred and forty-eight",
+      "thirteen thousand seven hundreds forty-eight",
+      "thirteen thousand seven hundred and forty-eight",
+      "thirteen thousands seven hundred forty-eight"
+    ], correct:"C",
+    explanation:"En anglais, 'thousand' et 'hundred' sont invariables (pas de -s). On utilise 'and' entre les centaines et les dizaines : thirteen thousand seven hundred AND forty-eight." },
+
+  { id:5, subject:"anglais", topic:"Whatever / concessif",
+    text:"'_____ do, don't be late for the interview.'",
+    options:["Wherever you","However you","Whoever you","Whatever you"], correct:"D",
+    explanation:"'Whatever you do' = 'quoi que tu fasses' (concession sur l'action). 'However' = de quelque manière que. 'Wherever' = où que. 'Whoever' = qui que ce soit." },
+
+  { id:6, subject:"anglais", topic:"Articles — massifs/sommets",
+    text:"We hiked through _____ Alps and reached the summit of _____ Mont Blanc.",
+    options:["the / — (no article)","— / the","the / the","— / —"], correct:"A",
+    explanation:"Les chaînes de montagnes prennent 'the' (the Alps, the Rockies). Mais les sommets individuels n'ont pas d'article (Mont Blanc, Everest, Kilimanjaro) — sauf s'ils incluent un nom commun (the Matterhorn)." },
+
+  { id:7, subject:"anglais", topic:"Prétérit simple",
+    text:"She _____ the whole last week reviewing her notes for the exam.",
+    options:["spends","has spent","spent","was spending"], correct:"C",
+    explanation:"'Last week' est un marqueur de passé révolu → prétérit simple (spent). Le present perfect (has spent) ne s'utilise pas avec un temps passé défini. 'Was spending' mettrait l'accent sur la durée interrompue." },
+
+  { id:8, subject:"anglais", topic:"As soon as — futur",
+    text:"As soon as she _____ home, she will call you back.",
+    options:["gets","will get","is going to get","got"], correct:"A",
+    explanation:"Après 'as soon as', 'when', 'once' introduisant une subordonnée temporelle de futur, on utilise le présent simple (gets), jamais 'will'. La principale porte le futur (will call)." },
+
+  { id:9, subject:"anglais", topic:"Acronyme géographique",
+    text:"The abbreviation 'D.C.' in 'Washington, D.C.' stands for:",
+    options:["Downtown Capital","Democratic Center","Department of Columbia","District of Columbia"], correct:"D",
+    explanation:"D.C. = District of Columbia, un territoire fédéral distinct des 50 États, créé pour accueillir la capitale fédérale. Il ne fait partie d'aucun État et a un statut juridique spécial." },
+
+  { id:10, subject:"anglais", topic:"Inversion — Hardly",
+    text:"Hardly had she left the building _____ it started to rain.",
+    options:["that","when","as soon as","until"], correct:"B",
+    explanation:"Avec 'hardly/scarcely/no sooner... when/than', la structure est : Hardly had + sujet + PP + WHEN + passé simple. Ex: Hardly had she left WHEN it rained. 'That' ne s'utilise pas ici." },
+
+  // ── ESPAGNOL ──────────────────────────────────────────────────────────────
+  { id:11, subject:"espagnol", topic:"Subjonctif présent", sectionStart:true,
+    text:"Es importante que tú _____ (venir) a la reunión mañana.",
+    options:["vienes","vendrás","vengas","viniste"], correct:"C",
+    explanation:"Après les expressions de nécessité/volonté comme 'es importante que', 'querer que', 'pedir que', on utilise le subjonctif. 'Venir' au subjonctif présent, 2ᵉ personne du singulier → vengas." },
+
+  { id:12, subject:"espagnol", topic:"Por vs Para",
+    text:"Este regalo es _____ ti.",
+    options:["por","de","en","para"], correct:"D",
+    explanation:"'Para' exprime le destinataire/bénéficiaire d'une action ou d'un objet (= pour toi, à ton intention). 'Por' exprime la cause, l'échange, la durée. 'Para ti' = destiné à toi." },
+
+  { id:13, subject:"espagnol", topic:"Faux ami",
+    text:"La palabra española 'embarazada' se traduce en francés por :",
+    options:["embarrassée","emballée","enceinte","en colère"], correct:"C",
+    explanation:"'Embarazada' = enceinte (pregnant) en espagnol, pas 'embarrassée' ! C'est un faux ami classique. 'Avergonzada' = embarrassée en espagnol. Attention aux faux amis entre français et espagnol." },
+
+  { id:14, subject:"espagnol", topic:"Imparfait vs Prétérit",
+    text:"Cuando era niño, _____ (jugar) al fútbol todos los días con mis amigos.",
+    options:["jugué","jugaba","jugaré","juego"], correct:"B",
+    explanation:"'Todos los días' signale une habitude passée → imparfait (pretérito imperfecto). 'Jugaba' = je jouais (habituellement). 'Jugué' (pretérito indefinido) s'utilise pour une action ponctuelle et achevée." },
+
+  { id:15, subject:"espagnol", topic:"Ser vs Estar",
+    text:"El café _____ frío ahora.",
+    options:["es","fue","está","sea"], correct:"C",
+    explanation:"'Estar' exprime un état temporaire ou une situation changeante (le café est froid EN CE MOMENT, mais il ne l'est pas normalement). 'Ser' décrit une caractéristique permanente ou essentielle." },
+
+  { id:16, subject:"espagnol", topic:"Vocabulaire — synonymes",
+    text:"¿Cuál es el sinónimo de 'bonito'?",
+    options:["feo","grande","hermoso","rápido"], correct:"C",
+    explanation:"'Bonito' = joli, beau. Son synonyme est 'hermoso' (beau, magnifique). 'Feo' = laid (antonyme). Les autres (grande = grand, rápido = rapide) n'ont aucun rapport sémantique." },
+
+  { id:17, subject:"espagnol", topic:"Négation double",
+    text:"La phrase 'No he visto a nadie' signifie :",
+    options:[
+      "J'ai vu quelqu'un",
+      "Je ne vois personne maintenant",
+      "Je n'ai vu personne",
+      "Tout le monde m'a vu"
+    ], correct:"C",
+    explanation:"En espagnol, la double négation est grammaticalement correcte et obligatoire : 'no... nadie' = personne. 'He visto' = passé composé (pretérito perfecto). 'No he visto a nadie' = Je n'ai vu personne." },
+
+  { id:18, subject:"espagnol", topic:"Accord de l'adjectif",
+    text:"Las chicas son muy _____ (guapo).",
+    options:["guapo","guapos","guapas","guapa"], correct:"C",
+    explanation:"En espagnol, les adjectifs s'accordent en genre ET en nombre avec le nom. 'Las chicas' est féminin pluriel → l'adjectif 'guapo' devient 'guapas'. Guapo (m.sg), guapa (f.sg), guapos (m.pl), guapas (f.pl)." },
+
+  { id:19, subject:"espagnol", topic:"Connecteur logique",
+    text:"'_____ ser inteligente, no aprobó el examen.'",
+    options:["Porque","Si","A pesar de","Gracias a"], correct:"C",
+    explanation:"'A pesar de' + infinitif = bien que / malgré le fait de (concessif). La phrase signifie 'Malgré le fait d'être intelligent, il n'a pas réussi l'examen'. 'Aunque' (bien que) serait aussi possible avec un verbe conjugué." },
+
+  { id:20, subject:"espagnol", topic:"Futur simple",
+    text:"'_____ (Nosotros/hablar) con el director mañana por la mañana.'",
+    options:["Hablamos","Hablaremos","Hablábamos","Hablemos"], correct:"B",
+    explanation:"'Mañana' (demain) indique le futur → futur simple. 'Hablar' au futur, 1ʳᵉ personne du pluriel → hablaremos (nous parlerons). 'Hablamos' = présent/passé simple, 'Hablábamos' = imparfait, 'Hablemos' = subjonctif." }
+];
+
+const SUBJECT_COLORS = {
+  anglais: { accent: '#a78bfa', dim: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.2)', label: 'Anglais' },
+  espagnol: { accent: '#f87171', dim: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.2)', label: 'Espagnol' }
+};
+
+const LETTERS = ["A","B","C","D"];
+let currentIdx = 0;
+let answers = {};
+let revealed = {};
+let timerInterval = null;
+let secondsLeft = 20 * 60;
+let elapsed = 0;
+let timerRunning = false;
+let paused = false;
+
+const SAVE_KEY = 'sesame_pause_2026-03-20';
+
+// ─── PERSISTENCE ──────────────────────────────────────────────────────────────
+function saveState() {
+  localStorage.setItem(SAVE_KEY, JSON.stringify({ currentIdx, answers, revealed, secondsLeft, elapsed }));
+}
+
+function clearState() {
+  localStorage.removeItem(SAVE_KEY);
+}
+
+function checkSavedState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (!saved || saved.currentIdx === undefined) return;
+    const remaining = Math.floor(saved.secondsLeft / 60) + 'min' + (saved.secondsLeft % 60 ? (saved.secondsLeft % 60) + 's' : '');
+    document.getElementById('btn-resume').style.display = 'inline-block';
+    document.getElementById('resume-info').style.display = 'block';
+    document.getElementById('resume-info').textContent =
+      `Question ${saved.currentIdx + 1}/20 · ${remaining} restantes`;
+  } catch(e) {}
+}
+
+// ─── START ────────────────────────────────────────────────────────────────────
+function startSession() {
+  clearState();
+  document.getElementById('start-screen').classList.add('gone');
+  renderDots();
+  renderQuestion(0);
+  startTimer();
+  updateSubjectUI(QUESTIONS[0].subject);
+}
+
+function resumeSession() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    currentIdx = saved.currentIdx || 0;
+    answers = saved.answers || {};
+    revealed = saved.revealed || {};
+    secondsLeft = saved.secondsLeft || 20 * 60;
+    elapsed = saved.elapsed || 0;
+  } catch(e) {}
+  document.getElementById('start-screen').classList.add('gone');
+  renderDots();
+  renderQuestion(currentIdx);
+  startTimer();
+  updateSubjectUI(QUESTIONS[currentIdx].subject);
+}
+
+function quitSession() {
+  if (!timerRunning && !paused) return;
+  togglePause();
+  saveState();
+  window.location.href = '../hub.html';
+}
+
+window.addEventListener('beforeunload', () => { if (timerRunning || paused) saveState(); });
+checkSavedState();
+
+// ─── SUBJECT UI ───────────────────────────────────────────────────────────────
+function updateSubjectUI(subject) {
+  const c = SUBJECT_COLORS[subject];
+  const tag = document.getElementById('subject-tag');
+  tag.textContent = c.label;
+  tag.style.color = c.accent;
+  tag.style.background = c.dim;
+  tag.style.borderColor = c.border;
+  document.documentElement.style.setProperty('--accent', c.accent);
+  document.documentElement.style.setProperty('--accent-dim', c.dim);
+  document.querySelector('.progress-fill').style.boxShadow = `0 0 10px ${c.accent}88`;
+  document.querySelector('.progress-fill').style.background = c.accent;
+  document.querySelector('.btn-next').style.background = c.accent;
+}
+
+// ─── RENDER QUESTION ──────────────────────────────────────────────────────────
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  const isLast = idx === QUESTIONS.length - 1;
+
+  let dividerHtml = '';
+  if (q.sectionStart) {
+    dividerHtml = `
+      <div class="section-divider espagnol">
+        <div class="section-divider-dot"></div>
+        <div class="section-divider-label">Espagnol</div>
+        <div class="section-divider-sub">Questions 11–20 · 10 min</div>
+      </div>`;
+  }
+
+  const badgeCls = q.subject === 'anglais' ? 'q-topic-badge anglais' : 'q-topic-badge espagnol';
+
+  const optHtml = q.options.map((opt, i) => {
+    const letter = LETTERS[i];
+    let cls = 'option';
+    if (revealed[q.id]) {
+      cls += ' locked';
+      if (letter === q.correct) cls += ' correct';
+      else if (letter === answers[q.id]) cls += ' wrong';
+    } else if (answers[q.id] === letter) {
+      cls += ' selected';
+    }
+    return `<div class="${cls}" id="opt-${q.id}-${letter}" onclick="selectOption(${q.id},'${letter}')">
+      <span class="opt-letter">${letter}.</span>
+      <span class="opt-text">${escHtml(opt)}</span>
+    </div>`;
+  }).join('');
+
+  const vp = document.getElementById('question-viewport');
+  const newSlide = document.createElement('div');
+  newSlide.className = 'question-slide';
+  newSlide.innerHTML = `
+    ${dividerHtml}
+    <div class="q-meta">
+      Question ${idx + 1} <span class="${badgeCls}">${escHtml(q.topic)}</span>
+    </div>
+    <div class="q-text">${escHtml(q.text)}</div>
+    <div class="options-list">${optHtml}</div>
+  `;
+
+  const existing = vp.querySelector('.question-slide.active');
+  if (existing) {
+    existing.classList.remove('active');
+    existing.classList.add('exit-left');
+    setTimeout(() => existing.remove(), 350);
+  }
+
+  vp.appendChild(newSlide);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => newSlide.classList.add('active'));
+  });
+
+  document.getElementById('q-current').textContent = idx + 1;
+  document.getElementById('progress-fill').style.width = ((idx + 1) / QUESTIONS.length * 100) + '%';
+  document.getElementById('btn-next-label').textContent = isLast ? 'Terminer' : 'Suivant';
+
+  updateSubjectUI(q.subject);
+
+  if (revealed[q.id]) {
+    showFeedback(q.id);
+    document.getElementById('btn-next').classList.add('show');
+  } else {
+    document.getElementById('feedback-text').classList.remove('show');
+    document.getElementById('btn-next').classList.remove('show');
+  }
+
+  updateDots();
+}
+
+// ─── SELECT ────────────────────────────────────────────────────────────────────
+function selectOption(qid, letter) {
+  if (revealed[qid]) return;
+  const q = QUESTIONS.find(q => q.id === qid);
+  answers[qid] = letter;
+  revealed[qid] = true;
+  saveState();
+
+  LETTERS.forEach(l => {
+    const el = document.getElementById(`opt-${qid}-${l}`);
+    if (!el) return;
+    el.classList.remove('selected');
+    el.classList.add('locked');
+    if (l === q.correct) el.classList.add('correct');
+    else if (l === letter && letter !== q.correct) el.classList.add('wrong');
+  });
+
+  showFeedback(qid);
+  document.getElementById('btn-next').classList.add('show');
+  updateDots();
+}
+
+function showFeedback(qid) {
+  const q = QUESTIONS.find(q => q.id === qid);
+  const isOk = answers[qid] === q.correct;
+  const el = document.getElementById('feedback-text');
+  el.className = 'feedback-text show ' + (isOk ? 'correct' : 'wrong');
+  document.getElementById('feedback-icon').textContent = isOk ? '✓' : '✗';
+  document.getElementById('feedback-msg').textContent = isOk
+    ? 'Bonne réponse !'
+    : `Incorrect — Bonne réponse : ${q.correct}. ${q.options[q.correct.charCodeAt(0)-65]}${q.explanation ? ' · ' + q.explanation : ''}`;
+}
+
+// ─── NEXT ──────────────────────────────────────────────────────────────────────
+function nextQuestion() {
+  if (currentIdx === QUESTIONS.length - 1) { showResults(); return; }
+  currentIdx++;
+  renderQuestion(currentIdx);
+}
+
+// ─── DOTS ──────────────────────────────────────────────────────────────────────
+function renderDots() {
+  const strip = document.getElementById('dots-strip');
+  strip.innerHTML = QUESTIONS.map((q, i) => {
+    const divider = (i === 10) ? '<div class="dot divider"></div>' : '';
+    return `${divider}<div class="dot" id="dot-${i}"></div>`;
+  }).join('');
+}
+
+function updateDots() {
+  QUESTIONS.forEach((q, i) => {
+    const dot = document.getElementById(`dot-${i}`);
+    if (!dot) return;
+    dot.className = 'dot';
+    if (i === currentIdx) dot.classList.add('current');
+    else if (revealed[q.id]) {
+      dot.classList.add(answers[q.id] === q.correct ? 'ok' : 'ko');
+    }
+  });
+}
+
+// ─── TIMER ─────────────────────────────────────────────────────────────────────
+function startTimer() {
+  timerRunning = true;
+  timerInterval = setInterval(() => {
+    secondsLeft--; elapsed++;
+    updateTimerDisplay();
+    if (secondsLeft <= 0) { clearInterval(timerInterval); timerRunning = false; showResults(); }
+  }, 1000);
+}
+
+function togglePause() {
+  if (timerRunning) {
+    clearInterval(timerInterval); timerRunning = false; paused = true;
+    document.getElementById('btn-pause').textContent = '▶';
+  } else {
+    startTimer(); paused = false;
+    document.getElementById('btn-pause').textContent = '⏸';
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(secondsLeft / 60), s = secondsLeft % 60;
+  const el = document.getElementById('timer');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.className = 'timer-display';
+  if (secondsLeft <= 120) el.classList.add('danger');
+  else if (secondsLeft <= 300) el.classList.add('warning');
+}
+
+// ─── RESULTS ──────────────────────────────────────────────────────────────────
+function showResults() {
+  if (timerRunning) { clearInterval(timerInterval); timerRunning = false; }
+  clearState();
+
+  let score = 0;
+  let scoreAnglais = 0, scoreEspagnol = 0;
+  const weakTopics = [], wrongAnswers = [];
+
+  QUESTIONS.forEach(q => {
+    const ok = answers[q.id] === q.correct;
+    if (ok) {
+      score++;
+      if (q.subject === 'anglais') scoreAnglais++;
+      else scoreEspagnol++;
+    } else {
+      weakTopics.push(q.topic);
+      wrongAnswers.push({ id: q.id, text: q.text, topic: q.topic, subject: q.subject, chosen: answers[q.id] || '—', correct: q.correct });
+    }
+  });
+
+  const pct = Math.round(score / QUESTIONS.length * 100);
+  const durationMin = Math.max(1, Math.round(elapsed / 60));
+
+  document.getElementById('results-screen').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  const scoreNum = document.getElementById('score-num');
+  scoreNum.textContent = score;
+  scoreNum.style.color = score >= 16 ? 'var(--green)' : score >= 12 ? 'var(--amber)' : 'var(--red)';
+
+  const ringFill = document.getElementById('ring-fill');
+  const circumference = 408.41;
+  setTimeout(() => {
+    ringFill.style.strokeDashoffset = circumference - (circumference * pct / 100);
+    ringFill.style.stroke = score >= 16 ? 'var(--green)' : score >= 12 ? 'var(--amber)' : 'var(--red)';
+  }, 100);
+
+  document.getElementById('score-verdict').textContent =
+    score >= 16 ? 'Excellent — ces deux langues sont bien maîtrisées.' :
+    score >= 12 ? 'Bon niveau — quelques points à consolider.' :
+    score >= 8  ? 'Moyen — revois les règles de grammaire ciblées.' :
+    'Difficultés importantes — reprends les fondamentaux.';
+
+  document.getElementById('stat-pct').textContent = pct + '%';
+  document.getElementById('stat-time').textContent = durationMin + ' min';
+  document.getElementById('stat-errors').textContent = wrongAnswers.length;
+
+  const subjectEl = document.getElementById('results-by-subject');
+  subjectEl.innerHTML = `
+    <div class="section-hl" style="margin-bottom:12px;">Scores par matière</div>
+    <div class="subject-result">
+      <span class="subject-result-name" style="color:#a78bfa">🇬🇧 Anglais</span>
+      <span class="subject-result-score" style="color:${scoreAnglais>=8?'var(--green)':scoreAnglais>=6?'var(--amber)':'var(--red)'}">${scoreAnglais}/10</span>
+    </div>
+    <div class="subject-result">
+      <span class="subject-result-name" style="color:#f87171">🇪🇸 Espagnol</span>
+      <span class="subject-result-score" style="color:${scoreEspagnol>=8?'var(--green)':scoreEspagnol>=6?'var(--amber)':'var(--red)'}">${scoreEspagnol}/10</span>
+    </div>
+  `;
+
+  if (weakTopics.length) {
+    const unique = [...new Set(weakTopics)];
+    document.getElementById('weak-chips').innerHTML = unique.map(t => `<span class="weak-chip">${escHtml(t)}</span>`).join('');
+    document.getElementById('weak-section').style.display = 'block';
+
+    document.getElementById('review-list').innerHTML = wrongAnswers.map(w => `
+      <div class="review-item">
+        <div class="review-qnum">Q${w.id} · ${escHtml(w.topic)}</div>
+        <div class="review-qtext">${escHtml(w.text.substring(0, 90))}…</div>
+        <div class="review-answers">
+          <span class="given">Donné : ${w.chosen}</span>
+          <span class="corr">Correct : ${w.correct}</span>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('review-block').style.display = 'block';
+  }
+
+  const sessionData = {
+    date: '2026-03-20', matiere: 'Anglais + Espagnol',
+    score, total: 20, pct, duration_min: durationMin,
+    score_anglais: scoreAnglais, score_espagnol: scoreEspagnol,
+    weak_topics: [...new Set(weakTopics)],
+    wrong_answers: wrongAnswers, all_answers: answers
+  };
+  try {
+    const sessions = JSON.parse(localStorage.getItem('sesame_sessions') || '[]');
+    const filtered = sessions.filter(s => !(s.date === sessionData.date && s.matiere === sessionData.matiere));
+    filtered.push(sessionData);
+    localStorage.setItem('sesame_sessions', JSON.stringify(filtered));
+  } catch(e) {}
+
+  sendResults(sessionData);
+}
+
+async function sendResults(data) {
+  const el = document.getElementById('send-status');
+  try {
+    const res = await fetch('http://localhost:8765/session', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) { el.className = 'send-status ok'; el.textContent = '✓ Résultats enregistrés dans ton suivi.'; }
+    else throw new Error();
+  } catch(e) {
+    el.className = 'send-status err';
+    el.textContent = '⚠ Serveur non démarré — lance tools/start-sesame.bat.';
+  }
+}
+
+function toggleTheme() {
+  const body = document.body;
+  const next = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  body.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀ Clair' : '☾ Sombre';
+  localStorage.setItem('sesame_theme', next);
+}
+const _t = localStorage.getItem('sesame_theme') || 'dark';
+document.body.setAttribute('data-theme', _t);
+document.addEventListener('DOMContentLoaded', () => {
+  const b = document.getElementById('theme-btn');
+  if (b) b.textContent = _t === 'dark' ? '☀ Clair' : '☾ Sombre';
+});
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiche mémo — Mathématiques</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[data-theme="dark"]  { --bg:#08080f; --bg2:#0a0a14; --card:#0f0f1a; --card2:#121220; --border:#1c1c2e; --text:#e8e8f5; --muted:#606080; --shadow:rgba(0,0,0,0.5); }
+[data-theme="light"] { --bg:#f3f3fb; --bg2:#eaeaf5; --card:#ffffff; --card2:#f8f8ff; --border:#e0e0f0; --text:#0f0f1a; --muted:#8080a0; --shadow:rgba(0,0,0,0.07); }
+:root { --accent:#a78bfa; }
+
+body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:32px 20px 80px; transition:background .2s,color .2s; }
+.wrap { max-width:900px; margin:0 auto; }
+
+/* ── TOP NAV ─── */
+.topnav { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:12px; }
+.back { font-size:13px; color:var(--muted); text-decoration:none; }
+.back:hover { color:var(--accent); }
+.theme-toggle { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); }
+.theme-toggle:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ── HERO ─── */
+.hero { margin-bottom:40px; }
+.hero-tag { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+.hero-title { font-size:clamp(28px,5vw,44px); font-weight:800; line-height:1.1; margin-bottom:8px; }
+.hero-title span { color:var(--accent); }
+.hero-meta { font-size:13px; color:var(--muted); display:flex; gap:20px; flex-wrap:wrap; }
+.hero-meta strong { color:var(--text); }
+
+/* ── SECTIONS ─── */
+.section-title {
+  font-size:10px; font-weight:800; letter-spacing:3px; text-transform:uppercase;
+  color:var(--accent); margin-bottom:16px; padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ── INFOGRAPHIC GRID ─── */
+.info-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-bottom:32px; }
+
+.info-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+  border-left:3px solid var(--c, var(--accent));
+}
+.info-card-icon { font-size:20px; margin-bottom:10px; }
+.info-card-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; }
+.info-card ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.info-card li { font-size:12px; color:var(--muted); line-height:1.5; display:flex; gap:8px; }
+.info-card li::before { content:'→'; color:var(--accent); flex-shrink:0; font-size:11px; }
+.info-card li strong { color:var(--text); }
+.info-card li code {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  background:rgba(167,139,250,0.08); border:1px solid rgba(167,139,250,0.15);
+  padding:1px 6px; border-radius:4px; color:var(--accent);
+}
+
+/* ── ALGO BLOC ─── */
+.algo-section { margin-bottom:32px; }
+.algo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.algo-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+}
+.algo-card-title { font-size:12px; font-weight:700; color:var(--accent); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; }
+.algo-block {
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  line-height:1.8; color:#c4b5fd; margin-bottom:10px;
+  white-space:pre; overflow-x:auto;
+}
+[data-theme="light"] .algo-block { color:#5b21b6; }
+.algo-note { font-size:11px; color:var(--muted); line-height:1.6; }
+.algo-note strong { color:var(--text); }
+
+/* ── PIÈGE TABLE ─── */
+.traps { margin-bottom:32px; }
+.trap-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:14px 18px; margin-bottom:8px;
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  font-size:12px; box-shadow:0 1px 6px var(--shadow);
+}
+@media(max-width:500px){ .trap-row { grid-template-columns:1fr; } }
+.trap-wrong { color:#f87171; }
+.trap-right { color:#34d399; }
+.trap-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; opacity:.7; }
+
+/* ── QUIZ RAPIDE ─── */
+.quiz-section { margin-bottom:32px; }
+.qr-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:18px; margin-bottom:10px;
+  box-shadow:0 1px 6px var(--shadow); cursor:pointer;
+}
+.qr-q { font-size:13px; font-weight:600; margin-bottom:10px; line-height:1.5; }
+.qr-answer {
+  font-size:12px; color:var(--accent); display:none;
+  padding-top:10px; border-top:1px solid var(--border); line-height:1.6;
+}
+.qr-card.open .qr-answer { display:block; }
+.qr-hint { font-size:11px; color:var(--muted); margin-top:6px; }
+
+/* ── BACK LINK ─── */
+.back-footer { text-align:center; margin-top:40px; }
+.back-footer a { font-size:13px; color:var(--muted); text-decoration:none; }
+.back-footer a:hover { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topnav">
+    <a class="back" href="index.html">← Fiches mémo</a>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+  </div>
+
+  <!-- ═══ HERO ═════════════════════════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-tag">Séquence 1 — Fiche mémo</div>
+    <div class="hero-title">Mathé-<br><span>matiques</span></div>
+    <div class="hero-meta">
+      <span><strong>20 exercices</strong> · 40 min</span>
+      <span><strong>Calculatrice</strong> intégrée</span>
+      <span><strong>8 thèmes</strong> couverts</span>
+    </div>
+  </div>
+
+  <!-- ═══ NOTIONS CLÉS ══════════════════════════════════════════════════════ -->
+  <div class="section-title">Notions clés</div>
+  <div class="info-grid">
+
+    <div class="info-card" style="--c:#a78bfa">
+      <div class="info-card-icon">🔢</div>
+      <div class="info-card-title">Nombres &amp; ensembles</div>
+      <ul>
+        <li><strong>ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ</strong> — entiers naturels, relatifs, rationnels, réels</li>
+        <li>Premiers ≤ 30 : <strong>2, 3, 5, 7, 11, 13, 17, 19, 23, 29</strong></li>
+        <li>Div. par 2 : <strong>pair</strong> · par 5 : <strong>finit par 0 ou 5</strong></li>
+        <li>Div. par 3 ou 9 : <strong>somme des chiffres</strong> div. par 3 ou 9</li>
+        <li>Div. par 10 : <strong>finit par 0</strong></li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#f59e0b">
+      <div class="info-card-icon">💯</div>
+      <div class="info-card-title">Pourcentages</div>
+      <ul>
+        <li>Taux d'évolution = <code>(Vf − Vi) / Vi</code></li>
+        <li>Coeff. multiplicateur = <code>1 + t</code></li>
+        <li>Évolutions successives = <strong>produit des CM</strong></li>
+        <li>Taux réciproque = <code>1/CM − 1</code></li>
+        <li>+20% puis −20% ≠ 0% → CM = 1,2 × 0,8 = <strong>0,96 (−4%)</strong></li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#34d399">
+      <div class="info-card-icon">📐</div>
+      <div class="info-card-title">Identités remarquables</div>
+      <ul>
+        <li><code>(a+b)² = a² + 2ab + b²</code></li>
+        <li><code>(a−b)² = a² − 2ab + b²</code></li>
+        <li><code>(a+b)(a−b) = a² − b²</code></li>
+        <li>Piège : <strong>(a+b)² ≠ a²+b²</strong> — le terme 2ab est souvent oublié !</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#06b6d4">
+      <div class="info-card-icon">📈</div>
+      <div class="info-card-title">Suites</div>
+      <ul>
+        <li><strong>Arithmétique :</strong> <code>Uₙ = U₀ + n·r</code></li>
+        <li>Somme arith. = <code>n · (U₀ + Uₙ) / 2</code></li>
+        <li><strong>Géométrique :</strong> <code>Uₙ = U₀ · qⁿ</code></li>
+        <li>Somme géom. = <code>U₀ · (1 − qⁿ) / (1 − q)</code></li>
+        <li>Attention : <strong>Uₙ ≠ Sₙ</strong> — lire l'énoncé attentivement</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#f87171">
+      <div class="info-card-icon">📊</div>
+      <div class="info-card-title">Statistiques</div>
+      <ul>
+        <li><strong>Moyenne pondérée</strong> = Σ(xi·fi) / Σfi</li>
+        <li><strong>Médiane</strong> = valeur du milieu, insensible aux extrêmes</li>
+        <li>Q1 = 25% · Q3 = 75% de la distribution</li>
+        <li><strong>Variance</strong> = moyenne des carrés des écarts à la moyenne</li>
+        <li><strong>Écart-type</strong> = <code>√variance</code></li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#a78bfa">
+      <div class="info-card-icon">🎲</div>
+      <div class="info-card-title">Probabilités</div>
+      <ul>
+        <li><code>P(A∪B) = P(A) + P(B) − P(A∩B)</code></li>
+        <li><code>P(Ā) = 1 − P(A)</code></li>
+        <li>Conditionnelle : <code>P_A(B) = P(A∩B) / P(A)</code></li>
+        <li>Indépendance : <code>P(A∩B) = P(A)·P(B)</code></li>
+        <li>Espérance : <code>E(X) = Σ xᵢ·pᵢ</code></li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fb923c">
+      <div class="info-card-icon">📉</div>
+      <div class="info-card-title">Fonctions &amp; dérivées</div>
+      <ul>
+        <li><code>f'(constante) = 0</code> · <code>f'(x) = 1</code></li>
+        <li><code>f'(x²) = 2x</code> · <code>f'(x³) = 3x²</code> · <code>f'(xⁿ) = nxⁿ⁻¹</code></li>
+        <li><code>f'(u+v) = u'+v'</code> · <code>f'(ku) = ku'</code></li>
+        <li>Tangente en a : <code>y = f'(a)(x−a) + f(a)</code></li>
+        <li>f croissante ↔ <strong>f' &gt; 0</strong> · f décroissante ↔ <strong>f' &lt; 0</strong></li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#34d399">
+      <div class="info-card-icon">🔭</div>
+      <div class="info-card-title">Géométrie</div>
+      <ul>
+        <li>Pythagore : <code>a² = b² + c²</code> (a = hypoténuse)</li>
+        <li>Thalès : <code>AB/DE = AC/DF = BC/EF</code></li>
+        <li><code>cos θ = adj/hyp</code> · <code>sin θ = opp/hyp</code> · <code>tan θ = opp/adj</code></li>
+        <li>Coeff. directeur = <code>(y₂−y₁)/(x₂−x₁)</code></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ═══ FORMULES GÉOMÉTRIE ════════════════════════════════════════════════ -->
+  <div class="algo-section">
+    <div class="section-title">Formules de géométrie</div>
+    <div class="algo-grid">
+
+      <div class="algo-card">
+        <div class="algo-card-title">📏 Aires</div>
+        <div class="algo-block">Triangle      = base × h / 2
+Carré         = a²
+Rectangle     = L × l
+Cercle        = π × r²
+Trapèze       = (a + b) × h / 2
+Parallélogramme = b × h</div>
+        <div class="algo-note">
+          <strong>Astuce :</strong> le trapèze = moyenne des 2 bases × hauteur. Le cercle utilise r (rayon), pas d (diamètre).
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">📦 Volumes</div>
+        <div class="algo-block">Cube              = a³
+Parallélépipède   = L × l × h
+Cylindre          = π × r² × h
+Sphère            = (4/3) × π × r³
+Pyramide          = base × h / 3
+Cône              = π × r² × h / 3</div>
+        <div class="algo-note">
+          <strong>Mémo :</strong> pyramide et cône divisent par 3. Sphère = 4/3·πr³.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">↗ Vecteurs</div>
+        <div class="algo-block">Norme     = √(x² + y²)
+Milieu    = ((x₁+x₂)/2 , (y₁+y₂)/2)
+Colinéaires si x₁·y₂ − x₂·y₁ = 0
+Produit scalaire = x₁x₂ + y₁y₂
+Perp. si produit scalaire = 0</div>
+        <div class="algo-note">
+          <strong>Colinéaires :</strong> le déterminant est nul. <strong>Perpendiculaires :</strong> le produit scalaire est nul.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">📉 Intervalle de confiance</div>
+        <div class="algo-block">IC = [ f − 1/√n  ;  f + 1/√n ]
+
+f  = fréquence observée
+n  = taille de l'échantillon
+
+n=100 → marge = ±0,10 (10%)
+n=400 → marge = ±0,05  (5%)
+n=1000→ marge = ±0,032 (3,2%)</div>
+        <div class="algo-note">
+          <strong>Règle :</strong> plus n est grand, plus l'intervalle est étroit → meilleure précision.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ PIÈGES CLASSIQUES ═════════════════════════════════════════════════ -->
+  <div class="traps">
+    <div class="section-title">Pièges classiques — erreurs fréquentes</div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">+20% puis −20% = variation nulle</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">CM = 1,2 × 0,8 = 0,96 → perte nette de 4%. Les taux ne se compensent jamais simplement.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">Médiane = moyenne</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">La médiane est la valeur du milieu. Elle est insensible aux valeurs extrêmes, contrairement à la moyenne.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">Taux réciproque = opposé du taux initial</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Réciproque = 1/(1+t) − 1. Exemple : réciproque de +25% = 1/1,25 − 1 = −20% (pas −25%).</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">(a + b)² = a² + b²</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">(a + b)² = a² + 2ab + b². Le terme croisé 2ab est indispensable — sans lui, la réponse est fausse.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">Confondre Uₙ (terme) et Sₙ (somme) dans les suites</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Uₙ = valeur du nième terme. Sₙ = somme des n premiers termes. Lire attentivement l'énoncé.</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Piège</div>
+        <div class="trap-wrong">Coeff. directeur = Δx/Δy</div>
+      </div>
+      <div>
+        <div class="trap-label">✓ Correct</div>
+        <div class="trap-right">Coeff. directeur = (y₂−y₁)/(x₂−x₁) = Δy/Δx. C'est la variation de y divisée par la variation de x.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ QUIZ RAPIDE ═══════════════════════════════════════════════════════ -->
+  <div class="quiz-section">
+    <div class="section-title">Quiz éclair — clique pour voir la réponse</div>
+
+    <div class="qr-card">
+      <div class="qr-q">Quel est le taux réciproque d'une hausse de 25 % ?</div>
+      <div class="qr-answer">
+        <strong>−20 %</strong> — CM = 1,25, donc réciproque = 1/1,25 = 0,8, soit CM = 0,8 → taux = 0,8 − 1 = <strong>−20 %</strong>. Jamais −25 %.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">Quels sont les 20 premiers carrés parfaits ?</div>
+      <div class="qr-answer">
+        <strong>1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256, 289, 324, 361, 400</strong> — soit 1² à 20².
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">P(A) = 0,3 et P(B) = 0,5, A et B indépendants. Quelle est P(A∩B) ?</div>
+      <div class="qr-answer">
+        <strong>0,15</strong> — A et B indépendants → P(A∩B) = P(A) × P(B) = 0,3 × 0,5 = <strong>0,15</strong>.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">Quelle est la dérivée de f(x) = 3x² + 2x − 5 ?</div>
+      <div class="qr-answer">
+        <strong>f'(x) = 6x + 2</strong> — dérivée de 3x² = 6x, dérivée de 2x = 2, dérivée de −5 = 0.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">Suite arithmétique : U₀ = 3, r = 4. Quelle est la valeur de U₅ ?</div>
+      <div class="qr-answer">
+        <strong>U₅ = 23</strong> — Uₙ = U₀ + n·r → U₅ = 3 + 5 × 4 = 3 + 20 = <strong>23</strong>.
+      </div>
+      <div class="qr-hint">Clique pour voir →</div>
+    </div>
+
+  </div>
+
+  <div class="back-footer">
+    <a href="index.html">← Retour aux fiches</a> &nbsp;·&nbsp;
+    <a href="../hub.html">Tableau de bord</a>
+  </div>
+
+</div>
+<script>
+function toggleTheme(){const h=document.documentElement;const t=h.getAttribute('data-theme');const n=t==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('theme',n);document.getElementById('theme-btn').textContent=n==='dark'?'☀ Clair':'🌙 Sombre';}
+window.addEventListener('DOMContentLoaded',()=>{const t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-btn').textContent=t==='dark'?'☀ Clair':'🌙 Sombre';});
+document.querySelectorAll('.qr-card').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('open')));
+</script>
+</body>
+</html>

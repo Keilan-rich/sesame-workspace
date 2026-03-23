@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08080f">
+<link rel="manifest" href="/manifest.json">
+<title>Fiche mémo — Anglais</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[data-theme="dark"]  { --bg:#08080f; --bg2:#0a0a14; --card:#0f0f1a; --card2:#121220; --border:#1c1c2e; --text:#e8e8f5; --muted:#606080; --shadow:rgba(0,0,0,0.5); }
+[data-theme="light"] { --bg:#f3f3fb; --bg2:#eaeaf5; --card:#ffffff; --card2:#f8f8ff; --border:#e0e0f0; --text:#0f0f1a; --muted:#8080a0; --shadow:rgba(0,0,0,0.07); }
+:root { --accent:#3b82f6; }
+
+body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:32px 20px 80px; transition:background .2s,color .2s; }
+.wrap { max-width:900px; margin:0 auto; }
+
+/* ── TOP NAV ─── */
+.topnav { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:12px; }
+.back { font-size:13px; color:var(--muted); text-decoration:none; }
+.back:hover { color:var(--accent); }
+.theme-toggle { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); }
+.theme-toggle:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ── HERO ─── */
+.hero { margin-bottom:40px; }
+.hero-tag { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+.hero-title { font-size:clamp(28px,5vw,44px); font-weight:800; line-height:1.1; margin-bottom:8px; }
+.hero-title span { color:var(--accent); }
+.hero-meta { font-size:13px; color:var(--muted); display:flex; gap:20px; flex-wrap:wrap; }
+.hero-meta strong { color:var(--text); }
+
+/* ── SECTIONS ─── */
+.section-title {
+  font-size:10px; font-weight:800; letter-spacing:3px; text-transform:uppercase;
+  color:var(--accent); margin-bottom:16px; padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ── INFOGRAPHIC GRID ─── */
+.info-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-bottom:32px; }
+
+.info-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+  border-left:3px solid var(--c, var(--accent));
+}
+.info-card-icon { font-size:20px; margin-bottom:10px; }
+.info-card-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; }
+.info-card ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.info-card li { font-size:12px; color:var(--muted); line-height:1.5; display:flex; gap:8px; }
+.info-card li::before { content:'→'; color:var(--accent); flex-shrink:0; font-size:11px; }
+.info-card li strong { color:var(--text); }
+.info-card li code {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  background:rgba(59,130,246,0.10); border:1px solid rgba(59,130,246,0.20);
+  padding:1px 6px; border-radius:4px; color:var(--accent);
+}
+
+/* ── ALGO BLOC ─── */
+.algo-section { margin-bottom:32px; }
+.algo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.algo-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+}
+.algo-card-title { font-size:12px; font-weight:700; color:var(--accent); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; }
+.algo-block {
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  line-height:1.8; color:#a0b8d4; margin-bottom:10px;
+  white-space:pre-wrap; overflow-x:auto;
+}
+[data-theme="light"] .algo-block { color:#1a4060; }
+.algo-note { font-size:11px; color:var(--muted); line-height:1.6; }
+.algo-note strong { color:var(--text); }
+
+/* ── PIÈGE TABLE ─── */
+.traps { margin-bottom:32px; }
+.trap-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:14px 18px; margin-bottom:8px;
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  font-size:12px; box-shadow:0 1px 6px var(--shadow);
+}
+@media(max-width:500px){ .trap-row { grid-template-columns:1fr; } }
+.trap-wrong { color:#f87171; }
+.trap-right { color:#34d399; }
+.trap-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; opacity:.7; }
+.trap-note { font-size:11px; color:var(--muted); margin-top:6px; }
+
+/* ── QUIZ RAPIDE ─── */
+.quiz-section { margin-bottom:32px; }
+.qr-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:18px; margin-bottom:10px;
+  box-shadow:0 1px 6px var(--shadow); cursor:pointer;
+}
+.qr-q { font-size:13px; font-weight:600; margin-bottom:10px; line-height:1.5; }
+.qr-answer {
+  font-size:12px; color:var(--accent); display:none;
+  padding-top:10px; border-top:1px solid var(--border); line-height:1.6;
+}
+.qr-card.open .qr-answer { display:block; }
+.qr-hint { font-size:11px; color:var(--muted); margin-top:6px; }
+
+/* ── BACK LINK ─── */
+.back-footer { text-align:center; margin-top:40px; }
+.back-footer a { font-size:13px; color:var(--muted); text-decoration:none; }
+.back-footer a:hover { color:var(--accent); }
+@supports (padding-top: env(safe-area-inset-top)) {
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topnav">
+    <a class="back" href="index.html">← Fiches mémo</a>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+  </div>
+
+  <!-- ═══ HERO ═════════════════════════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-tag">Séquence 2 — Fiche mémo</div>
+    <div class="hero-title"><span>Anglais</span></div>
+    <div class="hero-meta">
+      <span><strong>40 questions</strong> · 30 min</span>
+      <span><strong>Temps, conditionnels,</strong> culture UK</span>
+      <span><strong>Faux-amis</strong> à maîtriser</span>
+    </div>
+  </div>
+
+  <!-- ═══ NOTIONS CLÉS ══════════════════════════════════════════════════════ -->
+  <div class="section-title">Notions clés</div>
+  <div class="info-grid">
+
+    <div class="info-card" style="--c:#3b82f6">
+      <div class="info-card-icon">🕐</div>
+      <div class="info-card-title">Les temps essentiels</div>
+      <ul>
+        <li><strong>Present simple</strong> → habitude / vérité générale (<code>I work</code>)</li>
+        <li><strong>Present continuous</strong> → action en cours / futur proche (<code>I am working</code>)</li>
+        <li><strong>Present perfect</strong> → lien présent-passé : <code>just / already / never</code> (<code>I have just finished</code>)</li>
+        <li><strong>Past simple</strong> → moment précis révolu (<code>I worked yesterday</code>)</li>
+        <li><strong>Past perfect</strong> → avant une action passée (<code>I had worked before she arrived</code>)</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#6366f1">
+      <div class="info-card-icon">🔀</div>
+      <div class="info-card-title">Les 3 conditionnels</div>
+      <ul>
+        <li><strong>Type 1 (réel)</strong> : <code>if + present → will</code> — "If it rains, I will stay"</li>
+        <li><strong>Type 2 (potentiel)</strong> : <code>if + were/past → would</code> — "If I were rich, I would travel"</li>
+        <li><strong>Type 3 (irréel passé)</strong> : <code>if + had+PP → would have</code> — "If I had known, I would have come"</li>
+        <li>Type 2 → toujours <code>were</code> (jamais <code>was</code>) pour tous les pronoms</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#f59e0b">
+      <div class="info-card-icon">⚠️</div>
+      <div class="info-card-title">Faux-amis classiques</div>
+      <ul>
+        <li><code>surname</code> = nom de famille (≠ surnom → <code>nickname</code>)</li>
+        <li><code>eventually</code> = finalement (≠ éventuellement → <code>possibly</code>)</li>
+        <li><code>actually</code> = en fait (≠ actuellement → <code>currently</code>)</li>
+        <li><code>library</code> = bibliothèque (≠ librairie → <code>bookshop</code>)</li>
+        <li><code>sensible</code> = raisonnable (≠ sensible → <code>sensitive</code>)</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#10b981">
+      <div class="info-card-icon">🔧</div>
+      <div class="info-card-title">Adjectifs -ed / -ing</div>
+      <ul>
+        <li><strong>-ed</strong> = ressenti par quelqu'un : <code>I am bored / tired / interested</code></li>
+        <li><strong>-ing</strong> = caractéristique de quelque chose : <code>The film is boring / tiring</code></li>
+        <li>Piège : <code>"I am boring"</code> = je suis ennuyeux (pas ennuyé !)</li>
+        <li>Astuce : -ed = moi, -ing = la chose</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#ec4899">
+      <div class="info-card-icon">🔗</div>
+      <div class="info-card-title">Prépositions clés</div>
+      <ul>
+        <li><strong>Adj+prep :</strong> proud <code>OF</code>, afraid <code>OF</code>, good <code>AT</code>, interested <code>IN</code>, responsible <code>FOR</code></li>
+        <li><strong>Nom+prep :</strong> lack <code>OF</code>, reason <code>FOR</code>, advantage <code>OF</code></li>
+        <li><strong>Verbe+prep :</strong> succeed <code>IN</code>, insist <code>ON</code>, depend <code>ON</code>, look forward <code>TO</code>+ing</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#3b82f6">
+      <div class="info-card-icon">🇬🇧</div>
+      <div class="info-card-title">UK & ses nations</div>
+      <ul>
+        <li>Angleterre + Écosse + Pays de Galles + Irlande du Nord = <strong>Royaume-Uni</strong></li>
+        <li><strong>Dévolution</strong> = transfert de pouvoirs aux parlements régionaux</li>
+        <li>Holyrood = Parlement écossais / Stormont = Irlande du Nord</li>
+        <li><strong>Brexit</strong> = sortie de l'UE effective en 2020</li>
+        <li>BBC = service public audiovisuel britannique</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#8b5cf6">
+      <div class="info-card-icon">📝</div>
+      <div class="info-card-title">Phrasal verbs fréquents</div>
+      <ul>
+        <li><code>look up</code> = chercher (dictionnaire)</li>
+        <li><code>look for</code> = chercher (objet, personne)</li>
+        <li><code>look forward to</code> = anticiper avec plaisir (+ -ing)</li>
+        <li><code>give up</code> = abandonner / <code>put off</code> = reporter</li>
+        <li><code>carry out</code> = effectuer / <code>bring up</code> = évoquer, élever</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#14b8a6">
+      <div class="info-card-icon">📚</div>
+      <div class="info-card-title">Notions culturelles Terminale</div>
+      <ul>
+        <li>Identités & échanges / Espace privé & public</li>
+        <li>Art et pouvoir / Citoyenneté et mondes virtuels</li>
+        <li>Fictions et réalités</li>
+        <li>Innovations scientifiques & responsabilité</li>
+        <li>Diversité et inclusion / Territoire et mémoire</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ═══ CONJUGAISON STRUCTURÉE ════════════════════════════════════════════ -->
+  <div class="algo-section">
+    <div class="section-title">Conjugaison structurée</div>
+    <div class="algo-grid">
+
+      <div class="algo-card">
+        <div class="algo-card-title">📅 Tableau des temps</div>
+        <div class="algo-block">Present simple    → I work / He works
+Present continuous → I am working
+Present perfect   → I have worked
+Past simple       → I worked
+Past perfect      → I had worked
+Future will       → I will work
+Future going to   → I am going to work</div>
+        <div class="algo-note">
+          <strong>Repère :</strong> present perfect = toujours avec <code>have/has</code> + participe passé. Pas de date précise → ≠ past simple.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">❓ Former des questions</div>
+        <div class="algo-block">Ouverte  → What do/did/have you...?
+Fermée   → Do/Did/Have you...?
+Tag      → You work here, don't you?
+         → She didn't come, did she?
+Indirecte→ Can you tell me where he lives?
+         → (pas d'inversion sujet-verbe)</div>
+        <div class="algo-note">
+          <strong>Piège questions indirectes :</strong> après <code>Can you tell me...</code> → ordre affirmatif (where <em>he lives</em>, pas <em>does he live</em>).
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">🔄 Voix passive</div>
+        <div class="algo-block">Actif  → Orwell wrote the book.
+Passif → The book was written by Orwell.
+
+Structure : be + past participle
+  Present → is/are + PP
+  Past    → was/were + PP
+  Future  → will be + PP
+
+Agent (BY) = optionnel si évident</div>
+        <div class="algo-note">
+          <strong>Astuce :</strong> le complément d'objet direct devient sujet. L'agent se place avec <code>by</code> en fin de phrase.
+        </div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">💬 Style indirect</div>
+        <div class="algo-block">"I work"      → said he worked
+"I will go"   → said he would go
+"I have done" → said he had done
+"I am going"  → said he was going
+"I went"      → said he had gone
+
+Adverbes :
+  now      → then
+  today    → that day
+  tomorrow → the next day
+  yesterday→ the day before</div>
+        <div class="algo-note">
+          <strong>Règle :</strong> recul d'un temps dans le passé (backshift). Les adverbes de temps changent aussi.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ PIÈGES CLASSIQUES ══════════════════════════════════════════════════ -->
+  <div class="traps">
+    <div class="section-title">Pièges classiques</div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Incorrect</div>
+        <div class="trap-wrong">"I am agree with you"</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right">"I agree with you"</div>
+        <div class="trap-note">agree est un <strong>verbe</strong>, pas un adjectif → pas de be</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Incorrect</div>
+        <div class="trap-wrong">"If I was rich, I would travel"</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right">"If I <strong>were</strong> rich, I would travel"</div>
+        <div class="trap-note">Conditionnel type 2 → <strong>were</strong> pour tous les pronoms</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Incorrect</div>
+        <div class="trap-wrong">"The news is bored"</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right">"The news is <strong>boring</strong>"</div>
+        <div class="trap-note">-ing = ce qui provoque l'ennui ; -ed = celui qui ressent l'ennui</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Incorrect</div>
+        <div class="trap-wrong">"He work every day" / "She go to school"</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right">"He work<strong>s</strong>" / "She go<strong>es</strong>"</div>
+        <div class="trap-note">Présent simple → <strong>-s/-es</strong> obligatoire à la 3e personne du singulier</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Incorrect</div>
+        <div class="trap-wrong">"I have lived here since 3 years"</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right">"I have lived here <strong>for</strong> 3 years"</div>
+        <div class="trap-note"><code>since</code> = point de départ ("since 2020") · <code>for</code> = durée ("for 3 years")</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Incorrect</div>
+        <div class="trap-wrong">"She is <em>actuellement</em> in London" → "actually"</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right">"She is <strong>currently</strong> in London"</div>
+        <div class="trap-note"><code>actually</code> = en fait / <code>currently</code> = actuellement (faux-ami classique)</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ QUIZ ÉCLAIR ════════════════════════════════════════════════════════ -->
+  <div class="quiz-section">
+    <div class="section-title">Quiz éclair — cliquer pour révéler</div>
+
+    <div class="qr-card">
+      <div class="qr-q">1. Translate: "Si j'avais su, je ne serais pas venu."</div>
+      <div class="qr-answer">
+        "If I <strong>had known</strong>, I <strong>would not have come</strong>."
+        <div class="qr-hint">→ Conditionnel type 3 : if + had + PP → would have + PP (irréel passé)</div>
+      </div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">2. Give a synonym of "huge".</div>
+      <div class="qr-answer">
+        <strong>enormous, massive, vast, immense</strong>
+        <div class="qr-hint">→ Tous synonymes d'une très grande taille ou ampleur</div>
+      </div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">3. What does "devolution" mean in the UK context?</div>
+      <div class="qr-answer">
+        Transfer of powers from Westminster to regional parliaments: <strong>Scottish Parliament (Holyrood)</strong>, <strong>Welsh Senedd</strong>, and <strong>Northern Ireland Assembly (Stormont)</strong>.
+        <div class="qr-hint">→ Ce n'est pas une décentralisation totale : le Parlement de Westminster reste souverain</div>
+      </div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">4. Fill in the blank: "She finds the lecture ___ " (bore)</div>
+      <div class="qr-answer">
+        "She finds the lecture <strong>boring</strong>."
+        <div class="qr-hint">→ -ing car c'est la conférence qui provoque l'ennui (caractéristique de la chose)</div>
+      </div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">5. Fill in: "I'm looking forward ___ seeing you."</div>
+      <div class="qr-answer">
+        "I'm looking forward <strong>to</strong> seeing you."
+        <div class="qr-hint">→ look forward TO + verbe en -ing (to fait partie du phrasal verb, pas un infinitif)</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="back-footer">
+    <a href="index.html">← Retour aux fiches mémo</a>
+  </div>
+
+</div>
+
+<script>
+function toggleTheme(){const h=document.documentElement;const t=h.getAttribute('data-theme');const n=t==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('theme',n);document.getElementById('theme-btn').textContent=n==='dark'?'☀ Clair':'🌙 Sombre';}
+window.addEventListener('DOMContentLoaded',()=>{const t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-btn').textContent=t==='dark'?'☀ Clair':'🌙 Sombre';});
+document.querySelectorAll('.qr-card').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('open')));
+</script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiche mémo — Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[data-theme="dark"]  { --bg:#08080f; --bg2:#0a0a14; --card:#0f0f1a; --card2:#121220; --border:#1c1c2e; --text:#e8e8f5; --muted:#606080; --shadow:rgba(0,0,0,0.5); }
+[data-theme="light"] { --bg:#f3f3fb; --bg2:#eaeaf5; --card:#ffffff; --card2:#f8f8ff; --border:#e0e0f0; --text:#0f0f1a; --muted:#8080a0; --shadow:rgba(0,0,0,0.07); }
+:root { --accent:#f97316; }
+
+body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:32px 20px 80px; transition:background .2s,color .2s; }
+.wrap { max-width:900px; margin:0 auto; }
+
+/* ── TOP NAV ─── */
+.topnav { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:12px; }
+.back { font-size:13px; color:var(--muted); text-decoration:none; }
+.back:hover { color:var(--accent); }
+.theme-toggle { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); }
+.theme-toggle:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ── HERO ─── */
+.hero { margin-bottom:40px; }
+.hero-tag { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+.hero-title { font-size:clamp(28px,5vw,44px); font-weight:800; line-height:1.1; margin-bottom:8px; }
+.hero-title span { color:var(--accent); }
+.hero-meta { font-size:13px; color:var(--muted); display:flex; gap:20px; flex-wrap:wrap; }
+.hero-meta strong { color:var(--text); }
+
+/* ── SECTIONS ─── */
+.section-title {
+  font-size:10px; font-weight:800; letter-spacing:3px; text-transform:uppercase;
+  color:var(--accent); margin-bottom:16px; padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ── INFOGRAPHIC GRID ─── */
+.info-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-bottom:32px; }
+
+.info-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+  border-left:3px solid var(--c, var(--accent));
+}
+.info-card-icon { font-size:20px; margin-bottom:10px; }
+.info-card-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; }
+.info-card ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.info-card li { font-size:12px; color:var(--muted); line-height:1.5; display:flex; gap:8px; }
+.info-card li::before { content:'→'; color:var(--accent); flex-shrink:0; font-size:11px; }
+.info-card li strong { color:var(--text); }
+.info-card li code {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  background:rgba(249,115,22,0.08); border:1px solid rgba(249,115,22,0.2);
+  padding:1px 6px; border-radius:4px; color:var(--accent);
+}
+
+/* ── ALGO BLOC ─── */
+.algo-section { margin-bottom:32px; }
+.algo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.algo-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  box-shadow:0 2px 12px var(--shadow);
+}
+.algo-card-title { font-size:12px; font-weight:700; color:var(--accent); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; }
+.algo-block {
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  line-height:1.8; color:#d4a47a; margin-bottom:10px;
+  white-space:pre; overflow-x:auto;
+}
+[data-theme="light"] .algo-block { color:#a05010; }
+.algo-note { font-size:11px; color:var(--muted); line-height:1.6; }
+.algo-note strong { color:var(--text); }
+
+/* ── PIÈGE TABLE ─── */
+.traps { margin-bottom:32px; }
+.trap-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:14px 18px; margin-bottom:8px;
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  font-size:12px; box-shadow:0 1px 6px var(--shadow);
+}
+@media(max-width:500px){ .trap-row { grid-template-columns:1fr; } }
+.trap-wrong { color:#f87171; }
+.trap-right { color:#34d399; }
+.trap-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; opacity:.7; }
+
+/* ── QUIZ RAPIDE ─── */
+.quiz-section { margin-bottom:32px; }
+.qr-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:18px; margin-bottom:10px;
+  box-shadow:0 1px 6px var(--shadow); cursor:pointer;
+}
+.qr-q { font-size:13px; font-weight:600; margin-bottom:10px; line-height:1.5; }
+.qr-answer {
+  font-size:12px; color:var(--accent); display:none;
+  padding-top:10px; border-top:1px solid var(--border); line-height:1.6;
+}
+.qr-card.open .qr-answer { display:block; }
+.qr-hint { font-size:11px; color:var(--muted); margin-top:6px; }
+
+/* ── BACK LINK ─── */
+.back-footer { text-align:center; margin-top:40px; }
+.back-footer a { font-size:13px; color:var(--muted); text-decoration:none; }
+.back-footer a:hover { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topnav">
+    <a class="back" href="index.html">← Fiches mémo</a>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+  </div>
+
+  <!-- ═══ HERO ═════════════════════════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-tag">Séquence 2 — Fiche mémo</div>
+    <div class="hero-title">Français &<br><span>Expression</span></div>
+    <div class="hero-meta">
+      <span><strong>40 questions</strong> · 30 min</span>
+      <span><strong>5 types</strong> d'exercices</span>
+      <span><strong>8 notions</strong> clés</span>
+    </div>
+  </div>
+
+  <!-- ═══ NOTIONS CLÉS ══════════════════════════════════════════════════════ -->
+  <div class="section-title">Notions clés</div>
+  <div class="info-grid">
+
+    <div class="info-card" style="--c:#f97316">
+      <div class="info-card-icon">🔀</div>
+      <div class="info-card-title">Les 3 hypothèses</div>
+      <ul>
+        <li><strong>Réel</strong> : si + présent → futur <code>si tu viens, je serai là</code></li>
+        <li><strong>Potentiel</strong> : si + imparfait → conditionnel <code>si tu venais, je serais là</code></li>
+        <li><strong>Irréel passé</strong> : si + plus-que-parfait → conditionnel passé <code>si tu étais venu, j'aurais été là</code></li>
+        <li>⚠ Jamais de conditionnel après "si" hypothétique</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fb923c">
+      <div class="info-card-icon">🔧</div>
+      <div class="info-card-title">Accord du participe passé</div>
+      <ul>
+        <li>Avec <strong>ÊTRE</strong> : accord avec le sujet</li>
+        <li>Avec <strong>AVOIR</strong> : accord avec le COD si placé <strong>avant</strong></li>
+        <li><strong>Pronominaux</strong> : accord avec le sujet sauf si COD après</li>
+        <li>Ex: <code>elle s'est lavé les mains</code> → lavé invariable (COD après)</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fdba74">
+      <div class="info-card-icon">📝</div>
+      <div class="info-card-title">5 types d'exercices officiels</div>
+      <ul>
+        <li><strong>Analogies verbales</strong> : X est à Y ce que Z est à ___</li>
+        <li><strong>Maladresses d'expression</strong> : trouver la phrase sans faute</li>
+        <li><strong>Unités textuelles</strong> : texte à trous cohérent</li>
+        <li><strong>Vocabulaire &amp; orthographe</strong> : bon mot + bonne graphie</li>
+        <li><strong>Synonymes / Antonymes / Homonymes / Paronymes</strong></li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#f97316">
+      <div class="info-card-icon">🎭</div>
+      <div class="info-card-title">Subjonctif vs Indicatif</div>
+      <ul>
+        <li><strong>Subjonctif après</strong> : vouloir que, falloir que, pour que, bien que, à moins que, opinion négative</li>
+        <li><strong>Indicatif après</strong> : penser que (affirmatif), savoir que, croire que (affirmatif)</li>
+        <li>Formule clé : <strong>doute / sentiment / volonté → subjonctif</strong></li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fb923c">
+      <div class="info-card-icon">🔁</div>
+      <div class="info-card-title">Pronoms</div>
+      <ul>
+        <li><strong>y / en</strong> : "y" remplace à+lieu ou à+chose, "en" remplace de+chose</li>
+        <li><strong>Doubles pronoms</strong> : me le, te la, lui en, y en</li>
+        <li><strong>Relatifs complexes</strong> : auquel, duquel, parmi lesquels</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fdba74">
+      <div class="info-card-icon">📖</div>
+      <div class="info-card-title">Culture littéraire</div>
+      <ul>
+        <li><strong>Poésie</strong> : Moyen-Âge → XVIIe</li>
+        <li><strong>Littérature d'idée &amp; presse</strong> : XVIe → XXIe</li>
+        <li><strong>Roman &amp; récit</strong> : XVIIIe → XXIe</li>
+        <li><strong>Théâtre</strong> : XVIIe → XXIe</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#f97316">
+      <div class="info-card-icon">🔗</div>
+      <div class="info-card-title">Articulateurs logiques</div>
+      <ul>
+        <li><strong>Opposition</strong> : mais, cependant, pourtant, néanmoins, or</li>
+        <li><strong>Cause</strong> : car, parce que, puisque, étant donné que</li>
+        <li><strong>But</strong> : pour que, afin que (+subj), pour (+inf)</li>
+        <li><strong>Concession</strong> : bien que, quoique, même si</li>
+      </ul>
+    </div>
+
+    <div class="info-card" style="--c:#fb923c">
+      <div class="info-card-icon">💡</div>
+      <div class="info-card-title">Valeurs de "on"</div>
+      <ul>
+        <li><strong>NOUS</strong> (registre familier) : "On part demain"</li>
+        <li><strong>ILS / quelques personnes</strong> : "On dit que…"</li>
+        <li><strong>QUELQU'UN</strong> (indéfini) : "On frappe à la porte"</li>
+        <li>⚠ Piège fréquent en QCM : identifier la bonne valeur</li>
+      </ul>
+    </div>
+
+  </div><!-- /info-grid -->
+
+  <!-- ═══ CONJUGAISON CLÉ ════════════════════════════════════════════════════ -->
+  <div class="section-title">Conjugaison clé</div>
+  <div class="algo-section">
+    <div class="algo-grid">
+
+      <div class="algo-card">
+        <div class="algo-card-title">Présent — irréguliers essentiels</div>
+        <div class="algo-block">être  → suis/es/est/sommes/êtes/sont
+avoir → ai/as/a/avons/avez/ont
+aller → vais/vas/va/allons/allez/vont
+faire → fais/fais/fait/faisons/faites/font</div>
+        <div class="algo-note">Formes à retenir par cœur — piège : <strong>faisons</strong> (pas "faisons" avec â)</div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">Passé composé vs Imparfait</div>
+        <div class="algo-block">PC  = action ponctuelle / délimitée
+      → "j'ai mangé" (fini, daté)
+
+IMP = état / habitude / description
+      → "je mangeais" (durée, contexte)</div>
+        <div class="algo-note">Test : <strong>"à ce moment-là"</strong> → imparfait / <strong>"soudain"</strong> → passé composé</div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">Discours rapporté au passé</div>
+        <div class="algo-block">présent     → imparfait
+futur       → conditionnel
+passé comp  → plus-que-parfait
+"demain"    → "le lendemain"
+"hier"      → "la veille"
+"aujourd'hui" → "ce jour-là"</div>
+        <div class="algo-note">Règle de la <strong>concordance des temps</strong> au discours indirect</div>
+      </div>
+
+      <div class="algo-card">
+        <div class="algo-card-title">Gérondif vs Participe présent</div>
+        <div class="algo-block">Gérondif         = EN + V-ant
+  → simultanéité, même sujet
+  → "en chantant, il travaille"
+
+Participe présent = V-ant seul
+  → qui fait l'action
+  → "chantant faux, il fut hué"</div>
+        <div class="algo-note">Le gérondif <strong>exige</strong> le même sujet que le verbe principal</div>
+      </div>
+
+    </div>
+  </div><!-- /algo-section -->
+
+  <!-- ═══ PIÈGES CLASSIQUES ══════════════════════════════════════════════════ -->
+  <div class="section-title">Pièges classiques</div>
+  <div class="traps">
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Erreur</div>
+        <div class="trap-wrong">"Elle s'est lavé les mains" — accorder lavé ?</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right">"lavé" est invariable : le COD "les mains" est <strong>après</strong> le verbe</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Erreur</div>
+        <div class="trap-wrong">Confondre "conjoncture" et "conjecture"</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right"><strong>conjoncture</strong> = situation économique · <strong>conjecture</strong> = hypothèse</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Erreur</div>
+        <div class="trap-wrong">"si j'aurais su, je n'aurais pas venu"</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right">Jamais de <strong>conditionnel</strong> après "si" hypothétique → si j'<strong>avais</strong> su</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Erreur</div>
+        <div class="trap-wrong">"bien que" + indicatif</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right">"bien que" exige <strong>toujours</strong> le subjonctif → "bien que tu <strong>sois</strong>"</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Erreur</div>
+        <div class="trap-wrong">Confondre "a" (avoir) et "à" (préposition)</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right">Test : remplacer par <strong>"avait"</strong> — si possible → "a" conjugué, sinon → "à"</div>
+      </div>
+    </div>
+
+    <div class="trap-row">
+      <div>
+        <div class="trap-label">❌ Erreur</div>
+        <div class="trap-wrong">Analogie verbale : chercher le mauvais rapport</div>
+      </div>
+      <div>
+        <div class="trap-label">✅ Correct</div>
+        <div class="trap-right">Identifier d'abord la <strong>relation</strong> (tout/partie, cause/effet, synonyme…) puis appliquer</div>
+      </div>
+    </div>
+
+  </div><!-- /traps -->
+
+  <!-- ═══ QUIZ ÉCLAIR ════════════════════════════════════════════════════════ -->
+  <div class="section-title">Quiz éclair — cliquer pour révéler</div>
+  <div class="quiz-section">
+
+    <div class="qr-card">
+      <div class="qr-q">1. Quel temps utiliser après "bien que" ?</div>
+      <div class="qr-answer">
+        Le <strong>subjonctif</strong> — toujours.<br>
+        <span class="qr-hint">Ex : "bien que tu <em>sois</em> là" / "bien qu'il <em>fasse</em> froid"</span>
+      </div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">2. Accordez : "Les robes qu'elle a portées" — pourquoi l'accord ?</div>
+      <div class="qr-answer">
+        <strong>portées</strong> s'accorde car le COD "que" (= les robes, féminin pluriel) est placé <strong>avant</strong> le verbe avoir.<br>
+        <span class="qr-hint">Règle : avec avoir → accord avec le COD antéposé</span>
+      </div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">3. Donnez 3 synonymes de "acrimonieux".</div>
+      <div class="qr-answer">
+        <strong>Acerbe, mordant, virulent</strong> (aussi : caustique, cinglant, âpre)<br>
+        <span class="qr-hint">Acrimonieux = plein d'aigreur et d'hostilité dans les propos</span>
+      </div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">4. "Partir" est à "arriver" ce que "vendre" est à ___ ?</div>
+      <div class="qr-answer">
+        <strong>Acheter</strong><br>
+        <span class="qr-hint">Relation d'<em>antonymes</em> — partir ↔ arriver / vendre ↔ acheter</span>
+      </div>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-q">5. Quelle valeur de "on" dans : "On frappe à la porte" ?</div>
+      <div class="qr-answer">
+        Valeur <strong>indéfinie</strong> : quelqu'un (on ne sait pas qui).<br>
+        <span class="qr-hint">≠ valeur "nous" (familier) · ≠ valeur "ils/les gens" (générale)</span>
+      </div>
+    </div>
+
+  </div><!-- /quiz-section -->
+
+  <div class="back-footer">
+    <a href="index.html">← Retour aux fiches mémo</a>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+function toggleTheme(){const h=document.documentElement;const t=h.getAttribute('data-theme');const n=t==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('theme',n);document.getElementById('theme-btn').textContent=n==='dark'?'☀ Clair':'🌙 Sombre';}
+window.addEventListener('DOMContentLoaded',()=>{const t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-btn').textContent=t==='dark'?'☀ Clair':'🌙 Sombre';});
+document.querySelectorAll('.qr-card').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('open')));
+</script>
+</body>
+</html>

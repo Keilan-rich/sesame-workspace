@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08080f">
+<link rel="manifest" href="/manifest.json">
+<title>Sésame 2026 — Fiches mémo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[data-theme="dark"]  { --bg:#08080f; --card:#0f0f1a; --border:#1c1c2e; --text:#e8e8f5; --muted:#606080; --shadow:rgba(0,0,0,0.4); }
+[data-theme="light"] { --bg:#f3f3fb; --card:#ffffff; --border:#e0e0f0; --text:#0f0f1a; --muted:#8080a0; --shadow:rgba(0,0,0,0.08); }
+body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:40px 24px 60px; transition:background .2s,color .2s; }
+.wrap { max-width:860px; margin:0 auto; }
+
+.top { display:flex; align-items:center; justify-content:space-between; margin-bottom:40px; flex-wrap:wrap; gap:12px; }
+.back { font-size:13px; color:var(--muted); text-decoration:none; }
+.back:hover { color:#06d6f5; }
+.page-title { font-size:clamp(24px,4vw,36px); font-weight:800; }
+.page-sub { font-size:13px; color:var(--muted); margin-top:4px; }
+.theme-toggle { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); }
+.theme-toggle:hover { border-color:#06d6f5; color:#06d6f5; }
+
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; }
+
+.fiche-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:24px; text-decoration:none;
+  display:block; transition:all .2s; box-shadow:0 2px 12px var(--shadow);
+  position:relative; overflow:hidden;
+}
+.fiche-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:var(--color);
+}
+.fiche-card:hover { transform:translateY(-3px); box-shadow:0 8px 28px var(--shadow); border-color:var(--color); }
+.fiche-card.locked { opacity:.5; cursor:default; }
+.fiche-card.locked:hover { transform:none; box-shadow:0 2px 12px var(--shadow); }
+
+.fiche-icon { font-size:28px; margin-bottom:14px; }
+.fiche-name { font-size:15px; font-weight:700; color:var(--text); margin-bottom:4px; }
+.fiche-seq { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; }
+.fiche-topics { display:flex; flex-wrap:wrap; gap:5px; }
+.topic-chip {
+  font-size:10px; padding:2px 8px; border-radius:10px;
+  background:rgba(255,255,255,0.06); border:1px solid var(--border);
+  color:var(--muted);
+}
+[data-theme="light"] .topic-chip { background:rgba(0,0,0,0.04); }
+.fiche-status {
+  margin-top:14px; font-size:11px; font-weight:700;
+  text-transform:uppercase; letter-spacing:1px;
+}
+.status-ok { color:#34d399; }
+.status-wip { color:#fbbf24; }
+.status-todo { color:var(--muted); }
+@supports (padding-top: env(safe-area-inset-top)) {
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <a class="back" href="/">← Tableau de bord</a>
+      <div class="page-title">Fiches mémo</div>
+      <div class="page-sub">Résumés visuels des notions clés — tous sujets</div>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Clair</button>
+  </div>
+
+  <div class="grid">
+    <a class="fiche-card" href="digital.html" style="--color:#06d6f5">
+      <div class="fiche-icon">💻</div>
+      <div class="fiche-name">Compétences digitales</div>
+      <div class="fiche-seq">Séquence 1 · 20 questions · 20 min</div>
+      <div class="fiche-topics">
+        <span class="topic-chip">Algorithmes</span>
+        <span class="topic-chip">Tableur</span>
+        <span class="topic-chip">Sécurité</span>
+        <span class="topic-chip">Réseaux</span>
+        <span class="topic-chip">Formats</span>
+      </div>
+      <div class="fiche-status status-ok">✓ Disponible</div>
+    </a>
+
+    <a class="fiche-card" href="enjeux.html" style="--color:#fbbf24">
+      <div class="fiche-icon">🌍</div>
+      <div class="fiche-name">Enjeux contemporains</div>
+      <div class="fiche-seq">Séquence 1 · 40 questions · 30 min</div>
+      <div class="fiche-topics">
+        <span class="topic-chip">Actu 2025</span>
+        <span class="topic-chip">Géopolitique</span>
+        <span class="topic-chip">Économie</span>
+        <span class="topic-chip">ODD</span>
+        <span class="topic-chip">IA & Tech</span>
+      </div>
+      <div class="fiche-status status-ok">✓ Disponible</div>
+    </a>
+
+<a class="fiche-card" href="maths.html" style="--color:#a78bfa">
+      <div class="fiche-icon">📐</div>
+      <div class="fiche-name">Mathématiques</div>
+      <div class="fiche-seq">Séquence 1 · 20 exercices · 40 min</div>
+      <div class="fiche-topics">
+        <span class="topic-chip">Algèbre</span>
+        <span class="topic-chip">Probabilités</span>
+        <span class="topic-chip">Stats</span>
+        <span class="topic-chip">Dérivées</span>
+      </div>
+      <div class="fiche-status status-ok">✓ Disponible</div>
+    </a>
+
+    <a class="fiche-card" href="francais.html" style="--color:#f97316">
+      <div class="fiche-icon">✍️</div>
+      <div class="fiche-name">Français</div>
+      <div class="fiche-seq">Séquence 2 · 40 questions · 30 min</div>
+      <div class="fiche-topics">
+        <span class="topic-chip">Conjugaison</span>
+        <span class="topic-chip">Grammaire</span>
+        <span class="topic-chip">Vocabulaire</span>
+        <span class="topic-chip">Littérature</span>
+      </div>
+      <div class="fiche-status status-ok">✓ Disponible</div>
+    </a>
+
+    <a class="fiche-card" href="anglais.html" style="--color:#3b82f6">
+      <div class="fiche-icon">🇬🇧</div>
+      <div class="fiche-name">Anglais</div>
+      <div class="fiche-seq">Séquence 2 · 40 questions · 30 min</div>
+      <div class="fiche-topics">
+        <span class="topic-chip">Tenses</span>
+        <span class="topic-chip">Vocabulary</span>
+        <span class="topic-chip">UK culture</span>
+        <span class="topic-chip">Faux-amis</span>
+      </div>
+      <div class="fiche-status status-ok">✓ Disponible</div>
+    </a>
+
+    <a class="fiche-card" href="espagnol.html" style="--color:#f43f5e">
+      <div class="fiche-icon">🇪🇸</div>
+      <div class="fiche-name">Espagnol</div>
+      <div class="fiche-seq">Séquence 2 · 40 questions · 30 min</div>
+      <div class="fiche-topics">
+        <span class="topic-chip">Ser/Estar</span>
+        <span class="topic-chip">Por/Para</span>
+        <span class="topic-chip">Andes</span>
+        <span class="topic-chip">Subjonctif</span>
+      </div>
+      <div class="fiche-status status-ok">✓ Disponible</div>
+    </a>
+
+    <a class="fiche-card" href="analyse-doc.html" style="--color:#10b981">
+      <div class="fiche-icon">📄</div>
+      <div class="fiche-name">Analyse documentaire</div>
+      <div class="fiche-seq">Séquence 3 · 1 dossier · 2h</div>
+      <div class="fiche-topics">
+        <span class="topic-chip">Repérage</span>
+        <span class="topic-chip">Analyse</span>
+        <span class="topic-chip">Synthèse</span>
+        <span class="topic-chip">Statistiques</span>
+      </div>
+      <div class="fiche-status status-ok">✓ Disponible</div>
+    </a>
+  </div>
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀ Clair' : '☾ Sombre';
+  localStorage.setItem('sesame_theme', next);
+}
+const saved = localStorage.getItem('sesame_theme') || 'light';
+document.documentElement.setAttribute('data-theme', saved);
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀ Clair' : '☾ Sombre';
+});
+</script>
+</body>
+</html>
