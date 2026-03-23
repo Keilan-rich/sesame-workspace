@@ -419,7 +419,7 @@ let currentUser = null;
 async function loginGoogle() {
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin }
+    options: { redirectTo: window.location.origin + '/' }
   });
   if (error) alert('Erreur de connexion : ' + error.message);
 }

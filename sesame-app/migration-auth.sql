@@ -8,6 +8,9 @@ ALTER TABLE session_results ADD COLUMN IF NOT EXISTS user_id UUID;
 -- 2. Colonne revision_ids pour tracker les questions de révision
 ALTER TABLE daily_sessions ADD COLUMN IF NOT EXISTS revision_ids TEXT[];
 
+-- 2b. Colonne session_type dans session_results (pour filtrer par type de session)
+ALTER TABLE session_results ADD COLUMN IF NOT EXISTS session_type TEXT DEFAULT 'daily';
+
 -- 3. Contrainte unique par (date, user, type) au lieu de date seule
 ALTER TABLE daily_sessions DROP CONSTRAINT IF EXISTS daily_sessions_date_key;
 ALTER TABLE daily_sessions ADD CONSTRAINT daily_sessions_date_user_type_unique

@@ -1049,7 +1049,8 @@ async function showResults() {
         duration_min: durationMin,
         weak_topics: [...new Set(subWeak)],
         wrong_answers: subWrong,
-        all_answers: Object.fromEntries(subQ.map(q => [q.id, answers[q.id] || null]))
+        all_answers: Object.fromEntries(subQ.map(q => [q.id, answers[q.id] || null])),
+        session_type: sessionType
       });
     }
     el.className = 'send-status ok';
