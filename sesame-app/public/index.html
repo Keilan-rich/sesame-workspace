@@ -52,6 +52,9 @@ body {
   transition: var(--transition);
   -webkit-tap-highlight-color: transparent;
 }
+/* Hide main content until auth+paywall resolved */
+.main-content { display: none; }
+.main-content.visible { display: block; }
 
 .theme-toggle {
   position: fixed; top: 16px; right: 16px; z-index: 200;
@@ -272,46 +275,135 @@ body {
 /* ── PAYWALL OVERLAY ───────────────────────────────────── */
 .paywall-overlay {
   position: fixed; inset: 0; z-index: 600;
-  background: var(--bg);
+  background: #08080f;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  text-align: center; padding: 32px;
+  text-align: center; padding: 24px;
+  overflow-y: auto;
 }
 .paywall-overlay.hidden { display: none; }
+
+.paywall-bg {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+}
+.paywall-bg .orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4;
+  animation: orbFloat 6s ease-in-out infinite;
+}
+.paywall-bg .orb-1 { width: 300px; height: 300px; background: #06d6f5; top: -80px; left: -60px; }
+.paywall-bg .orb-2 { width: 250px; height: 250px; background: #a78bfa; bottom: -60px; right: -40px; animation-delay: -3s; }
+.paywall-bg .orb-3 { width: 180px; height: 180px; background: #34d399; top: 40%; left: 60%; animation-delay: -1.5s; }
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -30px) scale(1.1); }
+}
+
 .paywall-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 20px; padding: 40px 32px; max-width: 420px; width: 100%;
-  box-shadow: 0 8px 40px var(--shadow); position: relative;
+  position: relative; z-index: 1;
+  background: rgba(15,15,26,0.85); backdrop-filter: blur(24px);
+  border: 1px solid rgba(6,214,245,0.15);
+  border-radius: 24px; padding: 44px 32px 36px; max-width: 400px; width: 100%;
+  box-shadow: 0 0 60px rgba(6,214,245,0.08), 0 20px 60px rgba(0,0,0,0.5);
+  animation: cardAppear 0.6s ease-out;
 }
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .paywall-badge {
-  display: inline-block; background: var(--accent); color: #000;
-  font-size: 11px; font-weight: 700; letter-spacing: 1px;
-  text-transform: uppercase; padding: 4px 12px; border-radius: 20px;
-  margin-bottom: 16px;
+  display: inline-block;
+  background: linear-gradient(135deg, #f87171, #fbbf24);
+  color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+  margin-bottom: 20px; animation: badgePulse 2s ease-in-out infinite;
 }
-.paywall-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
-.paywall-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(248,113,113,0); }
+}
+
+.paywall-title {
+  font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 6px;
+}
+.paywall-title span { color: #06d6f5; }
+.paywall-sub {
+  color: #8080a0; font-size: 13px; margin-bottom: 28px; line-height: 1.6;
+}
+
+/* Countdown */
+.paywall-countdown {
+  display: flex; justify-content: center; gap: 12px; margin-bottom: 28px;
+}
+.countdown-box {
+  background: rgba(6,214,245,0.08); border: 1px solid rgba(6,214,245,0.2);
+  border-radius: 12px; padding: 10px 14px; min-width: 64px;
+}
+.countdown-box .num {
+  font-size: 24px; font-weight: 800; color: #06d6f5;
+  font-family: 'JetBrains Mono', monospace;
+}
+.countdown-box .lbl { font-size: 9px; color: #606080; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+/* Price */
 .paywall-price { margin-bottom: 24px; }
-.paywall-price .old { color: var(--muted); text-decoration: line-through; font-size: 18px; margin-right: 8px; }
-.paywall-price .new { font-size: 32px; font-weight: 800; color: var(--accent); }
-.paywall-price .unit { color: var(--muted); font-size: 14px; }
-.paywall-features { text-align: left; margin-bottom: 28px; }
-.paywall-features li {
-  list-style: none; padding: 6px 0; font-size: 13px; color: var(--text);
-  display: flex; align-items: center; gap: 8px;
+.paywall-price .old {
+  color: #606080; text-decoration: line-through; font-size: 16px;
+  margin-right: 6px; opacity: 0.7;
 }
-.paywall-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
+.paywall-price .new {
+  font-size: 36px; font-weight: 800;
+  background: linear-gradient(135deg, #06d6f5, #34d399);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.paywall-price .save {
+  display: inline-block; background: rgba(52,211,153,0.15); color: #34d399;
+  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+  margin-left: 8px;
+}
+
+/* Features */
+.paywall-features {
+  text-align: left; margin-bottom: 28px; padding: 0;
+}
+.paywall-features li {
+  list-style: none; padding: 8px 0; font-size: 13px; color: #c8c8e0;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.paywall-features li:last-child { border-bottom: none; }
+.paywall-features li .check {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(52,211,153,0.15); color: #34d399;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+
+/* CTA */
 .paywall-cta {
   display: block; width: 100%; padding: 16px;
-  background: var(--accent); color: #000; border: none;
-  border-radius: 12px; font-family: 'Sora', sans-serif;
-  font-size: 16px; font-weight: 700; cursor: pointer;
-  transition: all 0.2s; text-decoration: none; text-align: center;
+  background: linear-gradient(135deg, #06d6f5, #34d399);
+  color: #000; border: none; border-radius: 14px;
+  font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700;
+  cursor: pointer; transition: all 0.3s; text-decoration: none; text-align: center;
+  box-shadow: 0 4px 20px rgba(6,214,245,0.25);
 }
-.paywall-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(6,214,245,0.3); }
-.paywall-contact { color: var(--muted); font-size: 11px; margin-top: 16px; }
-.paywall-contact a { color: var(--accent); text-decoration: none; }
-.paywall-logout { background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; margin-top: 12px; text-decoration: underline; }
+.paywall-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(6,214,245,0.4);
+}
+.paywall-guarantee {
+  color: #606080; font-size: 11px; margin-top: 12px;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.paywall-contact { color: #606080; font-size: 11px; margin-top: 8px; }
+.paywall-contact a { color: #06d6f5; text-decoration: none; }
+.paywall-logout {
+  background: none; border: none; color: #606080; font-size: 11px;
+  cursor: pointer; margin-top: 14px; text-decoration: underline;
+  font-family: 'Sora', sans-serif;
+}
 
 /* ── USER BAR ───────────────────────────────────────────── */
 .user-bar {
@@ -352,28 +444,45 @@ body {
 
 <!-- PAYWALL OVERLAY -->
 <div class="paywall-overlay hidden" id="paywall-overlay">
+  <div class="paywall-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
   <div class="paywall-card">
-    <div class="paywall-badge">Offre de lancement</div>
-    <div class="paywall-title">Sésame 2026</div>
-    <div class="paywall-sub">Révise le concours Sésame en 15 min/jour avec des sessions personnalisées par IA</div>
+    <div class="paywall-badge">Offre limitée</div>
+    <div class="paywall-title">Sésame <span>2026</span></div>
+    <div class="paywall-sub">Prépare ton concours avec des sessions personnalisées par IA — adapté à tes points faibles, chaque jour</div>
+
+    <div class="paywall-countdown" id="paywall-countdown">
+      <div class="countdown-box"><div class="num" id="pw-days">0</div><div class="lbl">Jours</div></div>
+      <div class="countdown-box"><div class="num" id="pw-hours">0</div><div class="lbl">Heures</div></div>
+      <div class="countdown-box"><div class="num" id="pw-mins">0</div><div class="lbl">Min</div></div>
+      <div class="countdown-box"><div class="num" id="pw-secs">0</div><div class="lbl">Sec</div></div>
+    </div>
+
     <div class="paywall-price">
       <span class="old">20 000 FCFA</span>
       <span class="new">10 000 FCFA</span>
-      <span class="unit">· accès complet</span>
+      <span class="save">-50%</span>
     </div>
+
     <ul class="paywall-features">
-      <li>Sessions quotidiennes adaptées à ton niveau</li>
-      <li>Révision automatique de tes erreurs</li>
-      <li>Simulation concours en conditions réelles</li>
-      <li>Synchronisation multi-appareils</li>
-      <li>Accès illimité jusqu'au concours</li>
+      <li><span class="check">✓</span> Sessions quotidiennes adaptées à ton niveau</li>
+      <li><span class="check">✓</span> Révision automatique de tes erreurs</li>
+      <li><span class="check">✓</span> Simulation concours en conditions réelles</li>
+      <li><span class="check">✓</span> Synchronisation sur tous tes appareils</li>
+      <li><span class="check">✓</span> Accès illimité jusqu'au concours</li>
     </ul>
-    <a class="paywall-cta" href="https://wa.me/+237XXXXXXXXX?text=Je%20veux%20acc%C3%A9der%20%C3%A0%20S%C3%A9same%202026" target="_blank" id="paywall-cta">Débloquer l'accès →</a>
-    <div class="paywall-contact">Paiement par Orange Money / Wave / virement · <a href="https://wa.me/+237XXXXXXXXX">Contacter Kevin</a></div>
+
+    <a class="paywall-cta" href="https://wa.me/+237XXXXXXXXX?text=Salut%20Kevin%2C%20je%20veux%20acc%C3%A9der%20%C3%A0%20S%C3%A9same%202026%20%F0%9F%8E%93" target="_blank" id="paywall-cta">Débloquer l'accès maintenant</a>
+    <div class="paywall-guarantee">🔒 Satisfait ou remboursé</div>
+    <div class="paywall-contact">Orange Money · Wave · Virement · <a href="https://wa.me/+237XXXXXXXXX">Contacter Kevin</a></div>
     <button class="paywall-logout" onclick="logout()">Se déconnecter</button>
   </div>
 </div>
 
+<div class="main-content" id="main-content">
 <!-- USER BAR -->
 <div class="user-bar" id="user-bar" style="display:none">
   <img class="user-avatar" id="user-avatar" src="" alt="">
@@ -491,12 +600,44 @@ async function checkPaywall(user) {
   userProfile = profile;
   if (profile && (profile.paid || profile.is_admin)) {
     document.getElementById('paywall-overlay').classList.add('hidden');
-    return true; // Access granted
+    document.getElementById('main-content').classList.add('visible');
+    return true;
   }
-  // Not paid — show paywall
+  // Not paid — show paywall, keep main hidden
   document.getElementById('auth-overlay').classList.add('hidden');
+  document.getElementById('main-content').classList.remove('visible');
   document.getElementById('paywall-overlay').classList.remove('hidden');
+  startPaywallCountdown();
   return false;
+}
+
+// ─── PAYWALL COUNTDOWN ───────────────────────────────────────────────────────
+let countdownInterval = null;
+function startPaywallCountdown() {
+  if (countdownInterval) return;
+  // Promo ends 3 days from first visit (stored in localStorage per user)
+  const storageKey = 'sesame_promo_end';
+  let endTime = localStorage.getItem(storageKey);
+  if (!endTime) {
+    endTime = Date.now() + 3 * 24 * 60 * 60 * 1000; // 3 days from now
+    localStorage.setItem(storageKey, endTime);
+  }
+  endTime = parseInt(endTime);
+
+  function tick() {
+    const diff = Math.max(0, endTime - Date.now());
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('pw-days').textContent = String(d).padStart(2, '0');
+    document.getElementById('pw-hours').textContent = String(h).padStart(2, '0');
+    document.getElementById('pw-mins').textContent = String(m).padStart(2, '0');
+    document.getElementById('pw-secs').textContent = String(s).padStart(2, '0');
+    if (diff <= 0) clearInterval(countdownInterval);
+  }
+  tick();
+  countdownInterval = setInterval(tick, 1000);
 }
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
@@ -697,6 +838,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       userProfile = null;
       document.getElementById('auth-overlay').classList.remove('hidden');
       document.getElementById('paywall-overlay').classList.add('hidden');
+      document.getElementById('main-content').classList.remove('visible');
       document.getElementById('user-bar').style.display = 'none';
       document.getElementById('header-username').textContent = '';
     }
@@ -908,5 +1050,6 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
 </script>
+</div><!-- /main-content -->
 </body>
 </html>
