@@ -72,6 +72,10 @@ async function init() {
   // Auth check
   const { data: { session } } = await sb.auth.getSession();
   if (!session?.user) { window.location.href = '/'; return; }
+  // ACCESS GATE: check whitelist
+  if (window.__sesameAllowed && !window.__sesameAllowed(session.user.email)) {
+    window.location.replace('/paywall.html'); return;
+  }
   const uid = session.user.id;
 
   // 1. Fetch user's wrong answers from Supabase (per-user)

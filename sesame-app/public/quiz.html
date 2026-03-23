@@ -674,6 +674,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Auth check — redirect to hub if not logged in
   const { data: { session: authSession } } = await sb.auth.getSession();
   if (!authSession?.user) { window.location.href = '/'; return; }
+  // ACCESS GATE: check whitelist
+  if (window.__sesameAllowed && !window.__sesameAllowed(authSession.user.email)) {
+    window.location.replace('/paywall.html'); return;
+  }
   currentUser = authSession.user;
 
   const params = new URLSearchParams(window.location.search);
