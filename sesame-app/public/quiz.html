@@ -675,6 +675,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (!authSession?.user) { window.location.href = '/'; return; }
   currentUser = authSession.user;
 
+  // Paywall check — redirect if not paid
+  const { data: profile } = await sb.from('profiles').select('paid, is_admin').eq('id', currentUser.id).maybeSingle();
+  if (!profile || (!profile.paid && !profile.is_admin)) { window.location.href = '/'; return; }
+
   const params = new URLSearchParams(window.location.search);
   sessionDate = params.get('date') || new Date().toISOString().split('T')[0];
   sessionType = params.get('type') || 'daily';

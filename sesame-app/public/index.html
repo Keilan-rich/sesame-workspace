@@ -269,6 +269,50 @@ body {
 .btn-google svg { width: 20px; height: 20px; }
 .auth-note { color: var(--muted); font-size: 11px; margin-top: 20px; position: relative; }
 
+/* ── PAYWALL OVERLAY ───────────────────────────────────── */
+.paywall-overlay {
+  position: fixed; inset: 0; z-index: 600;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 32px;
+}
+.paywall-overlay.hidden { display: none; }
+.paywall-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 40px 32px; max-width: 420px; width: 100%;
+  box-shadow: 0 8px 40px var(--shadow); position: relative;
+}
+.paywall-badge {
+  display: inline-block; background: var(--accent); color: #000;
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; padding: 4px 12px; border-radius: 20px;
+  margin-bottom: 16px;
+}
+.paywall-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+.paywall-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+.paywall-price { margin-bottom: 24px; }
+.paywall-price .old { color: var(--muted); text-decoration: line-through; font-size: 18px; margin-right: 8px; }
+.paywall-price .new { font-size: 32px; font-weight: 800; color: var(--accent); }
+.paywall-price .unit { color: var(--muted); font-size: 14px; }
+.paywall-features { text-align: left; margin-bottom: 28px; }
+.paywall-features li {
+  list-style: none; padding: 6px 0; font-size: 13px; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+.paywall-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
+.paywall-cta {
+  display: block; width: 100%; padding: 16px;
+  background: var(--accent); color: #000; border: none;
+  border-radius: 12px; font-family: 'Sora', sans-serif;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; text-decoration: none; text-align: center;
+}
+.paywall-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(6,214,245,0.3); }
+.paywall-contact { color: var(--muted); font-size: 11px; margin-top: 16px; }
+.paywall-contact a { color: var(--accent); text-decoration: none; }
+.paywall-logout { background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; margin-top: 12px; text-decoration: underline; }
+
 /* ── USER BAR ───────────────────────────────────────────── */
 .user-bar {
   position: fixed; top: 16px; left: 16px; z-index: 200;
@@ -304,6 +348,30 @@ body {
     Continuer avec Google
   </button>
   <div class="auth-note">Tes données restent privées et synchronisées entre tes appareils</div>
+</div>
+
+<!-- PAYWALL OVERLAY -->
+<div class="paywall-overlay hidden" id="paywall-overlay">
+  <div class="paywall-card">
+    <div class="paywall-badge">Offre de lancement</div>
+    <div class="paywall-title">Sésame 2026</div>
+    <div class="paywall-sub">Révise le concours Sésame en 15 min/jour avec des sessions personnalisées par IA</div>
+    <div class="paywall-price">
+      <span class="old">20 000 FCFA</span>
+      <span class="new">10 000 FCFA</span>
+      <span class="unit">· accès complet</span>
+    </div>
+    <ul class="paywall-features">
+      <li>Sessions quotidiennes adaptées à ton niveau</li>
+      <li>Révision automatique de tes erreurs</li>
+      <li>Simulation concours en conditions réelles</li>
+      <li>Synchronisation multi-appareils</li>
+      <li>Accès illimité jusqu'au concours</li>
+    </ul>
+    <a class="paywall-cta" href="https://wa.me/+237XXXXXXXXX?text=Je%20veux%20acc%C3%A9der%20%C3%A0%20S%C3%A9same%202026" target="_blank" id="paywall-cta">Débloquer l'accès →</a>
+    <div class="paywall-contact">Paiement par Orange Money / Wave / virement · <a href="https://wa.me/+237XXXXXXXXX">Contacter Kevin</a></div>
+    <button class="paywall-logout" onclick="logout()">Se déconnecter</button>
+  </div>
 </div>
 
 <!-- USER BAR -->
@@ -414,6 +482,22 @@ const START_DATE = new Date('2026-03-15');
 const TODAY      = new Date(); TODAY.setHours(0,0,0,0);
 
 let currentUser = null;
+let userProfile = null;
+
+// ─── PAYWALL ─────────────────────────────────────────────────────────────────
+async function checkPaywall(user) {
+  const { data: profile, error } = await sb
+    .from('profiles').select('paid, is_admin').eq('id', user.id).maybeSingle();
+  userProfile = profile;
+  if (profile && (profile.paid || profile.is_admin)) {
+    document.getElementById('paywall-overlay').classList.add('hidden');
+    return true; // Access granted
+  }
+  // Not paid — show paywall
+  document.getElementById('auth-overlay').classList.add('hidden');
+  document.getElementById('paywall-overlay').classList.remove('hidden');
+  return false;
+}
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 async function loginGoogle() {
@@ -586,25 +670,33 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (session?.user) {
     currentUser = session.user;
     document.getElementById('auth-overlay').classList.add('hidden');
-    showUserBar(currentUser);
-    await loadDashboard();
+    // Check paywall before showing dashboard
+    const hasAccess = await checkPaywall(currentUser);
+    if (hasAccess) {
+      showUserBar(currentUser);
+      await loadDashboard();
+    }
   } else {
-    // Ensure overlay is visible when not authenticated
     document.getElementById('auth-overlay').classList.remove('hidden');
   }
 
   // Listen for ALL auth changes (login, logout, token refresh, account switch)
   sb.auth.onAuthStateChange(async (event, session) => {
     if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
-      // If switching accounts, reload everything
       const isNewUser = !currentUser || currentUser.id !== session.user.id;
       currentUser = session.user;
       document.getElementById('auth-overlay').classList.add('hidden');
-      showUserBar(currentUser);
-      if (isNewUser) await loadDashboard();
+      // Check paywall
+      const hasAccess = await checkPaywall(currentUser);
+      if (hasAccess) {
+        showUserBar(currentUser);
+        if (isNewUser) await loadDashboard();
+      }
     } else if (event === 'SIGNED_OUT') {
       currentUser = null;
+      userProfile = null;
       document.getElementById('auth-overlay').classList.remove('hidden');
+      document.getElementById('paywall-overlay').classList.add('hidden');
       document.getElementById('user-bar').style.display = 'none';
       document.getElementById('header-username').textContent = '';
     }

@@ -73,6 +73,10 @@ async function init() {
   if (!session?.user) { window.location.href = '/'; return; }
   const uid = session.user.id;
 
+  // Paywall check
+  const { data: profile } = await sb.from('profiles').select('paid, is_admin').eq('id', uid).maybeSingle();
+  if (!profile || (!profile.paid && !profile.is_admin)) { window.location.href = '/'; return; }
+
   // 1. Fetch user's wrong answers from Supabase (per-user)
   const { data: userResults } = await sb
     .from('session_results').select('wrong_answers, subject, date')
