@@ -346,21 +346,25 @@ body {
 .countdown-box .lbl { font-size: 9px; color: #8080a0; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
 
 /* Price */
-.paywall-price { margin-bottom: 24px; }
+.paywall-price { margin-bottom: 24px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .paywall-price .old {
-  color: #b0b0c0; text-decoration: line-through; font-size: 16px;
-  margin-right: 6px;
+  color: #b0b0c0; text-decoration: line-through; font-size: 15px;
 }
+.paywall-price .new-row { display: flex; align-items: center; gap: 10px; }
 .paywall-price .new {
-  font-size: 36px; font-weight: 800;
+  font-size: 34px; font-weight: 800;
   background: linear-gradient(135deg, #06d6f5, #0ea5e9);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background-clip: text; white-space: nowrap;
 }
 .paywall-price .save {
   display: inline-block; background: #ecfdf5; color: #059669;
   font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
-  margin-left: 8px;
+}
+.paywall-price.expired .old { display: none; }
+.paywall-price.expired .save { display: none; }
+.paywall-price.expired .new {
+  background: none; -webkit-text-fill-color: #0f0f1a; color: #0f0f1a;
 }
 
 /* Features */
@@ -461,10 +465,12 @@ body {
       <div class="countdown-box"><div class="num" id="pw-secs">0</div><div class="lbl">Sec</div></div>
     </div>
 
-    <div class="paywall-price">
+    <div class="paywall-price" id="paywall-price">
       <span class="old">20 000 FCFA</span>
-      <span class="new">10 000 FCFA</span>
-      <span class="save">-50%</span>
+      <div class="new-row">
+        <span class="new" id="pw-price-value">10 000 FCFA</span>
+        <span class="save">-50%</span>
+      </div>
     </div>
 
     <ul class="paywall-features">
@@ -477,7 +483,7 @@ body {
 
     <a class="paywall-cta" href="https://wa.me/+237XXXXXXXXX?text=Salut%20Kevin%2C%20je%20veux%20acc%C3%A9der%20%C3%A0%20S%C3%A9same%202026%20%F0%9F%8E%93" target="_blank" id="paywall-cta">Débloquer l'accès maintenant</a>
     <div class="paywall-guarantee">🔒 Satisfait ou remboursé</div>
-    <div class="paywall-contact">Orange Money · Wave · Virement · <a href="https://wa.me/+237XXXXXXXXX">Contacter Kevin</a></div>
+    <div class="paywall-contact">Wave · <a href="https://wa.me/+237XXXXXXXXX">Contacter Kevin</a></div>
     <button class="paywall-logout" onclick="logout()">Se déconnecter</button>
   </div>
 </div>
@@ -634,7 +640,15 @@ function startPaywallCountdown() {
     document.getElementById('pw-hours').textContent = String(h).padStart(2, '0');
     document.getElementById('pw-mins').textContent = String(m).padStart(2, '0');
     document.getElementById('pw-secs').textContent = String(s).padStart(2, '0');
-    if (diff <= 0) clearInterval(countdownInterval);
+    if (diff <= 0) {
+      clearInterval(countdownInterval);
+      // Promo expired — switch to full price
+      document.getElementById('paywall-price').classList.add('expired');
+      document.getElementById('pw-price-value').textContent = '20 000 FCFA';
+      document.getElementById('paywall-countdown').style.display = 'none';
+      const badge = document.querySelector('.paywall-badge');
+      if (badge) badge.textContent = 'Accès premium';
+    }
   }
   tick();
   countdownInterval = setInterval(tick, 1000);
