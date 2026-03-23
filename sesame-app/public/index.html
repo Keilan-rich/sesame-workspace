@@ -358,8 +358,14 @@ body {
   background-clip: text; white-space: nowrap;
 }
 .paywall-price .save {
-  display: inline-block; background: #ecfdf5; color: #059669;
-  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+  display: inline-block; background: linear-gradient(135deg, #059669, #10b981); color: #fff;
+  font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px;
+  animation: savePulse 1.8s ease-in-out infinite;
+  box-shadow: 0 2px 12px rgba(5,150,105,0.3);
+}
+@keyframes savePulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 2px 12px rgba(5,150,105,0.3); }
+  50% { transform: scale(1.08); box-shadow: 0 4px 20px rgba(5,150,105,0.5); }
 }
 .paywall-price.expired .old { display: none; }
 .paywall-price.expired .save { display: none; }
@@ -429,6 +435,9 @@ body {
 /* ── SAFE AREA (notch) ───────────────────────────────────── */
 @supports (padding-top: env(safe-area-inset-top)) {
   body { padding-top: env(safe-area-inset-top); padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
+  .user-bar { top: calc(16px + env(safe-area-inset-top)); }
+  .auth-overlay { padding-top: max(32px, env(safe-area-inset-top)); }
+  .paywall-overlay { padding-top: max(24px, env(safe-area-inset-top)); padding-bottom: max(24px, env(safe-area-inset-bottom)); }
 }
 </style>
 </head>
@@ -481,9 +490,9 @@ body {
       <li><span class="check">✓</span> Accès illimité jusqu'au concours</li>
     </ul>
 
-    <a class="paywall-cta" href="https://wa.me/+237XXXXXXXXX?text=Salut%20Kevin%2C%20je%20veux%20acc%C3%A9der%20%C3%A0%20S%C3%A9same%202026%20%F0%9F%8E%93" target="_blank" id="paywall-cta">Débloquer l'accès maintenant</a>
+    <a class="paywall-cta" href="https://wa.me/+2250711610670?text=Salut%20Kevin%2C%20je%20veux%20acc%C3%A9der%20%C3%A0%20S%C3%A9same%202026%20%F0%9F%8E%93" target="_blank" id="paywall-cta">Débloquer l'accès maintenant</a>
     <div class="paywall-guarantee">🔒 Satisfait ou remboursé</div>
-    <div class="paywall-contact">Wave · <a href="https://wa.me/+237XXXXXXXXX">Contacter Kevin</a></div>
+    <div class="paywall-contact">Wave · <a href="https://wa.me/+2250711610670">Contacte-moi</a></div>
     <button class="paywall-logout" onclick="logout()">Se déconnecter</button>
   </div>
 </div>
