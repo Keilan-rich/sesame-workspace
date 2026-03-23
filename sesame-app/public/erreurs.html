@@ -72,8 +72,8 @@ async function init() {
   // Auth check
   const { data: { session } } = await sb.auth.getSession();
   if (!session?.user) { window.location.href = '/'; return; }
-  // ACCESS GATE: check whitelist
-  if (window.__sesameAllowed && !window.__sesameAllowed(session.user.email)) {
+  // ACCESS GATE: check paid status in DB
+  if (window.__sesameCheckAccess && !(await window.__sesameCheckAccess(sb))) {
     window.location.replace('/paywall.html'); return;
   }
   const uid = session.user.id;

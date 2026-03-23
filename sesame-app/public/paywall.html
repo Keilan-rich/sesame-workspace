@@ -388,19 +388,17 @@ function initCountdown() {
 
 initCountdown();
 
-// ── ACCESS CHECK (redirect authorized users to app) ──────
-(function() {
-  const ALLOWED_EMAILS = ['kevinou1707@gmail.com'];
+// ── ACCESS CHECK (redirect paid users back to app) ──────
+(async function() {
   const SUPABASE_URL = 'https://gkcxenxcyybgwdsgsuep.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY3hlbnhjeXliZ3dkc2dzdWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjcyMjMsImV4cCI6MjA4OTUwMzIyM30.fSS4MJpilWlfVyu6uPUKK-cWhO3S5KA_NUkKFLRPiBo';
   if (typeof window.supabase === 'undefined') return;
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  sb.auth.getSession().then(function(result) {
-    const user = result.data && result.data.session && result.data.session.user;
-    if (user && ALLOWED_EMAILS.includes((user.email || '').toLowerCase().trim())) {
-      window.location.replace('/');
-    }
-  });
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user) return;
+  // Check DB: if user has paid, redirect to app
+  const { data } = await sb.from('profiles').select('paid').eq('id', session.user.id).maybeSingle();
+  if (data?.paid === true) window.location.replace('/');
 })();
 </script>
 </body>

@@ -585,8 +585,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Check auth state
   const { data: { session } } = await sb.auth.getSession();
   if (session?.user) {
-    // ACCESS GATE: check whitelist before showing anything
-    if (window.__sesameAllowed && !window.__sesameAllowed(session.user.email)) {
+    // ACCESS GATE: check paid status in DB
+    if (window.__sesameCheckAccess && !(await window.__sesameCheckAccess(sb))) {
       window.location.replace('/paywall.html');
       return;
     }
@@ -602,8 +602,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Listen for ALL auth changes (login, logout, token refresh, account switch)
   sb.auth.onAuthStateChange(async (event, session) => {
     if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
-      // ACCESS GATE: check whitelist on every auth change
-      if (window.__sesameAllowed && !window.__sesameAllowed(session.user.email)) {
+      // ACCESS GATE: check paid status in DB
+      if (window.__sesameCheckAccess && !(await window.__sesameCheckAccess(sb))) {
         window.location.replace('/paywall.html');
         return;
       }
