@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Sésame 2026 — Accès Premium</title>
 <meta name="description" content="Débloquer l'accès complet à Sésame 2026">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#06d6f5">
@@ -386,6 +387,21 @@ function initCountdown() {
 }
 
 initCountdown();
+
+// ── ACCESS CHECK (redirect authorized users to app) ──────
+(function() {
+  const ALLOWED_EMAILS = ['kevinou1707@gmail.com'];
+  const SUPABASE_URL = 'https://gkcxenxcyybgwdsgsuep.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY3hlbnhjeXliZ3dkc2dzdWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjcyMjMsImV4cCI6MjA4OTUwMzIyM30.fSS4MJpilWlfVyu6uPUKK-cWhO3S5KA_NUkKFLRPiBo';
+  if (typeof window.supabase === 'undefined') return;
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  sb.auth.getSession().then(function(result) {
+    const user = result.data && result.data.session && result.data.session.user;
+    if (user && ALLOWED_EMAILS.includes((user.email || '').toLowerCase().trim())) {
+      window.location.replace('/');
+    }
+  });
+})();
 </script>
 </body>
 </html>
