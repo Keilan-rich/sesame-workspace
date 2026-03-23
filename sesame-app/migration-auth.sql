@@ -38,3 +38,61 @@ CREATE POLICY "Users insert own results" ON session_results
 -- 6. Activer RLS si pas déjà fait
 ALTER TABLE daily_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE session_results ENABLE ROW LEVEL SECURITY;
+
+-- ═══════════════════════════════════════════════════════════
+-- TABLE profiles — Paywall / Accès payant
+-- ═══════════════════════════════════════════════════════════
+
+-- 7. Créer la table profiles
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  paid BOOLEAN NOT NULL DEFAULT false,
+  is_admin BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 8. RLS : chaque user peut lire SA propre ligne uniquement
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can read own profile"
+  ON profiles FOR SELECT
+  USING (auth.uid() = id);
+
+-- Pas de policy INSERT/UPDATE pour authenticated → personne ne peut se mettre paid=true
+
+-- 9. Trigger : créer automatiquement un profil à chaque inscription
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, paid, is_admin)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    CASE WHEN NEW.email = 'kevinou1707@gmail.com' THEN true ELSE false END,
+    CASE WHEN NEW.email = 'kevinou1707@gmail.com' THEN true ELSE false END
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 10. Insérer ton profil admin (si ton compte existe déjà)
+INSERT INTO profiles (id, email, paid, is_admin)
+SELECT id, email, true, true
+FROM auth.users
+WHERE email = 'kevinou1707@gmail.com'
+ON CONFLICT (id) DO UPDATE SET paid = true, is_admin = true;
+
+-- 11. Insérer les profils pour les comptes existants (non payés)
+INSERT INTO profiles (id, email, paid, is_admin)
+SELECT id, email, false, false
+FROM auth.users
+WHERE email != 'kevinou1707@gmail.com'
+ON CONFLICT (id) DO NOTHING;
