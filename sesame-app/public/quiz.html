@@ -734,7 +734,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Check paid status
   const { data: profile } = await sb.from('profiles').select('paid, is_admin').eq('id', currentUser.id).maybeSingle();
-  userIsPaid = profile && (profile.paid || profile.is_admin);
+  userIsPaid = !!(profile && (profile.paid || profile.is_admin));
+  // Paid user — clear any leftover trial flag
+  if (userIsPaid) localStorage.removeItem('sesame_trial_used');
 
   const params = new URLSearchParams(window.location.search);
   sessionDate = params.get('date') || new Date().toISOString().split('T')[0];
