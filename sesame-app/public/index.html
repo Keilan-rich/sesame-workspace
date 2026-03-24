@@ -943,7 +943,7 @@ const SUBJECTS = [
   { key:'espagnol',     label:'Espagnol',              color:'--spanish' },
   { key:'analyse_doc',  label:'Analyse documentaire',  color:'--docu' },
 ];
-const LEVEL_COLORS = { 'Bon':'var(--green)', 'Moyen':'var(--amber)', 'À travailler':'var(--red)', 'Faible':'var(--red)', 'Inconnu':'var(--muted)' };
+const LEVEL_COLORS = { 'Très bien':'var(--green)', 'En bonne voie':'var(--amber)', 'En progression':'var(--red)', 'Pas encore évalué':'var(--muted)' };
 
 // ─── THEME ───────────────────────────────────────────────────────────────────
 function toggleTheme() {
@@ -1150,7 +1150,7 @@ function renderProgress(sessions) {
     let pct = 0;
     let scoreText = '—';
     let color = 'var(--muted)';
-    let dynLevel = 'Inconnu';
+    let dynLevel = 'Pas encore évalué';
 
     if (subSessions.length > 0) {
       const totalScore = subSessions.reduce((a, s) => a + s.score, 0);
@@ -1158,7 +1158,7 @@ function renderProgress(sessions) {
       pct = totalQ > 0 ? Math.round(totalScore / totalQ * 100) : 0;
       scoreText = `${totalScore}/${totalQ}`;
       color = pct >= 70 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
-      dynLevel = pct >= 75 ? 'Bon' : pct >= 55 ? 'Moyen' : 'À travailler';
+      dynLevel = pct >= 75 ? 'Très bien' : pct >= 55 ? 'En bonne voie' : 'En progression';
     }
 
     return `
@@ -1232,7 +1232,12 @@ function renderCalendar(sessions, calendar) {
   }
   strip.innerHTML = html;
   const todayEl = strip.querySelector('.cal-day.today');
-  if (todayEl) todayEl.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+  // Scroll horizontally within the strip only — don't move the page
+  if (todayEl) {
+    const stripRect = strip.getBoundingClientRect();
+    const elRect = todayEl.getBoundingClientRect();
+    strip.scrollLeft += (elRect.left - stripRect.left) - (stripRect.width / 2) + (elRect.width / 2);
+  }
 }
 
 function fmtDate(d) {
