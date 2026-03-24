@@ -374,16 +374,16 @@ async function togglePaid(userId, currentPaid, email) {
 
   const btn = document.getElementById('toggle-' + userId);
   const newPaid = !currentPaid;
-  const action = newPaid ? 'activer' : 'retirer';
+  const action = newPaid ? 'Activer' : 'Retirer';
 
   // Confirmation
-  if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} l'accès payé pour ${email} ?`)) return;
+  if (!confirm(`${action} l'accès payé pour ${email} ?`)) return;
 
   btn.disabled = true;
   btn.textContent = '...';
 
-  // Write
-  const { error } = await sb.from('profiles').update({ paid: newPaid }).eq('id', userId);
+  // Write via RPC (SECURITY DEFINER bypasses RLS issues)
+  const { error } = await sb.rpc('admin_set_paid', { target_user_id: userId, new_paid: newPaid });
   if (error) {
     alert('Erreur : ' + error.message);
     btn.disabled = false;
@@ -391,24 +391,9 @@ async function togglePaid(userId, currentPaid, email) {
     return;
   }
 
-  // Verify — re-read from Supabase to confirm
-  const { data: check } = await sb.rpc('admin_get_profiles');
-  if (check) {
-    const verified = check.find(p => p.id === userId);
-    if (verified && verified.paid !== newPaid) {
-      alert('La mise à jour n\'a pas été enregistrée. Réessaie.');
-      btn.disabled = false;
-      btn.textContent = currentPaid ? 'Payé' : 'Non payé';
-      return;
-    }
-    // Refresh all data
-    allProfiles = check;
-  } else {
-    // Fallback: update local
-    const profile = allProfiles.find(p => p.id === userId);
-    if (profile) profile.paid = newPaid;
-  }
-
+  // Update local data
+  const profile = allProfiles.find(p => p.id === userId);
+  if (profile) profile.paid = newPaid;
   render();
 }
 
