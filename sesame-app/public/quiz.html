@@ -378,12 +378,56 @@ body {
     .dots-strip { top: calc(52px + env(safe-area-inset-top)); }
   }
 }
+
+/* ── TRIAL PAYWALL OVERLAY ─────────────────────────────── */
+.trial-paywall {
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(8,8,15,0.85); backdrop-filter:blur(16px);
+  justify-content:center; align-items:center; padding:24px;
+  animation: trialFadeIn 0.5s ease;
+}
+.trial-paywall.active { display:flex; }
+@keyframes trialFadeIn { from{opacity:0} to{opacity:1} }
+.trial-card {
+  background:var(--card); border:1px solid var(--border); border-radius:24px;
+  padding:40px 28px; max-width:400px; width:100%; text-align:center;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+}
+.trial-card .trial-icon { font-size:48px; margin-bottom:16px; }
+.trial-card .trial-title { font-size:22px; font-weight:800; margin-bottom:8px; color:var(--text); }
+.trial-card .trial-sub { font-size:14px; color:var(--muted); line-height:1.5; margin-bottom:24px; }
+.trial-card .trial-score { font-size:15px; font-weight:600; color:var(--accent); margin-bottom:24px;
+  background:var(--accent-dim); padding:10px 16px; border-radius:12px; border:1px solid rgba(6,214,245,0.15); }
+.trial-card .trial-cta {
+  display:block; width:100%; padding:16px; border:none; border-radius:14px;
+  background:linear-gradient(135deg,#06d6f5,#3b82f6); color:#fff;
+  font-size:15px; font-weight:700; cursor:pointer; text-decoration:none;
+  font-family:'Sora',sans-serif; margin-bottom:12px; transition:transform 0.15s;
+}
+.trial-card .trial-cta:hover { transform:scale(1.02); }
+.trial-card .trial-back {
+  display:inline-block; font-size:13px; color:var(--muted); text-decoration:none;
+  cursor:pointer; border:none; background:none; font-family:'Sora',sans-serif;
+}
+.trial-card .trial-back:hover { color:var(--text); }
 </style>
 </head>
 <body data-theme="light">
 <script>(function(){var t=localStorage.getItem('sesame_theme');if(t)document.body.setAttribute('data-theme',t);})()</script>
 
 <button style="position:fixed;top:12px;right:12px;z-index:400;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);font-family:'Sora',sans-serif;" id="theme-btn" onclick="toggleTheme()">☀ Clair</button>
+
+<!-- ═══════════════════════════════ TRIAL PAYWALL ══════════════════════════════ -->
+<div class="trial-paywall" id="trial-paywall">
+  <div class="trial-card">
+    <div class="trial-icon">⏱</div>
+    <div class="trial-title">Ta minute d'essai est terminée</div>
+    <div class="trial-sub">Tu as eu un aperçu de l'entraînement Sésame Train.<br>Débloque l'accès complet pour continuer.</div>
+    <div class="trial-score" id="trial-score"></div>
+    <a class="trial-cta" href="https://wa.me/+2250711610670?text=Bonjour%2C%20je%20veux%20d%C3%A9bloquer%20mon%20acc%C3%A8s%20%C3%A0%20S%C3%A9same%20Train%202026" target="_blank">Débloquer l'accès complet</a>
+    <button class="trial-back" onclick="window.location.href='/'">← Retour au tableau de bord</button>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════ START SCREEN ═══════════════════════════════ -->
 <div class="start-screen" id="start-screen">
@@ -502,6 +546,7 @@ let sessionDate = '';
 let sessionSubjects = [];
 let sessionType = 'daily';
 let SAVE_KEY = '';
+let userIsPaid = false;
 
 // ─── AUTH + HELPERS ──────────────────────────────────────────────────────────
 let currentUser = null;
@@ -687,13 +732,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (!authSession?.user) { window.location.href = '/'; return; }
   currentUser = authSession.user;
 
-  // Paywall check — redirect if not paid
+  // Check paid status
   const { data: profile } = await sb.from('profiles').select('paid, is_admin').eq('id', currentUser.id).maybeSingle();
-  if (!profile || (!profile.paid && !profile.is_admin)) { window.location.href = '/'; return; }
+  userIsPaid = profile && (profile.paid || profile.is_admin);
 
   const params = new URLSearchParams(window.location.search);
   sessionDate = params.get('date') || new Date().toISOString().split('T')[0];
   sessionType = params.get('type') || 'daily';
+
+  // Non-paid users can only access daily sessions
+  if (!userIsPaid && sessionType !== 'daily') { window.location.href = '/'; return; }
 
   // Generate or load session based on type
   let session;
@@ -798,6 +846,8 @@ function resumeSession() {
     secondsLeft = saved.secondsLeft || 20 * 60;
     elapsed = saved.elapsed || 0;
   } catch(e) {}
+  // Free user already used their minute — block immediately
+  if (!userIsPaid && elapsed >= 60) { showTrialPaywall(); return; }
   document.getElementById('start-screen').classList.add('gone');
   renderDots();
   renderQuestion(currentIdx);
@@ -961,6 +1011,12 @@ function startTimer() {
   timerInterval = setInterval(() => {
     secondsLeft--; elapsed++;
     updateTimerDisplay();
+    // Free user: block after 1 min of use (60 seconds elapsed)
+    if (!userIsPaid && elapsed >= 60) {
+      clearInterval(timerInterval); timerRunning = false;
+      showTrialPaywall();
+      return;
+    }
     if (secondsLeft <= 0) { clearInterval(timerInterval); timerRunning = false; showResults(); }
   }, 1000);
 }
@@ -980,6 +1036,22 @@ function updateTimerDisplay() {
   el.className = 'timer-display';
   if (secondsLeft <= 120) el.classList.add('danger');
   else if (secondsLeft <= 300) el.classList.add('warning');
+}
+
+// ─── TRIAL PAYWALL ──────────────────────────────────────────────────────────
+function showTrialPaywall() {
+  // Calculate partial score
+  let answered = 0, correct = 0;
+  QUESTIONS.forEach(q => {
+    if (answers[q.id]) { answered++; if (answers[q.id] === q.correct) correct++; }
+  });
+  const scoreEl = document.getElementById('trial-score');
+  if (answered > 0) {
+    scoreEl.textContent = `Score partiel : ${correct}/${answered} (${QUESTIONS.length} questions au total)`;
+  } else {
+    scoreEl.style.display = 'none';
+  }
+  document.getElementById('trial-paywall').classList.add('active');
 }
 
 // ─── RESULTS ─────────────────────────────────────────────────────────────────

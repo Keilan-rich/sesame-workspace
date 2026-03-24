@@ -715,17 +715,42 @@ async function checkPaywall(user) {
   const { data: profile, error } = await sb
     .from('profiles').select('paid, is_admin').eq('id', user.id).maybeSingle();
   userProfile = profile;
-  if (profile && (profile.paid || profile.is_admin)) {
-    document.getElementById('paywall-overlay').classList.add('hidden');
-    document.getElementById('main-content').classList.add('visible');
-    return true;
-  }
-  // Not paid — show paywall, keep main hidden
-  document.getElementById('auth-overlay').classList.add('hidden');
-  document.getElementById('main-content').classList.remove('visible');
+  const hasPaid = profile && (profile.paid || profile.is_admin);
+  // Always show the dashboard — lock features for non-paid users
+  document.getElementById('paywall-overlay').classList.add('hidden');
+  document.getElementById('main-content').classList.add('visible');
+  if (!hasPaid) applyFreeLock();
+  return true; // always let user into dashboard
+}
+
+function showPaywall() {
   document.getElementById('paywall-overlay').classList.remove('hidden');
   startPaywallCountdown();
-  return false;
+}
+
+function applyFreeLock() {
+  // Lock all premium action cards — clicking redirects to paywall
+  const premiumLinks = [
+    { sel: 'a[href*="type=simulation"]', label: 'Premium' },
+    { sel: 'a[href*="type=guided"]', label: 'Premium' },
+    { sel: 'a[href*="erreurs"]', label: 'Premium' },
+    { sel: 'a[href*="enjeux-contemporains"]', label: 'Premium' },
+    { sel: 'a[href*="/fiches/"]', label: 'Premium' },
+  ];
+  premiumLinks.forEach(({ sel, label }) => {
+    const el = document.querySelector(sel);
+    if (!el) return;
+    el.style.position = 'relative';
+    el.style.opacity = '0.55';
+    el.style.pointerEvents = 'auto';
+    // Add lock badge
+    const badge = document.createElement('div');
+    badge.textContent = '🔒 ' + label;
+    badge.style.cssText = 'position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;';
+    el.appendChild(badge);
+    el.addEventListener('click', (e) => { e.preventDefault(); showPaywall(); });
+  });
+  // "Session du jour" stays free — no lock
 }
 
 // ─── PAYWALL COUNTDOWN ───────────────────────────────────────────────────────
@@ -941,12 +966,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     currentUser = session.user;
     document.getElementById('auth-overlay').classList.add('hidden');
     await saveReferral(currentUser.id);
-    // Check paywall before showing dashboard
-    const hasAccess = await checkPaywall(currentUser);
-    if (hasAccess) {
-      showUserBar(currentUser);
-      await loadDashboard();
-    }
+    await checkPaywall(currentUser);
+    showUserBar(currentUser);
+    await loadDashboard();
   } else {
     document.getElementById('auth-overlay').classList.remove('hidden');
   }
@@ -957,14 +979,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       const isNewUser = !currentUser || currentUser.id !== session.user.id;
       currentUser = session.user;
       document.getElementById('auth-overlay').classList.add('hidden');
-      // Save referral code if present
       if (isNewUser) await saveReferral(currentUser.id);
-      // Check paywall
-      const hasAccess = await checkPaywall(currentUser);
-      if (hasAccess) {
-        showUserBar(currentUser);
-        if (isNewUser) await loadDashboard();
-      }
+      await checkPaywall(currentUser);
+      showUserBar(currentUser);
+      if (isNewUser) await loadDashboard();
     } else if (event === 'SIGNED_OUT') {
       currentUser = null;
       userProfile = null;
