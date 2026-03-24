@@ -1107,7 +1107,7 @@ function renderToday(sessions, calendar, todaySession) {
       // Replace "Aujourd'hui" content with next activity
       const isFirstTime = sessions.length <= todayResults.length; // no past sessions
       const next = isFirstTime
-        ? { icon:'⏱', title:'Continue avec 40 questions', desc:'Une session plus longue pour progresser encore', href:'/quiz.html?type=simulation', color:'#6366f1' }
+        ? { icon:'⏱', title:'Continue avec 50 questions', desc:'Une session plus longue pour progresser encore', href:'/quiz.html?type=simulation', color:'#6366f1' }
         : [
             { icon:'⏱', title:'Simulation concours', desc:'Conditions réelles · ~45 min', href:'/quiz.html?type=simulation', color:'#6366f1' },
             { icon:'☀️', title:'Session guidée', desc:'Révision ciblée de tes points faibles · ~40 min', href:'/quiz.html?type=guided', color:'#f59e0b' },
