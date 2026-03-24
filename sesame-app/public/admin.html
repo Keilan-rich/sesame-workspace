@@ -103,8 +103,21 @@ h1 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
 .ref-user:last-child { border-bottom: none; }
 .ref-user .email { flex: 1; word-break: break-all; }
 .ref-user .date { color: var(--muted); font-size: 11px; margin: 0 12px; white-space: nowrap; }
-.paid-yes { color: var(--green); font-weight: 700; font-size: 12px; }
-.paid-no { color: var(--red); font-weight: 600; font-size: 12px; }
+/* Toggle paid button */
+.btn-toggle {
+  padding: 6px 14px; border-radius: 20px; border: none;
+  font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; min-width: 80px;
+}
+.btn-toggle.is-paid {
+  background: #ecfdf5; color: var(--green); border: 1px solid #a7f3d0;
+}
+.btn-toggle.is-paid:hover { background: #fef2f2; color: var(--red); border-color: #fca5a5; }
+.btn-toggle.not-paid {
+  background: #fef2f2; color: var(--red); border: 1px solid #fca5a5;
+}
+.btn-toggle.not-paid:hover { background: #ecfdf5; color: var(--green); border-color: #a7f3d0; }
+.btn-toggle:disabled { opacity: 0.5; cursor: wait; }
 
 /* Not admin / loading */
 .not-admin { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 15px; }
@@ -259,7 +272,7 @@ function renderGroup(id, label, users, paidCount, isDirect) {
           <div class="ref-user">
             <span class="email">${u.email}</span>
             <span class="date">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
-            <span class="${u.paid ? 'paid-yes' : 'paid-no'}">${u.paid ? 'Payé' : 'Non payé'}</span>
+            <button class="btn-toggle ${u.paid ? 'is-paid' : 'not-paid'}" id="toggle-${u.id}" onclick="togglePaid('${u.id}', ${u.paid})">${u.paid ? 'Payé' : 'Non payé'}</button>
           </div>
         `).join('')}
       </div>
@@ -288,6 +301,26 @@ function createLink() {
     document.getElementById('btn-copy').textContent = 'Copié !';
     setTimeout(() => document.getElementById('btn-copy').textContent = 'Copier', 2000);
   });
+}
+
+async function togglePaid(userId, currentPaid) {
+  const btn = document.getElementById('toggle-' + userId);
+  const newPaid = !currentPaid;
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  const { error } = await sb.from('profiles').update({ paid: newPaid }).eq('id', userId);
+  if (error) {
+    alert('Erreur : ' + error.message);
+    btn.disabled = false;
+    btn.textContent = currentPaid ? 'Payé' : 'Non payé';
+    return;
+  }
+
+  // Update local data and re-render
+  const profile = allProfiles.find(p => p.id === userId);
+  if (profile) profile.paid = newPaid;
+  render();
 }
 
 function copyRefLink(code, btn) {
