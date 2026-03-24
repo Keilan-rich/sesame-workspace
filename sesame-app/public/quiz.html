@@ -1170,17 +1170,6 @@ async function showResults() {
     document.getElementById('review-block').style.display = 'block';
   }
 
-  // Hide next steps for free users — show paywall CTA instead
-  if (!userIsPaid) {
-    const ns = document.querySelector('.next-steps');
-    if (ns) ns.innerHTML = `<div class="next-steps-title">Envie de continuer ?</div>
-      <a class="next-card" href="/?paywall=1" style="border-left:3px solid var(--accent);text-align:center;">
-        <div class="next-icon">🔓</div>
-        <div class="next-name">Débloquer l'accès complet</div>
-        <div class="next-desc">Sessions illimitées, simulations, fiches mémo et plus</div>
-      </a>`;
-  }
-
   // Save results to Supabase (per-user, cross-device sync)
   const subjectsInSession = [...new Set(QUESTIONS.map(q => q.subject))];
   const el = document.getElementById('send-status');
