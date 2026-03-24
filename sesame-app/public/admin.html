@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Admin — Sésame Train</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f8f9fc; --card: #fff; --text: #0f0f1a; --muted: #8080a0;
+  --accent: #06d6f5; --border: #e8e8f0; --green: #059669; --red: #ef4444;
+}
+body {
+  font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text);
+  padding: 24px; padding-top: max(24px, env(safe-area-inset-top));
+  min-height: 100vh;
+}
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+.subtitle { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+.back-link { color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 20px; }
+.back-link:hover { text-decoration: underline; }
+
+/* Stats cards */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  padding: 20px; text-align: center;
+}
+.stat-num { font-size: 32px; font-weight: 800; color: var(--accent); }
+.stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+/* Referral table */
+.section-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+.ref-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+.ref-table th, .ref-table td { padding: 12px 16px; text-align: left; font-size: 13px; }
+.ref-table th { background: #f0f2f8; color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 1px; }
+.ref-table tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+.ref-table .code { font-weight: 700; color: var(--accent); }
+.ref-table .paid-yes { color: var(--green); font-weight: 700; }
+.ref-table .paid-no { color: var(--red); font-weight: 600; }
+
+/* Users detail */
+.ref-group { margin-bottom: 24px; }
+.ref-group-header {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 18px; margin-bottom: 8px; cursor: pointer; transition: background 0.2s;
+}
+.ref-group-header:hover { background: #f0f2f8; }
+.ref-group-header .ref-code { font-weight: 700; color: var(--accent); font-size: 15px; }
+.ref-group-header .ref-count { color: var(--muted); font-size: 12px; }
+.ref-group-header .ref-link {
+  font-size: 11px; color: var(--muted); background: #f0f2f8; padding: 4px 10px;
+  border-radius: 8px; cursor: pointer; border: 1px solid var(--border);
+}
+.ref-group-header .ref-link:hover { background: #e0e4f0; }
+.ref-users { padding: 0 8px; }
+.ref-user {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.ref-user:last-child { border-bottom: none; }
+.ref-user .email { flex: 1; }
+.ref-user .date { color: var(--muted); font-size: 11px; margin: 0 12px; }
+
+/* Not admin */
+.not-admin { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 15px; }
+
+/* Loading */
+.loading { text-align: center; padding: 40px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="/">&larr; Retour au dashboard</a>
+  <h1>Tableau de bord admin</h1>
+  <div class="subtitle">Suivi des inscriptions et referrals</div>
+
+  <div id="content">
+    <div class="loading">Chargement...</div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://gkcxenxcyybgwdsgsuep.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY3hlbnhjeXliZ3dkc2dzdWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjcyMjMsImV4cCI6MjA4OTUwMzIyM30.fSS4MJpilWlfVyu6uPUKK-cWhO3S5KA_NUkKFLRPiBo';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user) {
+    document.getElementById('content').innerHTML = '<div class="not-admin">Connecte-toi d\'abord sur <a href="/" style="color:var(--accent)">l\'app</a></div>';
+    return;
+  }
+
+  // Check admin
+  const { data: profile } = await sb.from('profiles').select('is_admin').eq('id', session.user.id).maybeSingle();
+  if (!profile?.is_admin) {
+    document.getElementById('content').innerHTML = '<div class="not-admin">Accès réservé aux administrateurs</div>';
+    return;
+  }
+
+  // Admin can read all profiles via service role? No — we use RLS.
+  // We need a DB function that only admins can call.
+  // For now, use a Supabase RPC or a policy that lets admins read all profiles.
+  // Let's call an RPC function.
+  const { data: allProfiles, error } = await sb.rpc('admin_get_profiles');
+  if (error) {
+    document.getElementById('content').innerHTML = `<div class="not-admin">Erreur: ${error.message}<br><small>La fonction admin_get_profiles n'existe peut-être pas encore.</small></div>`;
+    return;
+  }
+
+  renderDashboard(allProfiles);
+}
+
+function renderDashboard(profiles) {
+  const total = profiles.length;
+  const paid = profiles.filter(p => p.paid).length;
+  const referred = profiles.filter(p => p.referred_by).length;
+  const refCodes = [...new Set(profiles.filter(p => p.referred_by).map(p => p.referred_by))];
+
+  // Group by referral code
+  const groups = {};
+  profiles.forEach(p => {
+    const key = p.referred_by || '__direct__';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(p);
+  });
+
+  const baseUrl = window.location.origin;
+
+  let html = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Inscrits</div></div>
+      <div class="stat-card"><div class="stat-num">${paid}</div><div class="stat-label">Payés</div></div>
+      <div class="stat-card"><div class="stat-num">${referred}</div><div class="stat-label">Via referral</div></div>
+      <div class="stat-card"><div class="stat-num">${refCodes.length}</div><div class="stat-label">Ambassadeurs</div></div>
+    </div>
+
+    <div class="section-title">Par ambassadeur</div>
+  `;
+
+  // Sort ref codes by number of signups (desc)
+  refCodes.sort((a, b) => (groups[b]?.length || 0) - (groups[a]?.length || 0));
+
+  refCodes.forEach(code => {
+    const users = groups[code] || [];
+    const paidCount = users.filter(u => u.paid).length;
+    html += `
+      <div class="ref-group">
+        <div class="ref-group-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+          <div>
+            <span class="ref-code">${code}</span>
+            <span class="ref-count">${users.length} inscrit${users.length > 1 ? 's' : ''} · ${paidCount} payé${paidCount > 1 ? 's' : ''}</span>
+          </div>
+          <button class="ref-link" onclick="event.stopPropagation(); navigator.clipboard.writeText('${baseUrl}/?ref=${code}'); this.textContent='Copié !'; setTimeout(() => this.textContent='Copier lien', 1500)">Copier lien</button>
+        </div>
+        <div class="ref-users" style="display: none">
+          ${users.map(u => `
+            <div class="ref-user">
+              <span class="email">${u.email}</span>
+              <span class="date">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
+              <span class="${u.paid ? 'paid-yes' : 'paid-no'}">${u.paid ? 'Payé' : 'Non payé'}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  });
+
+  // Direct users (no referral)
+  const direct = groups['__direct__'] || [];
+  if (direct.length) {
+    const directPaid = direct.filter(u => u.paid).length;
+    html += `
+      <div class="ref-group">
+        <div class="ref-group-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+          <div>
+            <span class="ref-code" style="color: var(--muted)">Directs (sans referral)</span>
+            <span class="ref-count">${direct.length} inscrit${direct.length > 1 ? 's' : ''} · ${directPaid} payé${directPaid > 1 ? 's' : ''}</span>
+          </div>
+        </div>
+        <div class="ref-users" style="display: none">
+          ${direct.map(u => `
+            <div class="ref-user">
+              <span class="email">${u.email}</span>
+              <span class="date">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
+              <span class="${u.paid ? 'paid-yes' : 'paid-no'}">${u.paid ? 'Payé' : 'Non payé'}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('content').innerHTML = html;
+}
+
+init();
+</script>
+</body>
+</html>

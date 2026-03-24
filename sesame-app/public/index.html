@@ -608,6 +608,28 @@ const TODAY      = new Date(); TODAY.setHours(0,0,0,0);
 let currentUser = null;
 let userProfile = null;
 
+// ─── REFERRAL TRACKING ──────────────────────────────────────────────────────
+// Capture ?ref=xxx from URL and persist in localStorage
+(function() {
+  const ref = new URLSearchParams(window.location.search).get('ref');
+  if (ref) {
+    localStorage.setItem('sesame_ref', ref);
+    // Clean URL without reload
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
+
+async function saveReferral(userId) {
+  const ref = localStorage.getItem('sesame_ref');
+  if (!ref) return;
+  // Only write if profile has no referred_by yet
+  const { data } = await sb.from('profiles').select('referred_by').eq('id', userId).maybeSingle();
+  if (data && !data.referred_by) {
+    await sb.from('profiles').update({ referred_by: ref }).eq('id', userId);
+  }
+  localStorage.removeItem('sesame_ref');
+}
+
 // ─── PAYWALL ─────────────────────────────────────────────────────────────────
 async function checkPaywall(user) {
   const { data: profile, error } = await sb
@@ -834,6 +856,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (session?.user) {
     currentUser = session.user;
     document.getElementById('auth-overlay').classList.add('hidden');
+    await saveReferral(currentUser.id);
     // Check paywall before showing dashboard
     const hasAccess = await checkPaywall(currentUser);
     if (hasAccess) {
@@ -850,6 +873,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       const isNewUser = !currentUser || currentUser.id !== session.user.id;
       currentUser = session.user;
       document.getElementById('auth-overlay').classList.add('hidden');
+      // Save referral code if present
+      if (isNewUser) await saveReferral(currentUser.id);
       // Check paywall
       const hasAccess = await checkPaywall(currentUser);
       if (hasAccess) {
