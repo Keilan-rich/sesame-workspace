@@ -243,41 +243,51 @@ body {
   .countdown-num { font-size: 32px; }
 }
 
-/* ── INSTALL BANNER ─────────────────────────────────────── */
-.install-banner {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
-  background: var(--card); border-top: 1px solid var(--border);
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 -4px 32px var(--shadow);
-  padding: 24px 20px calc(20px + env(safe-area-inset-bottom, 0px));
-  transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+/* ── INSTALL POPUP ──────────────────────────────────────── */
+.install-backdrop {
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,0.45); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
 }
-.install-banner.visible { transform: translateY(0); }
-.install-banner-close {
-  position: absolute; top: 12px; right: 16px;
+.install-backdrop.visible { opacity: 1; pointer-events: auto; }
+.install-popup {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 24px 20px 20px;
+  max-width: 340px; width: 100%; position: relative;
+  box-shadow: 0 8px 40px var(--shadow);
+  transform: scale(0.92) translateY(20px);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.install-backdrop.visible .install-popup {
+  transform: scale(1) translateY(0);
+}
+.install-popup-close {
+  position: absolute; top: 12px; right: 14px;
   background: none; border: none; font-size: 22px;
   color: var(--muted); cursor: pointer; line-height: 1;
 }
-.install-banner-title {
+.install-popup-title {
   font-size: 17px; font-weight: 700; margin-bottom: 4px;
 }
-.install-banner-sub {
-  font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5;
+.install-popup-sub {
+  font-size: 13px; color: var(--muted); margin-bottom: 14px; line-height: 1.5;
 }
 .install-steps {
-  display: flex; gap: 10px; margin-bottom: 16px;
+  display: flex; gap: 10px; margin-bottom: 12px;
   overflow-x: auto; scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   padding: 4px 0;
 }
 .install-step-img {
-  flex-shrink: 0; width: 75%; max-width: 240px;
+  flex-shrink: 0; width: 75%; max-width: 220px;
   border-radius: 14px; border: 2px solid var(--border);
   scroll-snap-align: center; box-shadow: 0 2px 12px var(--shadow);
 }
 .install-dots {
-  display: flex; justify-content: center; gap: 6px; margin-bottom: 12px;
+  display: flex; justify-content: center; gap: 6px; margin-bottom: 14px;
 }
 .install-dot {
   width: 6px; height: 6px; border-radius: 50%;
@@ -293,7 +303,7 @@ body {
 }
 .install-btn-native:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(6,214,245,0.3); }
 .install-dismiss {
-  display: block; width: 100%; margin-top: 8px;
+  display: block; width: 100%; margin-top: 6px;
   background: none; border: none; color: var(--muted);
   font-size: 12px; cursor: pointer; font-family: 'Sora', sans-serif;
   padding: 8px;
@@ -1319,8 +1329,8 @@ function shouldShowInstallBanner() {
   if (navigator.standalone) return false;
   // Only paid users
   if (!userProfile || (!userProfile.paid && !userProfile.is_admin)) return false;
-  // Hidden for this session only (comes back next visit)
-  if (sessionStorage.getItem('sesame_install_later')) return false;
+  // User already dismissed permanently
+  if (localStorage.getItem('sesame_install_dismissed')) return false;
   // Only show on mobile
   const ua = navigator.userAgent;
   const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
@@ -1334,11 +1344,16 @@ function getInstallPlatform() {
   return 'other';
 }
 
+function dismissInstallPopup() {
+  document.getElementById('install-backdrop').classList.remove('visible');
+  localStorage.setItem('sesame_install_dismissed', '1');
+}
+
 function showInstallBanner() {
   if (!shouldShowInstallBanner()) return;
 
   const platform = getInstallPlatform();
-  const banner = document.getElementById('install-banner');
+  const backdrop = document.getElementById('install-backdrop');
   const nativeBtn = document.getElementById('install-btn-native');
 
   // Android with native prompt: hide images, show button
@@ -1356,48 +1371,46 @@ function showInstallBanner() {
     dots.forEach((d, i) => d.classList.toggle('active', i === idx));
   });
 
-  setTimeout(() => banner.classList.add('visible'), 1500);
+  // Click on backdrop (outside popup) = dismiss
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) dismissInstallPopup();
+  });
+
+  setTimeout(() => backdrop.classList.add('visible'), 1500);
 }
 
 document.getElementById('install-btn-native').addEventListener('click', async () => {
   if (deferredInstallPrompt) {
     deferredInstallPrompt.prompt();
     const result = await deferredInstallPrompt.userChoice;
-    if (result.outcome === 'accepted') {
-      document.getElementById('install-banner').classList.remove('visible');
-    }
+    if (result.outcome === 'accepted') dismissInstallPopup();
     deferredInstallPrompt = null;
   }
 });
 
-document.getElementById('install-close').addEventListener('click', () => {
-  document.getElementById('install-banner').classList.remove('visible');
-  sessionStorage.setItem('sesame_install_later', '1');
-});
-
-document.getElementById('install-dismiss-btn').addEventListener('click', () => {
-  document.getElementById('install-banner').classList.remove('visible');
-  sessionStorage.setItem('sesame_install_later', '1');
-});
+document.getElementById('install-close').addEventListener('click', dismissInstallPopup);
+document.getElementById('install-dismiss-btn').addEventListener('click', dismissInstallPopup);
 </script>
 
-<!-- INSTALL BANNER -->
-<div class="install-banner" id="install-banner">
-  <button class="install-banner-close" id="install-close">&times;</button>
-  <div class="install-banner-title">Installe Sesame sur ton tel</div>
-  <div class="install-banner-sub">Comme une vraie app, en 2 clics :</div>
-  <div class="install-steps" id="install-steps">
-    <img class="install-step-img" src="/img/install-step1.jpg" alt="Etape 1 : appuie sur les 3 points">
-    <img class="install-step-img" src="/img/install-step2.jpg" alt="Etape 2 : Share / Partager">
-    <img class="install-step-img" src="/img/install-step3.jpg" alt="Etape 3 : Add to Home Screen">
+<!-- INSTALL POPUP -->
+<div class="install-backdrop" id="install-backdrop">
+  <div class="install-popup" id="install-popup">
+    <button class="install-popup-close" id="install-close">&times;</button>
+    <div class="install-popup-title">Installe Sesame sur ton tel</div>
+    <div class="install-popup-sub">Comme une vraie app, en 2 clics :</div>
+    <div class="install-steps" id="install-steps">
+      <img class="install-step-img" src="/img/install-step1.jpg" alt="Etape 1 : appuie sur les 3 points">
+      <img class="install-step-img" src="/img/install-step2.jpg" alt="Etape 2 : Share / Partager">
+      <img class="install-step-img" src="/img/install-step3.jpg" alt="Etape 3 : Add to Home Screen">
+    </div>
+    <div class="install-dots">
+      <div class="install-dot active"></div>
+      <div class="install-dot"></div>
+      <div class="install-dot"></div>
+    </div>
+    <button class="install-btn-native" id="install-btn-native" style="display:none">Installer l'application</button>
+    <button class="install-dismiss" id="install-dismiss-btn">J'ai compris</button>
   </div>
-  <div class="install-dots">
-    <div class="install-dot active"></div>
-    <div class="install-dot"></div>
-    <div class="install-dot"></div>
-  </div>
-  <button class="install-btn-native" id="install-btn-native" style="display:none">Installer l'application</button>
-  <button class="install-dismiss" id="install-dismiss-btn">J'ai compris</button>
 </div>
 
 </div><!-- /main-content -->
