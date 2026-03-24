@@ -431,6 +431,12 @@ body {
   cursor: pointer; font-family: 'Sora', sans-serif;
 }
 .btn-logout:hover { border-color: var(--red); color: var(--red); }
+.btn-admin {
+  background: none; border: 1px solid var(--accent); border-radius: 8px;
+  padding: 3px 8px; font-size: 10px; color: var(--accent);
+  cursor: pointer; font-family: 'Sora', sans-serif; text-decoration: none; font-weight: 600;
+}
+.btn-admin:hover { background: var(--accent); color: #fff; }
 
 /* ── SAFE AREA (notch) ───────────────────────────────────── */
 @supports (padding-top: env(safe-area-inset-top)) {
@@ -502,6 +508,7 @@ body {
 <div class="user-bar" id="user-bar" style="display:none">
   <img class="user-avatar" id="user-avatar" src="" alt="">
   <span class="user-name" id="user-name"></span>
+  <a class="btn-admin" id="btn-admin" href="/admin.html" style="display:none">Admin</a>
   <button class="btn-logout" onclick="logout()">Déconnexion</button>
 </div>
 
@@ -718,6 +725,10 @@ function showUserBar(user) {
   avatar.src = meta.avatar_url || meta.picture || '';
   name.textContent = meta.full_name || meta.name || user.email || '';
   bar.style.display = 'flex';
+  // Show admin button only for admins
+  const adminBtn = document.getElementById('btn-admin');
+  if (userProfile && userProfile.is_admin) adminBtn.style.display = 'inline-block';
+  else adminBtn.style.display = 'none';
   // Header username
   const firstName = (meta.full_name || meta.name || user.email || '').split(' ')[0];
   document.getElementById('header-username').textContent = firstName ? `/ ${firstName}` : '';
