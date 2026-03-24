@@ -1093,7 +1093,9 @@ function renderToday(sessions, calendar, todaySession) {
   if (todayResults.length > 0) {
     const totalScore = todayResults.reduce((a, r) => a + r.score, 0);
     const totalQ = todayResults.reduce((a, r) => a + r.total, 0);
-    actionDiv.innerHTML = `<div class="done-badge">✓ Complétée — ${totalScore}/${totalQ}</div>`;
+    const quizUrl = btnToday.href || '#';
+    actionDiv.innerHTML = `<div class="done-badge">✓ Complétée — ${totalScore}/${totalQ}</div>
+      <a class="btn-start" href="${quizUrl}" style="margin-top:8px;font-size:12px;opacity:0.8;">Refaire →</a>`;
   }
 }
 
