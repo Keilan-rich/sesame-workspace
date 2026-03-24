@@ -332,6 +332,20 @@ body {
 .send-status { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
 .send-status.ok { color: var(--green); font-weight: 600; }
 .send-status.err { color: var(--red); }
+.next-steps { margin: 32px 0 24px; }
+.next-steps-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 14px; }
+.next-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.next-card {
+  display: block; text-decoration: none; padding: 16px 14px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.next-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.next-card .next-icon { font-size: 20px; margin-bottom: 8px; }
+.next-card .next-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.next-card .next-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+@media (max-width: 600px) { .next-grid { grid-template-columns: 1fr; } }
+
 .hub-back {
   display: block; text-align: center; font-size: 13px;
   color: var(--muted); text-decoration: none; padding: 8px;
@@ -511,6 +525,33 @@ body {
     </div>
 
     <div class="send-status" id="send-status">Envoi des résultats...</div>
+
+    <div class="next-steps">
+      <div class="next-steps-title">Continue ton entraînement</div>
+      <div class="next-grid">
+        <a class="next-card" href="/quiz.html?type=simulation" style="border-left:3px solid #6366f1">
+          <div class="next-icon">⏱</div>
+          <div class="next-name">Simulation concours</div>
+          <div class="next-desc">Conditions réelles · ~45 min</div>
+        </a>
+        <a class="next-card" href="/quiz.html?type=guided" style="border-left:3px solid #f59e0b">
+          <div class="next-icon">☀️</div>
+          <div class="next-name">Session guidée</div>
+          <div class="next-desc">Révision approfondie des points faibles</div>
+        </a>
+        <a class="next-card" href="/enjeux-contemporains.html" style="border-left:3px solid #fbbf24">
+          <div class="next-icon">🌍</div>
+          <div class="next-name">Enjeux contemporains</div>
+          <div class="next-desc">Quiz interactif sur l'actualité</div>
+        </a>
+        <a class="next-card" href="/fiches/" style="border-left:3px solid #34d399">
+          <div class="next-icon">📋</div>
+          <div class="next-name">Fiches mémo</div>
+          <div class="next-desc">Résumés visuels par matière</div>
+        </a>
+      </div>
+    </div>
+
     <a class="hub-back" href="/">← Retour au tableau de bord</a>
   </div>
 </div>
@@ -1127,6 +1168,17 @@ async function showResults() {
       </div>
     `).join('');
     document.getElementById('review-block').style.display = 'block';
+  }
+
+  // Hide next steps for free users — show paywall CTA instead
+  if (!userIsPaid) {
+    const ns = document.querySelector('.next-steps');
+    if (ns) ns.innerHTML = `<div class="next-steps-title">Envie de continuer ?</div>
+      <a class="next-card" href="/?paywall=1" style="border-left:3px solid var(--accent);text-align:center;">
+        <div class="next-icon">🔓</div>
+        <div class="next-name">Débloquer l'accès complet</div>
+        <div class="next-desc">Sessions illimitées, simulations, fiches mémo et plus</div>
+      </a>`;
   }
 
   // Save results to Supabase (per-user, cross-device sync)
