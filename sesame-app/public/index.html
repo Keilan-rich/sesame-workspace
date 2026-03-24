@@ -719,7 +719,12 @@ async function checkPaywall(user) {
   // Always show the dashboard — lock features for non-paid users
   document.getElementById('paywall-overlay').classList.add('hidden');
   document.getElementById('main-content').classList.add('visible');
-  if (!hasPaid) applyFreeLock();
+  if (hasPaid) {
+    // Clear trial flag when user has paid
+    localStorage.removeItem('sesame_trial_used');
+  } else {
+    applyFreeLock();
+  }
   return true; // always let user into dashboard
 }
 
@@ -969,6 +974,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     await checkPaywall(currentUser);
     showUserBar(currentUser);
     await loadDashboard();
+    // Auto-open paywall if redirected from trial
+    if (new URLSearchParams(window.location.search).get('paywall') === '1') {
+      showPaywall();
+      history.replaceState(null, '', '/');
+    }
   } else {
     document.getElementById('auth-overlay').classList.remove('hidden');
   }

@@ -424,7 +424,7 @@ body {
     <div class="trial-title">Ta minute d'essai est terminée</div>
     <div class="trial-sub">Tu as eu un aperçu de l'entraînement Sésame Train.<br>Débloque l'accès complet pour continuer.</div>
     <div class="trial-score" id="trial-score"></div>
-    <a class="trial-cta" href="https://wa.me/+2250711610670?text=Bonjour%2C%20je%20veux%20d%C3%A9bloquer%20mon%20acc%C3%A8s%20%C3%A0%20S%C3%A9same%20Train%202026" target="_blank">Débloquer l'accès complet</a>
+    <button class="trial-cta" onclick="window.location.href='/?paywall=1'">Voir les offres</button>
     <button class="trial-back" onclick="window.location.href='/'">← Retour au tableau de bord</button>
   </div>
 </div>
@@ -743,6 +743,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Non-paid users can only access daily sessions
   if (!userIsPaid && sessionType !== 'daily') { window.location.href = '/'; return; }
 
+  // Free user already used their trial — block immediately, no second chance
+  if (!userIsPaid && isTrialUsed()) { showTrialPaywall(); return; }
+
   // Generate or load session based on type
   let session;
   if (sessionType === 'simulation') {
@@ -1039,7 +1042,14 @@ function updateTimerDisplay() {
 }
 
 // ─── TRIAL PAYWALL ──────────────────────────────────────────────────────────
+function isTrialUsed() {
+  return localStorage.getItem('sesame_trial_used') === '1';
+}
+function markTrialUsed() {
+  localStorage.setItem('sesame_trial_used', '1');
+}
 function showTrialPaywall() {
+  markTrialUsed();
   // Calculate partial score
   let answered = 0, correct = 0;
   QUESTIONS.forEach(q => {
