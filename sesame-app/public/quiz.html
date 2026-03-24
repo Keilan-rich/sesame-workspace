@@ -902,13 +902,14 @@ function resumeSession() {
 }
 
 function quitSession() {
-  if (!timerRunning && !paused) return;
-  if (timerRunning) togglePause();
+  if (timerRunning) { clearInterval(timerInterval); timerRunning = false; }
   saveState();
   window.location.href = '/';
 }
 
-window.addEventListener('beforeunload', () => { if (timerRunning || paused) saveState(); });
+// Save on any exit — tab close, back button, navigation
+window.addEventListener('beforeunload', () => { if (elapsed > 0) saveState(); });
+window.addEventListener('pagehide', () => { if (elapsed > 0) saveState(); });
 
 // ─── SUBJECT UI ──────────────────────────────────────────────────────────────
 function updateSubjectUI(subject) {
