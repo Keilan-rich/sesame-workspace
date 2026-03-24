@@ -155,6 +155,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let allProfiles = [];
 let allAmbassadors = [];
+let currentAdminId = null;
 const baseUrl = window.location.origin;
 
 async function loginGoogle() {
@@ -185,6 +186,7 @@ async function init() {
     document.getElementById('content').innerHTML = '<div class="not-admin">Accès réservé aux administrateurs</div>';
     return;
   }
+  currentAdminId = session.user.id;
 
   // Load profiles and ambassadors in parallel
   const [profilesRes, ambassadorsRes] = await Promise.all([
@@ -286,13 +288,18 @@ function renderGroup(id, label, users, paidCount, isDirect) {
       </div>
       <div class="ref-users" id="group-${safeId}">
         ${users.length === 0 ? '<div style="padding:12px 18px;color:var(--muted);font-size:12px">Aucun inscrit pour le moment</div>' : ''}
-        ${users.map(u => `
+        ${users.map(u => {
+          const isMe = u.id === currentAdminId;
+          return `
           <div class="ref-user">
-            <span class="email">${u.email}</span>
+            <span class="email">${u.email}${u.is_admin ? ' <span style="font-size:10px;color:var(--accent);font-weight:700">ADMIN</span>' : ''}</span>
             <span class="date">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
-            <button class="btn-toggle ${u.paid ? 'is-paid' : 'not-paid'}" id="toggle-${u.id}" onclick="togglePaid('${u.id}', ${u.paid})">${u.paid ? 'Payé' : 'Non payé'}</button>
-          </div>
-        `).join('')}
+            ${isMe
+              ? `<span style="font-size:11px;color:var(--muted);font-weight:600">Admin</span>`
+              : `<button class="btn-toggle ${u.paid ? 'is-paid' : 'not-paid'}" id="toggle-${u.id}" onclick="togglePaid('${u.id}', ${u.paid}, '${u.email}')">${u.paid ? 'Payé' : 'Non payé'}</button>`
+            }
+          </div>`;
+        }).join('')}
       </div>
     </div>
   `;
@@ -341,12 +348,21 @@ async function createLink() {
   });
 }
 
-async function togglePaid(userId, currentPaid) {
+async function togglePaid(userId, currentPaid, email) {
+  // Block self-modification
+  if (userId === currentAdminId) return;
+
   const btn = document.getElementById('toggle-' + userId);
   const newPaid = !currentPaid;
+  const action = newPaid ? 'activer' : 'retirer';
+
+  // Confirmation
+  if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} l'accès payé pour ${email} ?`)) return;
+
   btn.disabled = true;
   btn.textContent = '...';
 
+  // Write
   const { error } = await sb.from('profiles').update({ paid: newPaid }).eq('id', userId);
   if (error) {
     alert('Erreur : ' + error.message);
@@ -355,9 +371,24 @@ async function togglePaid(userId, currentPaid) {
     return;
   }
 
-  // Update local data and re-render
-  const profile = allProfiles.find(p => p.id === userId);
-  if (profile) profile.paid = newPaid;
+  // Verify — re-read from Supabase to confirm
+  const { data: check } = await sb.rpc('admin_get_profiles');
+  if (check) {
+    const verified = check.find(p => p.id === userId);
+    if (verified && verified.paid !== newPaid) {
+      alert('La mise à jour n\'a pas été enregistrée. Réessaie.');
+      btn.disabled = false;
+      btn.textContent = currentPaid ? 'Payé' : 'Non payé';
+      return;
+    }
+    // Refresh all data
+    allProfiles = check;
+  } else {
+    // Fallback: update local
+    const profile = allProfiles.find(p => p.id === userId);
+    if (profile) profile.paid = newPaid;
+  }
+
   render();
 }
 
