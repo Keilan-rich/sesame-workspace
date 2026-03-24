@@ -364,9 +364,19 @@ body {
   .algo-block { font-size: 11px; padding: 14px; }
 }
 
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
+@supports (padding-top: env(safe-area-inset-top)) {
+  .top-bar { top: env(safe-area-inset-top); }
+  .progress-strip { top: calc(60px + env(safe-area-inset-top)); }
+  .dots-strip { top: calc(62px + env(safe-area-inset-top)); }
+  .quiz-main { padding-top: calc(100px + env(safe-area-inset-top)); }
   .quiz-footer { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
   #theme-btn { top: calc(12px + env(safe-area-inset-top)) !important; }
+}
+@media (max-width: 600px) {
+  @supports (padding-top: env(safe-area-inset-top)) {
+    .progress-strip { top: calc(50px + env(safe-area-inset-top)); }
+    .dots-strip { top: calc(52px + env(safe-area-inset-top)); }
+  }
 }
 </style>
 </head>
