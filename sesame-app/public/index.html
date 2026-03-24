@@ -132,20 +132,6 @@ body {
   font-size: 14px; font-weight: 700;
 }
 
-.next-suggest { margin-top: 16px; animation: suggestSlide 0.4s ease; }
-@keyframes suggestSlide { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-.next-suggest-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-.next-suggest-card {
-  display: flex; align-items: center; gap: 16px; text-decoration: none;
-  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-  padding: 20px 24px; box-shadow: 0 4px 20px var(--shadow); transition: all 0.2s;
-}
-.next-suggest-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-.next-suggest-icon { font-size: 28px; flex-shrink: 0; }
-.next-suggest-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-.next-suggest-desc { font-size: 13px; color: var(--muted); }
-.next-suggest-arrow { font-size: 20px; font-weight: 700; color: var(--accent); margin-left: auto; flex-shrink: 0; }
-
 .actions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -1107,45 +1093,42 @@ function renderToday(sessions, calendar, todaySession) {
   if (todayResults.length > 0) {
     const totalScore = todayResults.reduce((a, r) => a + r.score, 0);
     const totalQ = todayResults.reduce((a, r) => a + r.total, 0);
-    const quizUrl = btnToday.href || '#';
-    actionDiv.innerHTML = `<div class="done-badge">✓ Complétée — ${totalScore}/${totalQ}</div>
-      <a class="btn-start" href="${quizUrl}" style="margin-top:8px;font-size:12px;opacity:0.8;">Refaire →</a>`;
-
-    // Show suggested next activity (once only)
     const hasPaid = userProfile && (userProfile.paid || userProfile.is_admin);
-    const onboardKey = 'sesame_next_shown_' + todayStr;
-    if (hasPaid && !localStorage.getItem(onboardKey)) {
-      localStorage.setItem(onboardKey, '1');
-      showNextSuggestion();
+
+    // Mark the small "Session du jour" card as completed
+    if (actionLink) {
+      actionLink.style.opacity = '0.5';
+      actionLink.style.pointerEvents = 'none';
+      const sub = actionLink.querySelector('.action-sub');
+      if (sub) { sub.textContent = `✓ ${totalScore}/${totalQ}`; sub.style.color = 'var(--green)'; }
+    }
+
+    if (hasPaid) {
+      // Replace "Aujourd'hui" content with next activity
+      const isFirstTime = sessions.length <= todayResults.length; // no past sessions
+      const next = isFirstTime
+        ? { icon:'⏱', title:'Continue avec 40 questions', desc:'Une session plus longue pour progresser encore', href:'/quiz.html?type=simulation', color:'#6366f1' }
+        : [
+            { icon:'⏱', title:'Simulation concours', desc:'Conditions réelles · ~45 min', href:'/quiz.html?type=simulation', color:'#6366f1' },
+            { icon:'☀️', title:'Session guidée', desc:'Révision ciblée de tes points faibles · ~40 min', href:'/quiz.html?type=guided', color:'#f59e0b' },
+          ][Math.floor(Math.random() * 2)];
+
+      badge.textContent = `✓ Session complétée — ${totalScore}/${totalQ}`;
+      badge.style.background = 'rgba(52,211,153,0.1)';
+      badge.style.borderColor = 'rgba(52,211,153,0.25)';
+      badge.style.color = 'var(--green)';
+      title.textContent = next.title;
+      meta.innerHTML = next.desc;
+      btnToday.href = next.href;
+      btnToday.textContent = 'Lancer →';
+      btnToday.style.display = '';
+      actionDiv.innerHTML = '';
+      actionDiv.appendChild(btnToday);
+    } else {
+      // Non-paid: just show completed badge
+      actionDiv.innerHTML = `<div class="done-badge">✓ Complétée — ${totalScore}/${totalQ}</div>`;
     }
   }
-}
-
-function showNextSuggestion() {
-  const suggestions = [
-    { icon:'⏱', title:'Simulation concours', desc:'Mets-toi en conditions réelles — ~45 min', href:'/quiz.html?type=simulation', color:'#6366f1' },
-    { icon:'☀️', title:'Session guidée', desc:'Révision ciblée de tes points faibles — ~40 min', href:'/quiz.html?type=guided', color:'#f59e0b' },
-    { icon:'🌍', title:'Enjeux contemporains', desc:'Quiz interactif sur l\'actualité', href:'/enjeux-contemporains.html', color:'#fbbf24' },
-    { icon:'📋', title:'Fiches mémo', desc:'Résumés visuels par matière', href:'/fiches/', color:'#34d399' },
-  ];
-  const pick = suggestions[Math.floor(Math.random() * suggestions.length)];
-
-  const todayCard = document.getElementById('today-card');
-  if (!todayCard) return;
-  const section = todayCard.parentElement;
-  const suggestDiv = document.createElement('div');
-  suggestDiv.className = 'next-suggest';
-  suggestDiv.innerHTML = `
-    <div class="next-suggest-label">Session terminée — et si tu continuais avec...</div>
-    <a class="next-suggest-card" href="${pick.href}" style="border-left:4px solid ${pick.color}">
-      <span class="next-suggest-icon">${pick.icon}</span>
-      <div>
-        <div class="next-suggest-title">${pick.title}</div>
-        <div class="next-suggest-desc">${pick.desc}</div>
-      </div>
-      <span class="next-suggest-arrow">→</span>
-    </a>`;
-  section.appendChild(suggestDiv);
 }
 
 // ─── ERREURS COUNT ────────────────────────────────────────────────────────────
