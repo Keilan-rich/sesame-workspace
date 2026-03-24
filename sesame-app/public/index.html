@@ -453,7 +453,7 @@ body {
 <div class="auth-overlay" id="auth-overlay">
   <div class="auth-glow"></div>
   <div class="auth-logo">Sésame <span>2026</span></div>
-  <div class="auth-sub">Connecte-toi pour synchroniser tes sessions sur tous tes appareils</div>
+  <div class="auth-sub" id="auth-sub">Connecte-toi pour synchroniser tes sessions sur tous tes appareils</div>
 
   <!-- Normal login (Chrome, Safari, Firefox) -->
   <div id="auth-google">
@@ -465,13 +465,10 @@ body {
 
   <!-- Magic Link login (WebView: WhatsApp, Snapchat, Instagram, Facebook) -->
   <div id="auth-magic" style="display:none; max-width:340px; width:100%;">
-    <div style="font-size:12px; color:#8080a0; margin-bottom:14px; line-height:1.5;">
-      Entre ton email pour recevoir un lien de connexion
-    </div>
     <div style="display:flex; gap:8px;">
       <input type="email" id="magic-email" placeholder="ton.email@gmail.com"
-        style="flex:1; padding:12px 14px; border:1px solid rgba(255,255,255,0.15); border-radius:12px;
-        background:rgba(255,255,255,0.08); color:#fff; font-family:'Sora',sans-serif; font-size:14px; outline:none;">
+        style="flex:1; padding:12px 14px; border:1px solid #e0e0e8; border-radius:12px;
+        background:#fff; color:#0f0f1a; font-family:'Sora',sans-serif; font-size:14px; outline:none;">
       <button onclick="sendMagicLink()" id="magic-btn"
         style="padding:12px 18px; background:var(--accent); color:#fff; border:none; border-radius:12px;
         font-family:'Sora',sans-serif; font-size:14px; font-weight:700; cursor:pointer; white-space:nowrap;">
@@ -480,8 +477,6 @@ body {
     </div>
     <div id="magic-status" style="font-size:12px; margin-top:10px; color:#8080a0;"></div>
   </div>
-
-  <div class="auth-note">Tes données restent privées et synchronisées entre tes appareils</div>
 </div>
 
 <!-- PAYWALL OVERLAY -->
@@ -645,8 +640,10 @@ const isWebView = /FBAN|FBAV|Instagram|WhatsApp|Line\/|Snapchat|Twitter|MicroMes
 if (isWebView) {
   const googleDiv = document.getElementById('auth-google');
   const magicDiv = document.getElementById('auth-magic');
+  const authSub = document.getElementById('auth-sub');
   if (googleDiv) googleDiv.style.display = 'none';
   if (magicDiv) magicDiv.style.display = 'block';
+  if (authSub) authSub.textContent = 'Entre ton email pour te connecter';
 }
 
 async function sendMagicLink() {
