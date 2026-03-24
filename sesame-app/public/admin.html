@@ -25,7 +25,7 @@ h1 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
 .back-link:hover { text-decoration: underline; }
 
 /* Stats cards */
-.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 28px; }
 .stat-card {
   background: var(--card); border: 1px solid var(--border); border-radius: 14px;
   padding: 20px; text-align: center;
@@ -33,45 +33,84 @@ h1 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
 .stat-num { font-size: 32px; font-weight: 800; color: var(--accent); }
 .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
 
-/* Referral table */
+/* Create ambassador */
 .section-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; }
-.ref-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
-.ref-table th, .ref-table td { padding: 12px 16px; text-align: left; font-size: 13px; }
-.ref-table th { background: #f0f2f8; color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 1px; }
-.ref-table tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
-.ref-table .code { font-weight: 700; color: var(--accent); }
-.ref-table .paid-yes { color: var(--green); font-weight: 700; }
-.ref-table .paid-no { color: var(--red); font-weight: 600; }
+.create-form {
+  display: flex; gap: 10px; margin-bottom: 28px;
+}
+.create-form input {
+  flex: 1; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-size: 14px; background: var(--card);
+  outline: none; transition: border 0.2s;
+}
+.create-form input:focus { border-color: var(--accent); }
+.create-form input::placeholder { color: #c0c0d0; }
+.btn-create {
+  padding: 12px 20px; background: var(--accent); color: #fff; border: none;
+  border-radius: 12px; font-family: 'Sora', sans-serif; font-size: 14px;
+  font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+}
+.btn-create:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(6,214,245,0.3); }
 
-/* Users detail */
-.ref-group { margin-bottom: 24px; }
+/* Generated link banner */
+.link-banner {
+  display: none; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px;
+  padding: 14px 18px; margin-bottom: 24px; align-items: center; gap: 12px;
+}
+.link-banner.visible { display: flex; }
+.link-banner .link-text {
+  flex: 1; font-size: 13px; color: var(--green); font-weight: 600;
+  word-break: break-all;
+}
+.link-banner .btn-copy {
+  padding: 8px 16px; background: var(--green); color: #fff; border: none;
+  border-radius: 8px; font-family: 'Sora', sans-serif; font-size: 12px;
+  font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.link-banner .btn-copy:hover { opacity: 0.9; }
+
+/* Ambassador groups */
+.ref-group { margin-bottom: 12px; }
 .ref-group-header {
   display: flex; justify-content: space-between; align-items: center;
   background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-  padding: 14px 18px; margin-bottom: 8px; cursor: pointer; transition: background 0.2s;
+  padding: 14px 18px; cursor: pointer; transition: background 0.2s;
 }
 .ref-group-header:hover { background: #f0f2f8; }
-.ref-group-header .ref-code { font-weight: 700; color: var(--accent); font-size: 15px; }
-.ref-group-header .ref-count { color: var(--muted); font-size: 12px; }
-.ref-group-header .ref-link {
-  font-size: 11px; color: var(--muted); background: #f0f2f8; padding: 4px 10px;
+.ref-group-left { display: flex; align-items: center; gap: 12px; }
+.ref-code { font-weight: 700; color: var(--accent); font-size: 15px; }
+.ref-count { color: var(--muted); font-size: 12px; }
+.ref-paid-count { color: var(--green); font-size: 12px; font-weight: 600; }
+.ref-actions { display: flex; gap: 8px; align-items: center; }
+.btn-small {
+  font-size: 11px; color: var(--muted); background: #f0f2f8; padding: 5px 12px;
   border-radius: 8px; cursor: pointer; border: 1px solid var(--border);
+  font-family: 'Sora', sans-serif; transition: background 0.2s;
 }
-.ref-group-header .ref-link:hover { background: #e0e4f0; }
-.ref-users { padding: 0 8px; }
+.btn-small:hover { background: #e0e4f0; }
+
+/* User rows inside group */
+.ref-users {
+  overflow: hidden; max-height: 0; transition: max-height 0.3s ease;
+  padding: 0 4px;
+}
+.ref-users.open { max-height: 1000px; }
 .ref-user {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px;
+  padding: 10px 18px; font-size: 13px;
+  border-bottom: 1px solid var(--border);
 }
 .ref-user:last-child { border-bottom: none; }
-.ref-user .email { flex: 1; }
-.ref-user .date { color: var(--muted); font-size: 11px; margin: 0 12px; }
+.ref-user .email { flex: 1; word-break: break-all; }
+.ref-user .date { color: var(--muted); font-size: 11px; margin: 0 12px; white-space: nowrap; }
+.paid-yes { color: var(--green); font-weight: 700; font-size: 12px; }
+.paid-no { color: var(--red); font-weight: 600; font-size: 12px; }
 
-/* Not admin */
+/* Not admin / loading */
 .not-admin { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 15px; }
-
-/* Loading */
+.not-admin a { color: var(--accent); }
 .loading { text-align: center; padding: 40px; color: var(--muted); }
+.empty { text-align: center; padding: 24px; color: var(--muted); font-size: 13px; }
 </style>
 </head>
 <body>
@@ -90,48 +129,48 @@ const SUPABASE_URL = 'https://gkcxenxcyybgwdsgsuep.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY3hlbnhjeXliZ3dkc2dzdWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjcyMjMsImV4cCI6MjA4OTUwMzIyM30.fSS4MJpilWlfVyu6uPUKK-cWhO3S5KA_NUkKFLRPiBo';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+let allProfiles = [];
+const baseUrl = window.location.origin;
+
 async function init() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session?.user) {
-    document.getElementById('content').innerHTML = '<div class="not-admin">Connecte-toi d\'abord sur <a href="/" style="color:var(--accent)">l\'app</a></div>';
+    document.getElementById('content').innerHTML = '<div class="not-admin">Connecte-toi d\'abord sur <a href="/">l\'app</a></div>';
     return;
   }
 
-  // Check admin
   const { data: profile } = await sb.from('profiles').select('is_admin').eq('id', session.user.id).maybeSingle();
   if (!profile?.is_admin) {
     document.getElementById('content').innerHTML = '<div class="not-admin">Accès réservé aux administrateurs</div>';
     return;
   }
 
-  // Admin can read all profiles via service role? No — we use RLS.
-  // We need a DB function that only admins can call.
-  // For now, use a Supabase RPC or a policy that lets admins read all profiles.
-  // Let's call an RPC function.
-  const { data: allProfiles, error } = await sb.rpc('admin_get_profiles');
+  const { data, error } = await sb.rpc('admin_get_profiles');
   if (error) {
-    document.getElementById('content').innerHTML = `<div class="not-admin">Erreur: ${error.message}<br><small>La fonction admin_get_profiles n'existe peut-être pas encore.</small></div>`;
+    document.getElementById('content').innerHTML = `<div class="not-admin">Erreur: ${error.message}</div>`;
     return;
   }
 
-  renderDashboard(allProfiles);
+  allProfiles = data;
+  render();
 }
 
-function renderDashboard(profiles) {
-  const total = profiles.length;
-  const paid = profiles.filter(p => p.paid).length;
-  const referred = profiles.filter(p => p.referred_by).length;
-  const refCodes = [...new Set(profiles.filter(p => p.referred_by).map(p => p.referred_by))];
+function render() {
+  const total = allProfiles.length;
+  const paid = allProfiles.filter(p => p.paid).length;
+  const referred = allProfiles.filter(p => p.referred_by).length;
+  const refCodes = [...new Set(allProfiles.filter(p => p.referred_by).map(p => p.referred_by))];
 
   // Group by referral code
   const groups = {};
-  profiles.forEach(p => {
+  allProfiles.forEach(p => {
     const key = p.referred_by || '__direct__';
     if (!groups[key]) groups[key] = [];
     groups[key].push(p);
   });
 
-  const baseUrl = window.location.origin;
+  // Sort by most signups
+  refCodes.sort((a, b) => (groups[b]?.length || 0) - (groups[a]?.length || 0));
 
   let html = `
     <div class="stats-row">
@@ -141,63 +180,103 @@ function renderDashboard(profiles) {
       <div class="stat-card"><div class="stat-num">${refCodes.length}</div><div class="stat-label">Ambassadeurs</div></div>
     </div>
 
-    <div class="section-title">Par ambassadeur</div>
+    <div class="section-title">Créer un ambassadeur</div>
+    <div class="create-form">
+      <input type="text" id="ref-name" placeholder="Nom de l'ami (ex: marc, sarah, classe-tle)" />
+      <button class="btn-create" onclick="createLink()">Générer le lien</button>
+    </div>
+    <div class="link-banner" id="link-banner">
+      <span class="link-text" id="link-text"></span>
+      <button class="btn-copy" id="btn-copy" onclick="copyLink()">Copier</button>
+    </div>
+
+    <div class="section-title">Ambassadeurs</div>
   `;
 
-  // Sort ref codes by number of signups (desc)
-  refCodes.sort((a, b) => (groups[b]?.length || 0) - (groups[a]?.length || 0));
+  if (refCodes.length === 0 && (!groups['__direct__'] || groups['__direct__'].length === 0)) {
+    html += '<div class="empty">Aucun inscrit pour le moment</div>';
+  }
 
   refCodes.forEach(code => {
     const users = groups[code] || [];
     const paidCount = users.filter(u => u.paid).length;
-    html += `
-      <div class="ref-group">
-        <div class="ref-group-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-          <div>
-            <span class="ref-code">${code}</span>
-            <span class="ref-count">${users.length} inscrit${users.length > 1 ? 's' : ''} · ${paidCount} payé${paidCount > 1 ? 's' : ''}</span>
-          </div>
-          <button class="ref-link" onclick="event.stopPropagation(); navigator.clipboard.writeText('${baseUrl}/?ref=${code}'); this.textContent='Copié !'; setTimeout(() => this.textContent='Copier lien', 1500)">Copier lien</button>
-        </div>
-        <div class="ref-users" style="display: none">
-          ${users.map(u => `
-            <div class="ref-user">
-              <span class="email">${u.email}</span>
-              <span class="date">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
-              <span class="${u.paid ? 'paid-yes' : 'paid-no'}">${u.paid ? 'Payé' : 'Non payé'}</span>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
+    html += renderGroup(code, code, users, paidCount);
   });
 
-  // Direct users (no referral)
+  // Direct users
   const direct = groups['__direct__'] || [];
   if (direct.length) {
     const directPaid = direct.filter(u => u.paid).length;
-    html += `
-      <div class="ref-group">
-        <div class="ref-group-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-          <div>
-            <span class="ref-code" style="color: var(--muted)">Directs (sans referral)</span>
-            <span class="ref-count">${direct.length} inscrit${direct.length > 1 ? 's' : ''} · ${directPaid} payé${directPaid > 1 ? 's' : ''}</span>
-          </div>
-        </div>
-        <div class="ref-users" style="display: none">
-          ${direct.map(u => `
-            <div class="ref-user">
-              <span class="email">${u.email}</span>
-              <span class="date">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
-              <span class="${u.paid ? 'paid-yes' : 'paid-no'}">${u.paid ? 'Payé' : 'Non payé'}</span>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
+    html += renderGroup('__direct__', 'Directs (sans referral)', direct, directPaid, true);
   }
 
   document.getElementById('content').innerHTML = html;
+}
+
+function renderGroup(id, label, users, paidCount, isDirect) {
+  const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '_');
+  return `
+    <div class="ref-group">
+      <div class="ref-group-header" onclick="toggleGroup('${safeId}')">
+        <div class="ref-group-left">
+          <span class="ref-code" ${isDirect ? 'style="color: var(--muted)"' : ''}>${label}</span>
+          <span class="ref-count">${users.length} inscrit${users.length > 1 ? 's' : ''}</span>
+          <span class="ref-paid-count">${paidCount} payé${paidCount > 1 ? 's' : ''}</span>
+        </div>
+        <div class="ref-actions">
+          ${!isDirect ? `<button class="btn-small" onclick="event.stopPropagation(); copyRefLink('${id}', this)">Copier lien</button>` : ''}
+        </div>
+      </div>
+      <div class="ref-users" id="group-${safeId}">
+        ${users.map(u => `
+          <div class="ref-user">
+            <span class="email">${u.email}</span>
+            <span class="date">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
+            <span class="${u.paid ? 'paid-yes' : 'paid-no'}">${u.paid ? 'Payé' : 'Non payé'}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function toggleGroup(id) {
+  const el = document.getElementById('group-' + id);
+  if (el) el.classList.toggle('open');
+}
+
+function createLink() {
+  const input = document.getElementById('ref-name');
+  let name = input.value.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
+  if (!name) { input.focus(); return; }
+
+  const link = `${baseUrl}/?ref=${name}`;
+  const banner = document.getElementById('link-banner');
+  document.getElementById('link-text').textContent = link;
+  banner.classList.add('visible');
+  input.value = '';
+
+  // Auto-copy
+  navigator.clipboard.writeText(link).then(() => {
+    document.getElementById('btn-copy').textContent = 'Copié !';
+    setTimeout(() => document.getElementById('btn-copy').textContent = 'Copier', 2000);
+  });
+}
+
+function copyRefLink(code, btn) {
+  const link = `${baseUrl}/?ref=${code}`;
+  navigator.clipboard.writeText(link).then(() => {
+    btn.textContent = 'Copié !';
+    setTimeout(() => btn.textContent = 'Copier lien', 1500);
+  });
+}
+
+function copyLink() {
+  const link = document.getElementById('link-text').textContent;
+  navigator.clipboard.writeText(link).then(() => {
+    document.getElementById('btn-copy').textContent = 'Copié !';
+    setTimeout(() => document.getElementById('btn-copy').textContent = 'Copier', 2000);
+  });
 }
 
 init();
