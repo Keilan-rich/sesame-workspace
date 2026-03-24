@@ -154,6 +154,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let allProfiles = [];
+let allAmbassadors = [];
 const baseUrl = window.location.origin;
 
 async function loginGoogle() {
@@ -185,13 +186,19 @@ async function init() {
     return;
   }
 
-  const { data, error } = await sb.rpc('admin_get_profiles');
-  if (error) {
-    document.getElementById('content').innerHTML = `<div class="not-admin">Erreur: ${error.message}</div>`;
+  // Load profiles and ambassadors in parallel
+  const [profilesRes, ambassadorsRes] = await Promise.all([
+    sb.rpc('admin_get_profiles'),
+    sb.from('ambassadors').select('*').order('created_at', { ascending: false })
+  ]);
+
+  if (profilesRes.error) {
+    document.getElementById('content').innerHTML = `<div class="not-admin">Erreur: ${profilesRes.error.message}</div>`;
     return;
   }
 
-  allProfiles = data;
+  allProfiles = profilesRes.data;
+  allAmbassadors = ambassadorsRes.data || [];
   render();
 }
 
@@ -199,9 +206,8 @@ function render() {
   const total = allProfiles.length;
   const paid = allProfiles.filter(p => p.paid).length;
   const referred = allProfiles.filter(p => p.referred_by).length;
-  const refCodes = [...new Set(allProfiles.filter(p => p.referred_by).map(p => p.referred_by))];
 
-  // Group by referral code
+  // Group profiles by referral code
   const groups = {};
   allProfiles.forEach(p => {
     const key = p.referred_by || '__direct__';
@@ -209,21 +215,27 @@ function render() {
     groups[key].push(p);
   });
 
-  // Sort by most signups
-  refCodes.sort((a, b) => (groups[b]?.length || 0) - (groups[a]?.length || 0));
+  // Merge: all ambassador codes (even those with 0 signups)
+  const allCodes = [...new Set([
+    ...allAmbassadors.map(a => a.code),
+    ...allProfiles.filter(p => p.referred_by).map(p => p.referred_by)
+  ])];
+
+  // Sort by most signups (desc), then alphabetically
+  allCodes.sort((a, b) => (groups[b]?.length || 0) - (groups[a]?.length || 0) || a.localeCompare(b));
 
   let html = `
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Inscrits</div></div>
       <div class="stat-card"><div class="stat-num">${paid}</div><div class="stat-label">Payés</div></div>
       <div class="stat-card"><div class="stat-num">${referred}</div><div class="stat-label">Via referral</div></div>
-      <div class="stat-card"><div class="stat-num">${refCodes.length}</div><div class="stat-label">Ambassadeurs</div></div>
+      <div class="stat-card"><div class="stat-num">${allCodes.length}</div><div class="stat-label">Ambassadeurs</div></div>
     </div>
 
     <div class="section-title">Créer un ambassadeur</div>
     <div class="create-form">
       <input type="text" id="ref-name" placeholder="Nom de l'ami (ex: marc, sarah, classe-tle)" />
-      <button class="btn-create" onclick="createLink()">Générer le lien</button>
+      <button class="btn-create" onclick="createLink()">Créer</button>
     </div>
     <div class="link-banner" id="link-banner">
       <span class="link-text" id="link-text"></span>
@@ -233,17 +245,20 @@ function render() {
     <div class="section-title">Ambassadeurs</div>
   `;
 
-  if (refCodes.length === 0 && (!groups['__direct__'] || groups['__direct__'].length === 0)) {
-    html += '<div class="empty">Aucun inscrit pour le moment</div>';
+  if (allCodes.length === 0) {
+    html += '<div class="empty">Aucun ambassadeur — crée ton premier lien ci-dessus</div>';
   }
 
-  refCodes.forEach(code => {
+  allCodes.forEach(code => {
     const users = groups[code] || [];
     const paidCount = users.filter(u => u.paid).length;
-    html += renderGroup(code, code, users, paidCount);
+    // Find ambassador name
+    const amb = allAmbassadors.find(a => a.code === code);
+    const label = amb ? amb.name : code;
+    html += renderGroup(code, label, users, paidCount);
   });
 
-  // Direct users
+  // Direct users (no referral)
   const direct = groups['__direct__'] || [];
   if (direct.length) {
     const directPaid = direct.filter(u => u.paid).length;
@@ -255,11 +270,13 @@ function render() {
 
 function renderGroup(id, label, users, paidCount, isDirect) {
   const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const showCode = !isDirect && label !== id;
   return `
     <div class="ref-group">
       <div class="ref-group-header" onclick="toggleGroup('${safeId}')">
         <div class="ref-group-left">
           <span class="ref-code" ${isDirect ? 'style="color: var(--muted)"' : ''}>${label}</span>
+          ${showCode ? `<span style="color:var(--muted);font-size:11px">(${id})</span>` : ''}
           <span class="ref-count">${users.length} inscrit${users.length > 1 ? 's' : ''}</span>
           <span class="ref-paid-count">${paidCount} payé${paidCount > 1 ? 's' : ''}</span>
         </div>
@@ -268,6 +285,7 @@ function renderGroup(id, label, users, paidCount, isDirect) {
         </div>
       </div>
       <div class="ref-users" id="group-${safeId}">
+        ${users.length === 0 ? '<div style="padding:12px 18px;color:var(--muted);font-size:12px">Aucun inscrit pour le moment</div>' : ''}
         ${users.map(u => `
           <div class="ref-user">
             <span class="email">${u.email}</span>
@@ -285,18 +303,38 @@ function toggleGroup(id) {
   if (el) el.classList.toggle('open');
 }
 
-function createLink() {
+async function createLink() {
   const input = document.getElementById('ref-name');
-  let name = input.value.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
-  if (!name) { input.focus(); return; }
+  const rawName = input.value.trim();
+  const code = rawName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
+  if (!code) { input.focus(); return; }
 
-  const link = `${baseUrl}/?ref=${name}`;
-  const banner = document.getElementById('link-banner');
+  // Check if already exists
+  if (allAmbassadors.find(a => a.code === code)) {
+    const link = `${baseUrl}/?ref=${code}`;
+    document.getElementById('link-text').textContent = link;
+    document.getElementById('link-banner').classList.add('visible');
+    navigator.clipboard.writeText(link);
+    document.getElementById('btn-copy').textContent = 'Copié !';
+    setTimeout(() => document.getElementById('btn-copy').textContent = 'Copier', 2000);
+    input.value = '';
+    return;
+  }
+
+  // Save to Supabase
+  const { error } = await sb.from('ambassadors').insert({ code, name: rawName });
+  if (error) { alert('Erreur : ' + error.message); return; }
+
+  // Add to local list and re-render
+  allAmbassadors.push({ code, name: rawName, created_at: new Date().toISOString() });
+  render();
+
+  // Show link
+  const link = `${baseUrl}/?ref=${code}`;
   document.getElementById('link-text').textContent = link;
-  banner.classList.add('visible');
+  document.getElementById('link-banner').classList.add('visible');
   input.value = '';
 
-  // Auto-copy
   navigator.clipboard.writeText(link).then(() => {
     document.getElementById('btn-copy').textContent = 'Copié !';
     setTimeout(() => document.getElementById('btn-copy').textContent = 'Copier', 2000);

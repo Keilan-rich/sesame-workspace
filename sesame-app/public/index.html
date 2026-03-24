@@ -620,15 +620,31 @@ const TODAY      = new Date(); TODAY.setHours(0,0,0,0);
 let currentUser = null;
 let userProfile = null;
 
-// ─── WEBVIEW DETECTION ──────────────────────────────────────────────────────
+// ─── WEBVIEW DETECTION & AUTO-REDIRECT ──────────────────────────────────────
 // Google blocks OAuth in WhatsApp/Instagram/Facebook in-app browsers
+// Force open in real browser automatically
 (function() {
   const ua = navigator.userAgent || '';
   const isWebView = /FBAN|FBAV|Instagram|WhatsApp|Line\/|Snapchat|Twitter|MicroMessenger/i.test(ua);
-  if (isWebView) {
-    const warn = document.getElementById('webview-warning');
-    if (warn) warn.style.display = 'block';
+  if (!isWebView) return;
+
+  const url = window.location.href;
+
+  // Android: use intent:// to open in Chrome
+  if (/android/i.test(ua)) {
+    window.location = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+    return;
   }
+
+  // iOS: try window.open (sometimes works), fallback to showing warning
+  if (/iPhone|iPad|iPod/i.test(ua)) {
+    // Try to open in Safari
+    window.open(url, '_blank');
+  }
+
+  // Fallback: show warning
+  const warn = document.getElementById('webview-warning');
+  if (warn) warn.style.display = 'block';
 })();
 
 // ─── REFERRAL TRACKING ──────────────────────────────────────────────────────
