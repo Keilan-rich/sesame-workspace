@@ -103,6 +103,13 @@ h1 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
 .ref-user:last-child { border-bottom: none; }
 .ref-user .email { flex: 1; word-break: break-all; }
 .ref-user .date { color: var(--muted); font-size: 11px; margin: 0 12px; white-space: nowrap; }
+.ref-user-details { padding: 4px 18px 10px; }
+.ref-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.ref-tag {
+  font-size: 10px; padding: 2px 8px; border-radius: 10px;
+  background: #f0f2f8; color: var(--muted); border: 1px solid var(--border);
+}
+.ref-tag.last { background: #fef3c7; color: #92400e; border-color: #f59e0b; font-weight: 600; }
 /* Toggle paid button */
 .btn-toggle {
   padding: 6px 14px; border-radius: 20px; border: none;
@@ -155,6 +162,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let allProfiles = [];
 let allAmbassadors = [];
+let allRefLogs = [];
 let currentAdminId = null;
 const baseUrl = window.location.origin;
 
@@ -188,10 +196,11 @@ async function init() {
   }
   currentAdminId = session.user.id;
 
-  // Load profiles and ambassadors in parallel
-  const [profilesRes, ambassadorsRes] = await Promise.all([
+  // Load profiles, ambassadors, and referral logs in parallel
+  const [profilesRes, ambassadorsRes, logsRes] = await Promise.all([
     sb.rpc('admin_get_profiles'),
-    sb.from('ambassadors').select('*').order('created_at', { ascending: false })
+    sb.from('ambassadors').select('*').order('created_at', { ascending: false }),
+    sb.rpc('admin_get_referral_logs')
   ]);
 
   if (profilesRes.error) {
@@ -201,6 +210,7 @@ async function init() {
 
   allProfiles = profilesRes.data;
   allAmbassadors = ambassadorsRes.data || [];
+  allRefLogs = logsRes.data || [];
   render();
 }
 
@@ -290,14 +300,24 @@ function renderGroup(id, label, users, paidCount, isDirect) {
         ${users.length === 0 ? '<div style="padding:12px 18px;color:var(--muted);font-size:12px">Aucun inscrit pour le moment</div>' : ''}
         ${users.map(u => {
           const isMe = u.id === currentAdminId;
+          // Get referral history for this user
+          const userLogs = allRefLogs.filter(l => l.user_id === u.id).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+          const lastLog = userLogs.length > 0 ? userLogs[userLogs.length - 1] : null;
           return `
-          <div class="ref-user">
-            <span class="email">${u.email}${u.is_admin ? ' <span style="font-size:10px;color:var(--accent);font-weight:700">ADMIN</span>' : ''}</span>
-            <span class="date">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
-            ${isMe
-              ? `<span style="font-size:11px;color:var(--muted);font-weight:600">Admin</span>`
-              : `<button class="btn-toggle ${u.paid ? 'is-paid' : 'not-paid'}" id="toggle-${u.id}" onclick="togglePaid('${u.id}', ${u.paid}, '${u.email}')">${u.paid ? 'Payé' : 'Non payé'}</button>`
-            }
+          <div>
+            <div class="ref-user">
+              <span class="email">${u.email}${u.is_admin ? ' <span style="font-size:10px;color:var(--accent);font-weight:700">ADMIN</span>' : ''}</span>
+              <span class="date">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
+              ${isMe
+                ? '<span style="font-size:11px;color:var(--muted);font-weight:600">Admin</span>'
+                : '<button class="btn-toggle ' + (u.paid ? 'is-paid' : 'not-paid') + '" id="toggle-' + u.id + '" onclick="togglePaid(\'' + u.id + '\', ' + u.paid + ', \'' + u.email + '\')">' + (u.paid ? 'Payé' : 'Non payé') + '</button>'
+              }
+            </div>
+            ${userLogs.length > 1 ? '<div class="ref-user-details"><div class="ref-tags">' +
+              userLogs.map((l, i) =>
+                '<span class="ref-tag' + (i === userLogs.length - 1 ? ' last' : '') + '">' + l.ref_code + ' · ' + new Date(l.created_at).toLocaleDateString('fr-FR') + (i === userLogs.length - 1 ? ' (dernier)' : '') + '</span>'
+              ).join('') +
+            '</div></div>' : ''}
           </div>`;
         }).join('')}
       </div>

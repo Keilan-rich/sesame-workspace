@@ -699,9 +699,15 @@ async function sendMagicLink() {
 async function saveReferral(userId) {
   const ref = localStorage.getItem('sesame_ref');
   if (!ref) return;
-  // Last touch: always update with the latest ambassador
-  // If ambassador 1 sent the link but ambassador 2 closed the sale, ambassador 2 gets credit
-  await sb.from('profiles').update({ referred_by: ref }).eq('id', userId);
+  // Check if user already paid — stop tracking
+  const { data } = await sb.from('profiles').select('referred_by, paid').eq('id', userId).maybeSingle();
+  if (data && data.paid) { localStorage.removeItem('sesame_ref'); return; }
+  // Log referral click (for history / dispute resolution)
+  await sb.from('referral_logs').insert({ user_id: userId, ref_code: ref });
+  // First touch: only set referred_by if not already set
+  if (data && !data.referred_by) {
+    await sb.from('profiles').update({ referred_by: ref }).eq('id', userId);
+  }
   localStorage.removeItem('sesame_ref');
 }
 
