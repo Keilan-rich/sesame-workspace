@@ -366,10 +366,12 @@ body {
 
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .quiz-footer { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
+  #theme-btn { top: calc(12px + env(safe-area-inset-top)) !important; }
 }
 </style>
 </head>
 <body data-theme="light">
+<script>(function(){var t=localStorage.getItem('sesame_theme');if(t)document.body.setAttribute('data-theme',t);})()</script>
 
 <button style="position:fixed;top:12px;right:12px;z-index:400;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);font-family:'Sora',sans-serif;" id="theme-btn" onclick="toggleTheme()">☀ Clair</button>
 

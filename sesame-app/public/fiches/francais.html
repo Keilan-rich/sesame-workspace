@@ -113,6 +113,7 @@ body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); m
   body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 }
 </style>
+<script>(function(){var t=localStorage.getItem('sesame_theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
 </head>
 <body>
 <div class="wrap">
@@ -401,8 +402,8 @@ Participe présent = V-ant seul
 </div><!-- /wrap -->
 
 <script>
-function toggleTheme(){const h=document.documentElement;const t=h.getAttribute('data-theme');const n=t==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('theme',n);document.getElementById('theme-btn').textContent=n==='dark'?'☀ Clair':'🌙 Sombre';}
-window.addEventListener('DOMContentLoaded',()=>{const t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-btn').textContent=t==='dark'?'☀ Clair':'🌙 Sombre';});
+function toggleTheme(){const h=document.documentElement;const t=h.getAttribute('data-theme');const n=t==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('sesame_theme',n);document.getElementById('theme-btn').textContent=n==='dark'?'☀ Clair':'☾ Sombre';}
+window.addEventListener('DOMContentLoaded',()=>{const t=localStorage.getItem('sesame_theme')||'light';document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-btn').textContent=t==='dark'?'☀ Clair':'☾ Sombre';});
 document.querySelectorAll('.qr-card').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('open')));
 </script>
 </body>
