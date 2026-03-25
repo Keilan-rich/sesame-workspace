@@ -709,7 +709,7 @@ async function generateSimulation(dateStr) {
     if (!completed) return existing; // Resume existing
   }
 
-  const allSubjects = ['digital','enjeux','maths','francais','anglais','espagnol'];
+  const allSubjects = ['digital','enjeux','maths','francais','anglais'];
   const seenQids = await getUserSeenQids();
   let selectedIds = [];
 
@@ -753,7 +753,7 @@ async function generateGuided(dateStr) {
     subjectScores[r.subject].total += r.total;
   });
 
-  const allSubjects = ['digital','enjeux','maths','francais','anglais','espagnol'];
+  const allSubjects = ['digital','enjeux','maths','francais','anglais'];
   const ranked = [...allSubjects].sort((a, b) => {
     const pa = subjectScores[a] ? (subjectScores[a].score / subjectScores[a].total) : 0.5;
     const pb = subjectScores[b] ? (subjectScores[b].score / subjectScores[b].total) : 0.5;
