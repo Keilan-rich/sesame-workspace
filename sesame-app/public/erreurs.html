@@ -175,7 +175,7 @@ function answer(chosen, correct_ans) {
     fb.style.borderColor = 'rgba(16,185,129,.2)';
     fb.style.color = 'var(--green)';
   } else {
-    const optArr = Array.isArray(q.options) ? q.options : Object.values(q.options || {});
+    const optArr = Array.isArray(q.options) ? q.options : [q.options?.A, q.options?.B, q.options?.C, q.options?.D].filter(Boolean);
     const optText = optArr[correct_ans.charCodeAt(0)-65] || '';
     fb.innerHTML = `✗ Bonne réponse : <strong>${correct_ans}. ${optText}</strong>${q.explanation ? '<br>' + q.explanation : ''}`;
   }

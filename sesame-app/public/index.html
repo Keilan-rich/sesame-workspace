@@ -265,9 +265,11 @@ body {
   transform: scale(1) translateY(0);
 }
 .install-popup-close {
-  position: absolute; top: 12px; right: 14px;
-  background: none; border: none; font-size: 22px;
+  position: absolute; top: 8px; right: 8px;
+  background: none; border: none; font-size: 26px;
   color: var(--muted); cursor: pointer; line-height: 1;
+  padding: 8px 12px; z-index: 10;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.1);
 }
 .install-popup-title {
   font-size: 17px; font-weight: 700; margin-bottom: 4px;
@@ -1211,7 +1213,8 @@ function renderErreursCount(sessions) {
   const el = document.getElementById('erreurs-count');
   if (el) el.textContent = total > 0 ? `${total} erreur${total>1?'s':''} à revoir` : 'Aucune erreur enregistrée';
   const card = document.getElementById('action-erreurs');
-  if (card && total === 0) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
+  const hasPaid = userProfile && (userProfile.paid || userProfile.is_admin);
+  if (card && total === 0 && hasPaid) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
 }
 
 // ─── PROGRESS ─────────────────────────────────────────────────────────────────
@@ -1390,7 +1393,7 @@ function showInstallBanner() {
 <!-- INSTALL POPUP -->
 <div class="install-backdrop" id="install-backdrop">
   <div class="install-popup" id="install-popup">
-    <button class="install-popup-close" id="install-close">&times;</button>
+    <button class="install-popup-close" id="install-close" onclick="dismissInstallPopup()">&times;</button>
     <div class="install-popup-title">Installe Sesame sur ton tel</div>
     <div class="install-popup-sub">Comme une vraie app, en 2 clics :</div>
     <div class="install-steps" id="install-steps">
@@ -1404,7 +1407,7 @@ function showInstallBanner() {
       <div class="install-dot"></div>
     </div>
     <button class="install-btn-native" id="install-btn-native" style="display:none">Installer l'application</button>
-    <button class="install-dismiss" id="install-dismiss-btn">J'ai compris</button>
+    <button class="install-dismiss" id="install-dismiss-btn" onclick="dismissInstallPopup()">J'ai compris</button>
   </div>
 </div>
 
