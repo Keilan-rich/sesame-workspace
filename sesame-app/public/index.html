@@ -774,10 +774,16 @@ async function sendMagicLink() {
   });
 
   if (error) {
-    status.textContent = 'Erreur : ' + error.message;
-    status.style.color = '#ef4444';
+    // Rate limit: Supabase blocks re-send within 60s
+    if (error.message.includes('rate') || error.message.includes('60') || error.status === 429) {
+      status.textContent = 'Attends 1 minute avant de renvoyer un lien';
+      status.style.color = '#f59e0b';
+    } else {
+      status.textContent = 'Erreur : ' + error.message;
+      status.style.color = '#ef4444';
+    }
     btn.disabled = false;
-    btn.textContent = 'Envoyer';
+    btn.textContent = 'Renvoyer';
     return;
   }
 
@@ -1071,8 +1077,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   const daysLeft = Math.max(0, Math.ceil((EXAM_DATE - TODAY) / 86400000));
   document.getElementById('days-left').textContent = daysLeft;
 
-  // Check auth state
-  const { data: { session } } = await sb.auth.getSession();
+  // Check auth state — handle expired/corrupt tokens gracefully
+  let session = null;
+  try {
+    const { data, error } = await sb.auth.getSession();
+    if (error) { await sb.auth.signOut(); }
+    else session = data?.session;
+  } catch (e) { await sb.auth.signOut(); }
+
   if (session?.user) {
     currentUser = session.user;
     document.getElementById('auth-overlay').classList.add('hidden');
