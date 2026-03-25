@@ -658,23 +658,40 @@ async function generateDailyForQuiz(dateStr) {
   const revisionIds = qShuffle(revisionPool).slice(0, 5).map(w => w.id);
 
   let selectedIds = [...revisionIds];
+  const usedSubjects = [];
   for (const subject of subjects) {
     const limit = qPerSubject + (weakSubjects.has(subject) ? 5 : 0);
     const { data: allQ } = await sb.from('questions').select('id').eq('subject', subject);
-    if (!allQ) continue;
+    if (!allQ || allQ.length === 0) continue; // Skip subjects with no questions
+    usedSubjects.push(subject);
     const unseen = allQ.filter(q => !seenQids.has(q.id) && !selectedIds.includes(q.id));
     const picked = qShuffle(unseen).slice(0, limit);
     selectedIds.push(...picked.map(q => q.id));
     if (picked.length < limit) {
-      const fallback = Object.values(wrongMap)
-        .filter(w => w.subject === subject && !selectedIds.includes(w.id))
-        .slice(0, limit - picked.length);
-      selectedIds.push(...fallback.map(w => w.id));
+      // Fallback: reuse seen questions
+      const seen = allQ.filter(q => !selectedIds.includes(q.id));
+      const extra = qShuffle(seen).slice(0, limit - picked.length);
+      selectedIds.push(...extra.map(q => q.id));
+    }
+  }
+  // If some subjects had no questions, fill from other available subjects
+  if (selectedIds.length < 5 && usedSubjects.length < subjects.length) {
+    const fillSubjects = ['digital','enjeux','maths','francais','anglais'].filter(s => !usedSubjects.includes(s));
+    for (const fs of fillSubjects) {
+      if (selectedIds.length >= qPerSubject * subjects.length) break;
+      const { data: fQ } = await sb.from('questions').select('id').eq('subject', fs);
+      if (!fQ) continue;
+      const avail = fQ.filter(q => !seenQids.has(q.id) && !selectedIds.includes(q.id));
+      const need = qPerSubject * subjects.length - selectedIds.length;
+      const picked = qShuffle(avail).slice(0, need);
+      selectedIds.push(...picked.map(q => q.id));
+      if (picked.length > 0) usedSubjects.push(fs);
     }
   }
   if (selectedIds.length === 0) return null;
 
-  const session = { date: dateStr, user_id: uid, subjects, question_ids: selectedIds,
+  const finalSubjects = usedSubjects.length > 0 ? usedSubjects : subjects;
+  const session = { date: dateStr, user_id: uid, subjects: finalSubjects, question_ids: selectedIds,
     revision_ids: revisionIds, session_type: calEntry.session_type || 'daily', time_minutes: timeMinutes };
   const { data: ins } = await sb.from('daily_sessions').insert(session).select().single();
   return ins || session;
