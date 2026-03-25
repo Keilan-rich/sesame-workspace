@@ -547,6 +547,16 @@ body {
     </div>
     <div id="magic-status" style="font-size:12px; margin-top:10px; color:#8080a0;"></div>
   </div>
+
+  <!-- Open in real browser (WebView) -->
+  <div id="auth-open-browser" style="display:none; max-width:340px; width:100%; margin-top:12px; text-align:center;">
+    <div style="font-size:12px; color:#8080a0; margin-bottom:8px;">Tu es deja connecte depuis ton navigateur ?</div>
+    <button onclick="openInBrowser()"
+      style="padding:10px 20px; background:none; border:1.5px solid var(--accent); color:var(--accent);
+      border-radius:12px; font-family:'Sora',sans-serif; font-size:13px; font-weight:600; cursor:pointer;">
+      Ouvrir dans Safari / Chrome
+    </button>
+  </div>
 </div>
 
 <!-- PAYWALL OVERLAY -->
@@ -711,9 +721,28 @@ if (isWebView) {
   const googleDiv = document.getElementById('auth-google');
   const magicDiv = document.getElementById('auth-magic');
   const authSub = document.getElementById('auth-sub');
+  const openBrowser = document.getElementById('auth-open-browser');
   if (googleDiv) googleDiv.style.display = 'none';
   if (magicDiv) magicDiv.style.display = 'block';
+  if (openBrowser) openBrowser.style.display = 'block';
   if (authSub) authSub.textContent = 'Entre ton email pour te connecter';
+}
+
+function openInBrowser() {
+  const url = window.location.href;
+  // Try intent-based open for Android
+  if (/android/i.test(navigator.userAgent)) {
+    window.location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;end';
+    return;
+  }
+  // iOS: copy URL and guide user
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => {
+      alert('Lien copie ! Colle-le dans Safari pour te connecter directement.');
+    });
+  } else {
+    prompt('Copie ce lien et ouvre-le dans Safari :', url);
+  }
 }
 
 async function sendMagicLink() {
@@ -836,14 +865,8 @@ function applyFreeLock() {
 let countdownInterval = null;
 function startPaywallCountdown() {
   if (countdownInterval) return;
-  // Promo ends 3 days from first visit (stored in localStorage per user)
-  const storageKey = 'sesame_promo_end';
-  let endTime = localStorage.getItem(storageKey);
-  if (!endTime) {
-    endTime = Date.now() + 3 * 24 * 60 * 60 * 1000; // 3 days from now
-    localStorage.setItem(storageKey, endTime);
-  }
-  endTime = parseInt(endTime);
+  // Fixed deadline: 26 mars 2026 à 23h59 (heure locale)
+  const endTime = new Date('2026-03-26T23:59:59').getTime();
 
   function tick() {
     const diff = Math.max(0, endTime - Date.now());
