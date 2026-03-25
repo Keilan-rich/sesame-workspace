@@ -726,6 +726,12 @@ if (isWebView) {
   if (magicDiv) magicDiv.style.display = 'block';
   if (openBrowser) openBrowser.style.display = 'block';
   if (authSub) authSub.textContent = 'Entre ton email pour te connecter';
+  // Pre-fill saved email
+  const savedEmail = localStorage.getItem('sesame_magic_email');
+  if (savedEmail) {
+    const emailInput = document.getElementById('magic-email');
+    if (emailInput) emailInput.value = savedEmail;
+  }
 }
 
 function openInBrowser() {
@@ -774,6 +780,9 @@ async function sendMagicLink() {
     btn.textContent = 'Envoyer';
     return;
   }
+
+  // Remember email for next time
+  localStorage.setItem('sesame_magic_email', email);
 
   status.style.color = '#059669';
   status.innerHTML = 'Lien envoyé ! Vérifie ta boîte mail<br><span style="font-size:11px;color:#8080a0">(regarde aussi les spams)</span>';
