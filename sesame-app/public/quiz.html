@@ -1085,6 +1085,8 @@ function startTimer() {
   }, 1000);
 }
 function togglePause() {
+  // Free users cannot pause (prevents trial bypass)
+  if (!userIsPaid) return;
   if (timerRunning) {
     clearInterval(timerInterval); timerRunning = false; paused = true;
     document.getElementById('btn-pause').textContent = '▶';

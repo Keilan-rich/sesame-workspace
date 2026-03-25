@@ -780,18 +780,24 @@ async function saveReferral(userId) {
 async function checkPaywall(user) {
   const { data: profile, error } = await sb
     .from('profiles').select('paid, is_admin').eq('id', user.id).maybeSingle();
-  userProfile = profile;
-  const hasPaid = profile && (profile.paid || profile.is_admin);
+  if (error && !profile) {
+    // Network error — don't lock paid users out, retry once
+    const { data: retry } = await sb
+      .from('profiles').select('paid, is_admin').eq('id', user.id).maybeSingle();
+    userProfile = retry;
+  } else {
+    userProfile = profile;
+  }
+  const hasPaid = userProfile && (userProfile.paid || userProfile.is_admin);
   // Always show the dashboard — lock features for non-paid users
   document.getElementById('paywall-overlay').classList.add('hidden');
   document.getElementById('main-content').classList.add('visible');
   if (hasPaid) {
-    // Clear trial flag when user has paid
     localStorage.removeItem('sesame_trial_used');
   } else {
     applyFreeLock();
   }
-  return true; // always let user into dashboard
+  return true;
 }
 
 function showPaywall() {
@@ -1379,17 +1385,6 @@ function showInstallBanner() {
   setTimeout(() => backdrop.classList.add('visible'), 1500);
 }
 
-document.getElementById('install-btn-native').addEventListener('click', async () => {
-  if (deferredInstallPrompt) {
-    deferredInstallPrompt.prompt();
-    const result = await deferredInstallPrompt.userChoice;
-    if (result.outcome === 'accepted') dismissInstallPopup();
-    deferredInstallPrompt = null;
-  }
-});
-
-document.getElementById('install-close').addEventListener('click', dismissInstallPopup);
-document.getElementById('install-dismiss-btn').addEventListener('click', dismissInstallPopup);
 </script>
 
 <!-- INSTALL POPUP -->
@@ -1412,6 +1407,19 @@ document.getElementById('install-dismiss-btn').addEventListener('click', dismiss
     <button class="install-dismiss" id="install-dismiss-btn">J'ai compris</button>
   </div>
 </div>
+
+<script>
+document.getElementById('install-btn-native').addEventListener('click', async () => {
+  if (typeof deferredInstallPrompt !== 'undefined' && deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    const result = await deferredInstallPrompt.userChoice;
+    if (result.outcome === 'accepted') dismissInstallPopup();
+    deferredInstallPrompt = null;
+  }
+});
+document.getElementById('install-close').addEventListener('click', dismissInstallPopup);
+document.getElementById('install-dismiss-btn').addEventListener('click', dismissInstallPopup);
+</script>
 
 </div><!-- /main-content -->
 </body>
