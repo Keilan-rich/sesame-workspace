@@ -634,7 +634,9 @@ async function generateDailyForQuiz(dateStr) {
   const { data: calEntry } = await sb.from('calendar').select('*').eq('date', dateStr).maybeSingle();
   if (!calEntry) return null;
 
-  const subjects = calEntry.subjects || [];
+  const DISABLED_SUBJECTS = ['espagnol', 'analyse_doc'];
+  const subjects = (calEntry.subjects || []).filter(s => !DISABLED_SUBJECTS.includes(s));
+  if (subjects.length === 0) return null;
   const qPerSubject = calEntry.questions_per_subject || 10;
   const timeMinutes = calEntry.time_minutes || 20;
   const results = await getUserPastResults();
