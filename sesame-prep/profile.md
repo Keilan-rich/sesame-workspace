@@ -21,14 +21,10 @@
 | Anglais | 40 questions QCM (grammaire, vocab, faux-amis, niveau B1-B2) | 30 min |
 | Espagnol (LV2) | 40 questions QCM | 30 min |
 
-> **Note :** Espagnol retirée du planning de révision — pas de questions d'entraînement disponibles.
-
 ### Séquence 3 — Analyser (2h)
 | Épreuve | Format | Temps |
 |---------|--------|-------|
 | Analyse documentaire | 20 questions (repérage + analyse + synthèse) | 2h |
-
-> **Note :** Analyse documentaire retirée du planning de révision — pas de questions d'entraînement disponibles. Le temps libéré est redistribué sur les matières faibles.
 
 **Barème :** Bonne réponse = points max. Mauvaise ou absente = 0 point (pas de malus)
 
@@ -41,8 +37,8 @@
 | Mathématiques | Moyen | Égale |
 | Français | À travailler | Égale |
 | Anglais | Bon | Égale |
-| Espagnol (LV2) | — (retirée : pas de questions dispo) | — |
-| Analyse documentaire | — (retirée : pas de questions dispo) | — |
+| Espagnol (LV2) | Faible | Égale |
+| Analyse documentaire | ? | Égale |
 
 > **Note :** Toutes les matières sont traitées à égalité. La priorisation s'adapte dynamiquement selon la progression réelle observée.
 
