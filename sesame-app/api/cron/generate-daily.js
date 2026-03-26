@@ -37,7 +37,9 @@ export default async function handler(req) {
     return Response.json({ message: 'No calendar entry for today', date: today });
   }
 
-  const subjects = calEntry.subjects || [];
+  // Filter out subjects with no available questions
+  const DISABLED_SUBJECTS = ['espagnol', 'analyse_doc'];
+  const subjects = (calEntry.subjects || []).filter(s => !DISABLED_SUBJECTS.includes(s));
   const qPerSubject = calEntry.questions_per_subject || 10;
   const sessionType = calEntry.session_type || 'daily';
   const timeMinutes = calEntry.time_minutes || 20;
