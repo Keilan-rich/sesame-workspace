@@ -26,6 +26,8 @@
 |---------|--------|-------|
 | Analyse documentaire | 20 questions (repérage + analyse + synthèse) | 2h |
 
+> **Note :** Analyse documentaire retirée du planning de révision — pas de questions d'entraînement disponibles. Le temps libéré est redistribué sur les matières faibles.
+
 **Barème :** Bonne réponse = points max. Mauvaise ou absente = 0 point (pas de malus)
 
 ## Profil candidat
@@ -38,7 +40,7 @@
 | Français | À travailler | Égale |
 | Anglais | Bon | Égale |
 | Espagnol (LV2) | Faible | Égale |
-| Analyse documentaire | ? | Égale |
+| Analyse documentaire | — (retirée : pas de questions dispo) | — |
 
 > **Note :** Toutes les matières sont traitées à égalité. La priorisation s'adapte dynamiquement selon la progression réelle observée.
 
