@@ -1194,14 +1194,22 @@ function renderToday(sessions, calendar, todaySession) {
     btnToday.href = quizUrl;
     if (actionLink) actionLink.href = quizUrl;
   } else if (calEntry) {
+    const DISABLED_SUBJECTS = ['espagnol', 'analyse_doc'];
+    const filteredSubjects = (calEntry.subjects || []).filter(s => !DISABLED_SUBJECTS.includes(s));
     badge.textContent = `${todayStr}`;
-    const subjectLabels = (calEntry.subjects || []).map(s => {
-      const found = SUBJECTS.find(sub => sub.key === s);
-      return found ? found.label : s;
-    }).join(' + ');
-    title.textContent = subjectLabels || 'Session du jour';
-    meta.textContent = 'Aucune question disponible pour cette session';
-    btnToday.style.opacity = '0.5';
+    if (filteredSubjects.length === 0) {
+      title.textContent = 'Pas de session prévue';
+      meta.textContent = 'Reviens demain ou lance une simulation !';
+      btnToday.style.display = 'none';
+    } else {
+      const subjectLabels = filteredSubjects.map(s => {
+        const found = SUBJECTS.find(sub => sub.key === s);
+        return found ? found.label : s;
+      }).join(' + ');
+      title.textContent = subjectLabels || 'Session du jour';
+      meta.textContent = 'Aucune question disponible pour cette session';
+      btnToday.style.opacity = '0.5';
+    }
   } else {
     badge.textContent = todayStr;
     title.textContent = 'Pas de session planifiée';
