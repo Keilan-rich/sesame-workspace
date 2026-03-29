@@ -626,10 +626,16 @@ async function generateDailyForQuiz(dateStr) {
   if (!currentUser) return null;
   const uid = currentUser.id;
 
-  // Check existing
+  // Check existing — if it has 0 questions, delete and regenerate
   const { data: existing } = await sb.from('daily_sessions').select('*')
     .eq('date', dateStr).eq('user_id', uid).eq('session_type', 'daily').maybeSingle();
-  if (existing) return existing;
+  if (existing) {
+    if (!existing.question_ids || existing.question_ids.length === 0) {
+      await sb.from('daily_sessions').delete().eq('id', existing.id);
+    } else {
+      return existing;
+    }
+  }
 
   const { data: calEntry } = await sb.from('calendar').select('*').eq('date', dateStr).maybeSingle();
   if (!calEntry) return null;
