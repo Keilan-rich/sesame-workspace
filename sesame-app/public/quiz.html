@@ -626,9 +626,17 @@ async function generateDailyForQuiz(dateStr) {
   if (!currentUser) return null;
   const uid = currentUser.id;
 
-  // Check existing — if it has 0 questions, delete and regenerate
+  // Calendar lookup first to get the correct session_type
+  const { data: calEntry } = await sb.from('calendar').select('*').eq('date', dateStr).maybeSingle();
+  if (!calEntry) return null;
+
+  const subjects = calEntry.subjects || [];
+  const qPerSubject = calEntry.questions_per_subject || 10;
+
+  // Check existing session matching calendar's session_type
+  const sessionType = calEntry.session_type || 'daily';
   const { data: existing } = await sb.from('daily_sessions').select('*')
-    .eq('date', dateStr).eq('user_id', uid).eq('session_type', 'daily').maybeSingle();
+    .eq('date', dateStr).eq('user_id', uid).eq('session_type', sessionType).maybeSingle();
   if (existing) {
     if (!existing.question_ids || existing.question_ids.length === 0) {
       await sb.from('daily_sessions').delete().eq('id', existing.id);
@@ -636,12 +644,6 @@ async function generateDailyForQuiz(dateStr) {
       return existing;
     }
   }
-
-  const { data: calEntry } = await sb.from('calendar').select('*').eq('date', dateStr).maybeSingle();
-  if (!calEntry) return null;
-
-  const subjects = calEntry.subjects || [];
-  const qPerSubject = calEntry.questions_per_subject || 10;
   const timeMinutes = calEntry.time_minutes || 20;
   const results = await getUserPastResults();
   const seenQids = await getUserSeenQids();

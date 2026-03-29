@@ -969,19 +969,7 @@ async function generateDailySession(dateStr) {
   if (!currentUser) return null;
   const uid = currentUser.id;
 
-  // Check if session already exists — if 0 questions, delete and regenerate
-  const { data: existing } = await sb
-    .from('daily_sessions').select('*')
-    .eq('date', dateStr).eq('user_id', uid).eq('session_type', 'daily').maybeSingle();
-  if (existing) {
-    if (!existing.question_ids || existing.question_ids.length === 0) {
-      await sb.from('daily_sessions').delete().eq('id', existing.id);
-    } else {
-      return existing;
-    }
-  }
-
-  // 1. Calendar lookup
+  // 1. Calendar lookup first to get the correct session_type
   const { data: calEntry } = await sb
     .from('calendar').select('*').eq('date', dateStr).maybeSingle();
   if (!calEntry) return null;
@@ -989,6 +977,18 @@ async function generateDailySession(dateStr) {
   const subjects = calEntry.subjects || [];
   const qPerSubject = calEntry.questions_per_subject || 10;
   const sessionType = calEntry.session_type || 'daily';
+
+  // Check if session already exists for today (matching calendar's session_type)
+  const { data: existing } = await sb
+    .from('daily_sessions').select('*')
+    .eq('date', dateStr).eq('user_id', uid).eq('session_type', sessionType).maybeSingle();
+  if (existing) {
+    if (!existing.question_ids || existing.question_ids.length === 0) {
+      await sb.from('daily_sessions').delete().eq('id', existing.id);
+    } else {
+      return existing;
+    }
+  }
   const timeMinutes = calEntry.time_minutes || 20;
 
   // 2. User's past results (from Supabase, per-user)
