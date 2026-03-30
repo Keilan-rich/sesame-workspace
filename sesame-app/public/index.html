@@ -880,8 +880,8 @@ function applyFreeLock() {
 let countdownInterval = null;
 function startPaywallCountdown() {
   if (countdownInterval) return;
-  // Fixed deadline: 26 mars 2026 à 23h59 (heure locale)
-  const endTime = new Date('2026-03-26T23:59:59').getTime();
+  // Fixed deadline: 4 avril 2026 à 23h59 (heure locale)
+  const endTime = new Date('2026-04-04T23:59:59').getTime();
 
   function tick() {
     const diff = Math.max(0, endTime - Date.now());
