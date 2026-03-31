@@ -68,34 +68,35 @@ body {
 .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
 .header {
-  padding: 36px 24px 0; max-width: 900px; margin: 0 auto;
-  display: flex; align-items: flex-start; justify-content: space-between;
-  flex-wrap: wrap; gap: 16px;
+  padding: 20px 24px 0; max-width: 900px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
 }
 .header-eyebrow {
   font-size: 11px; font-weight: 700; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 4px;
 }
 .header-title {
-  font-size: clamp(28px, 5vw, 40px); font-weight: 800; line-height: 1.15;
+  font-size: clamp(22px, 4vw, 32px); font-weight: 800; line-height: 1.15;
 }
 .header-title span { color: var(--muted); font-weight: 300; }
 
 .countdown-card {
   background: var(--card); border: 1px solid var(--border);
-  border-radius: 16px; padding: 20px 28px; text-align: center;
-  min-width: 140px; box-shadow: 0 4px 20px var(--shadow);
+  border-radius: 12px; padding: 10px 16px; text-align: center;
+  min-width: auto; box-shadow: 0 2px 10px var(--shadow);
+  display: flex; align-items: center; gap: 8px;
 }
 .countdown-num {
-  font-size: 52px; font-weight: 800; line-height: 1;
+  font-size: 28px; font-weight: 800; line-height: 1;
   color: var(--red); font-variant-numeric: tabular-nums;
 }
-.countdown-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
-.countdown-date { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.countdown-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.countdown-date { font-size: 11px; color: var(--muted); }
 
-.divider { max-width: 900px; margin: 32px auto 0; padding: 0 24px; border-bottom: 1px solid var(--border); }
+.divider { max-width: 900px; margin: 12px auto 0; padding: 0 24px; border-bottom: 1px solid var(--border); }
 
-.section { max-width: 900px; margin: 0 auto; padding: 32px 24px 0; }
+.section { max-width: 900px; margin: 0 auto; padding: 20px 24px 0; }
 .section-title {
   font-size: 11px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 2px; color: var(--muted); margin-bottom: 20px;
@@ -215,11 +216,11 @@ body {
 
 /* ── MOBILE RESPONSIVE ───────────────────────────────────── */
 @media (max-width: 600px) {
-  .header { padding: 20px 16px 0; }
-  .header-title { font-size: 24px; }
-  .countdown-card { padding: 14px 20px; min-width: 110px; }
-  .countdown-num { font-size: 38px; }
-  .section { padding: 24px 16px 0; }
+  .header { padding: 14px 16px 0; }
+  .header-title { font-size: 20px; }
+  .countdown-card { padding: 8px 12px; }
+  .countdown-num { font-size: 24px; }
+  .section { padding: 16px 16px 0; }
   .today-card { padding: 20px; flex-direction: column; text-align: center; }
   .today-title { font-size: 18px; }
   .btn-start { padding: 14px 28px; font-size: 13px; width: 100%; text-align: center; }
@@ -238,9 +239,7 @@ body {
 @media (max-width: 380px) {
   .actions-grid { grid-template-columns: 1fr; }
   .countdown-card { min-width: auto; }
-  .header { flex-direction: column; align-items: stretch; }
-  .countdown-card { display: flex; align-items: center; gap: 12px; text-align: left; }
-  .countdown-num { font-size: 32px; }
+  .countdown-num { font-size: 22px; }
 }
 
 /* ── INSTALL POPUP ──────────────────────────────────────── */
@@ -619,16 +618,15 @@ body {
   </div>
   <div class="countdown-card">
     <div class="countdown-num" id="days-left">—</div>
-    <div class="countdown-label">jours restants</div>
-    <div class="countdown-date">8 avril 2026</div>
+    <div><div class="countdown-label">jours</div><div class="countdown-date">avant le concours</div></div>
   </div>
 </div>
 
 <div class="divider"></div>
 
-<div id="motivation-banner" style="background:linear-gradient(135deg,rgba(6,214,245,0.08),rgba(167,139,250,0.08));border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin:0 24px 16px;display:none">
-  <div id="motivation-text" style="font-size:14px;font-weight:600;line-height:1.5;color:var(--text)"></div>
-  <div id="motivation-sub" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+<div id="motivation-banner" style="background:linear-gradient(135deg,rgba(6,214,245,0.06),rgba(167,139,250,0.06));border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin:0 24px 8px;display:none;max-width:852px;margin-left:auto;margin-right:auto">
+  <div id="motivation-text" style="font-size:13px;font-weight:600;line-height:1.4;color:var(--text)"></div>
+  <div id="motivation-sub" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
 </div>
 
 <div class="section">
