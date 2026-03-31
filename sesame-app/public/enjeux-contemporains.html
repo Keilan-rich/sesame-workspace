@@ -234,6 +234,19 @@ body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); m
       <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
     </div>
 
+    <div class="mode-selector">
+      <div class="mode-card selected" id="mode-apprendre" onclick="selectMode('apprendre')">
+        <div class="mode-icon">📖</div>
+        <div class="mode-title">Apprendre</div>
+        <div class="mode-desc">Lis la fiche, puis teste ta mémoire. Idéal pour les événements que tu n'as pas encore vus.</div>
+      </div>
+      <div class="mode-card" id="mode-reviser" onclick="selectMode('reviser')">
+        <div class="mode-icon">⚡</div>
+        <div class="mode-title">Réviser</div>
+        <div class="mode-desc">Question directe, sans fiche. Pour vérifier ce que tu retiens vraiment.</div>
+      </div>
+    </div>
+
     <div class="domain-filter">
       <div class="domain-filter-label">Filtrer par domaine</div>
       <div class="domain-pills" id="domain-pills">
@@ -398,6 +411,13 @@ let qIdx = 0;
 let results = { avais:[], approx:[], pas:[] };
 let activeFilter = 'all';
 let countdownTimer = null;
+let sessionMode = 'apprendre'; // 'apprendre' or 'reviser'
+
+function selectMode(mode) {
+  sessionMode = mode;
+  document.getElementById('mode-apprendre').classList.toggle('selected', mode === 'apprendre');
+  document.getElementById('mode-reviser').classList.toggle('selected', mode === 'reviser');
+}
 
 // ── START SCREEN ───────────────────────────────────────────────────────
 function updateStartStats() {
@@ -419,18 +439,21 @@ document.getElementById('domain-pills').addEventListener('click', e => {
   activeFilter = pill.dataset.d;
 });
 
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function getFilteredEvents() {
-  let evs = activeFilter === 'all' ? EVENTS : EVENTS.filter(e => e.domain === activeFilter);
-  // prioritize: pas > incertain > voir > maitrise
-  const order = { 'voir':2, 'incertain':3, 'maitrise':0 };
-  // Actually: non-maîtrisé first, then maîtrisé last
-  evs = [...evs].sort((a,b) => {
-    const sa = getState(a.id), sb = getState(b.id);
-    if (sa === 'maitrise' && sb !== 'maitrise') return 1;
-    if (sb === 'maitrise' && sa !== 'maitrise') return -1;
-    return 0;
-  });
-  return evs.slice(0, 10); // max 10 per session
+  let evs = activeFilter === 'all' ? [...EVENTS] : EVENTS.filter(e => e.domain === activeFilter);
+  // Group by state, shuffle within each group, then concat: non-maîtrisé first
+  const nonMaitrise = shuffle(evs.filter(e => getState(e.id) !== 'maitrise'));
+  const maitrise = shuffle(evs.filter(e => getState(e.id) === 'maitrise'));
+  return [...nonMaitrise, ...maitrise].slice(0, 10);
 }
 
 function startSession() {
@@ -447,51 +470,110 @@ function renderEvent() {
   const e = queue[qIdx];
   const total = queue.length;
   const pct = Math.round(qIdx/total*100);
-  document.getElementById('prog-current').textContent = `Question ${qIdx+1}`;
+  document.getElementById('prog-current').textContent = `${sessionMode === 'apprendre' ? 'Fiche' : 'Question'} ${qIdx+1}`;
   document.getElementById('prog-total').textContent = `sur ${total}`;
   document.getElementById('sess-prog-fill').style.width = pct+'%';
 
   const color = DOMAIN_COLORS[e.domain] || '#fbbf24';
   const factsHtml = e.facts.map(f=>`<li>${f}</li>`).join('');
 
-  document.getElementById('event-card').innerHTML = `
-    <div class="event-domain-tag" style="color:${color};border-color:${color}">${DOMAIN_LABELS[e.domain]}</div>
-    <div class="event-title">${e.title}</div>
-    <div class="event-date-tag">${e.date}</div>
+  if (sessionMode === 'apprendre') {
+    // MODE APPRENDRE : fiche d'abord, puis question
+    document.getElementById('event-card').innerHTML = `
+      <div class="event-domain-tag" style="color:${color};border-color:${color}">${DOMAIN_LABELS[e.domain]}</div>
+      <div class="event-title">${e.title}</div>
+      <div class="event-date-tag">${e.date}</div>
 
-    <div class="question-zone">
-      <div class="question-label">⚡ Question au concours</div>
-      <div class="question-text">${e.question}</div>
-    </div>
-
-    <div class="countdown-wrap">
-      <div class="countdown-ring">
-        <svg class="countdown-svg" viewBox="0 0 48 48" width="48" height="48">
-          <circle class="countdown-track" cx="24" cy="24" r="20"/>
-          <circle class="countdown-prog" id="cd-circle" cx="24" cy="24" r="20" stroke-dasharray="125.6" stroke-dashoffset="0"/>
-        </svg>
-        <div class="countdown-num" id="cd-num">5</div>
+      <div id="learn-phase">
+        <div class="context-block" style="display:block;margin-bottom:16px">${e.context}</div>
+        <div class="facts-block" style="display:block;margin-bottom:24px">
+          <div class="facts-block-label">Faits clés à retenir</div>
+          <ul class="facts-list">${factsHtml}</ul>
+        </div>
+        <button class="btn-reveal" onclick="showLearnQuestion()" style="opacity:1;pointer-events:auto">C'est bon, teste-moi →</button>
       </div>
-      <div class="countdown-text">Réfléchis avant de révéler…</div>
-    </div>
 
-    <button class="btn-reveal" id="btn-reveal" disabled onclick="revealEvent()">Révéler les faits →</button>
+      <div id="quiz-phase" style="display:none">
+        <div class="question-zone">
+          <div class="question-label">⚡ De quoi tu te souviens ?</div>
+          <div class="question-text">${e.question}</div>
+        </div>
 
-    <div class="reveal-content" id="reveal-content">
-      <div class="context-block">${e.context}</div>
-      <div class="facts-block">
-        <div class="facts-block-label">Faits clés à retenir</div>
-        <ul class="facts-list">${factsHtml}</ul>
+        <div class="countdown-wrap">
+          <div class="countdown-ring">
+            <svg class="countdown-svg" viewBox="0 0 48 48" width="48" height="48">
+              <circle class="countdown-track" cx="24" cy="24" r="20"/>
+              <circle class="countdown-prog" id="cd-circle" cx="24" cy="24" r="20" stroke-dasharray="125.6" stroke-dashoffset="0"/>
+            </svg>
+            <div class="countdown-num" id="cd-num">5</div>
+          </div>
+          <div class="countdown-text">Essaie de retrouver les faits clés…</div>
+        </div>
+
+        <button class="btn-reveal" id="btn-reveal" disabled onclick="revealEvent()">Voir la correction →</button>
+
+        <div class="reveal-content" id="reveal-content">
+          <div class="context-block">${e.context}</div>
+          <div class="facts-block">
+            <div class="facts-block-label">Faits clés à retenir</div>
+            <ul class="facts-list">${factsHtml}</ul>
+          </div>
+          <div class="assess-label">Tu t'en souvenais ?</div>
+          <div class="assess-btns">
+            <button class="assess-btn btn-avais" onclick="assess('avais')"><span class="emoji">✓</span>Tout bon</button>
+            <button class="assess-btn btn-approx" onclick="assess('approx')"><span class="emoji">~</span>Partiellement</button>
+            <button class="assess-btn btn-savais-pas" onclick="assess('pas')"><span class="emoji">✗</span>Pas du tout</button>
+          </div>
+        </div>
       </div>
-      <div class="assess-label">Tu l'avais ?</div>
-      <div class="assess-btns">
-        <button class="assess-btn btn-avais" onclick="assess('avais')"><span class="emoji">✓</span>J'avais</button>
-        <button class="assess-btn btn-approx" onclick="assess('approx')"><span class="emoji">~</span>Pas tout à fait</button>
-        <button class="assess-btn btn-savais-pas" onclick="assess('pas')"><span class="emoji">✗</span>Je savais pas</button>
-      </div>
-    </div>
-  `;
+    `;
+  } else {
+    // MODE REVISER : question directe (flow existant)
+    document.getElementById('event-card').innerHTML = `
+      <div class="event-domain-tag" style="color:${color};border-color:${color}">${DOMAIN_LABELS[e.domain]}</div>
+      <div class="event-title">${e.title}</div>
+      <div class="event-date-tag">${e.date}</div>
 
+      <div class="question-zone">
+        <div class="question-label">⚡ Question au concours</div>
+        <div class="question-text">${e.question}</div>
+      </div>
+
+      <div class="countdown-wrap">
+        <div class="countdown-ring">
+          <svg class="countdown-svg" viewBox="0 0 48 48" width="48" height="48">
+            <circle class="countdown-track" cx="24" cy="24" r="20"/>
+            <circle class="countdown-prog" id="cd-circle" cx="24" cy="24" r="20" stroke-dasharray="125.6" stroke-dashoffset="0"/>
+          </svg>
+          <div class="countdown-num" id="cd-num">5</div>
+        </div>
+        <div class="countdown-text">Réfléchis avant de révéler…</div>
+      </div>
+
+      <button class="btn-reveal" id="btn-reveal" disabled onclick="revealEvent()">Révéler les faits →</button>
+
+      <div class="reveal-content" id="reveal-content">
+        <div class="context-block">${e.context}</div>
+        <div class="facts-block">
+          <div class="facts-block-label">Faits clés à retenir</div>
+          <ul class="facts-list">${factsHtml}</ul>
+        </div>
+        <div class="assess-label">Tu l'avais ?</div>
+        <div class="assess-btns">
+          <button class="assess-btn btn-avais" onclick="assess('avais')"><span class="emoji">✓</span>J'avais</button>
+          <button class="assess-btn btn-approx" onclick="assess('approx')"><span class="emoji">~</span>Pas tout à fait</button>
+          <button class="assess-btn btn-savais-pas" onclick="assess('pas')"><span class="emoji">✗</span>Je savais pas</button>
+        </div>
+      </div>
+    `;
+    startCountdown(5);
+  }
+}
+
+function showLearnQuestion() {
+  document.getElementById('learn-phase').style.display = 'none';
+  document.getElementById('quiz-phase').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   startCountdown(5);
 }
 

@@ -626,6 +626,11 @@ body {
 
 <div class="divider"></div>
 
+<div id="motivation-banner" style="background:linear-gradient(135deg,rgba(6,214,245,0.08),rgba(167,139,250,0.08));border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin:0 24px 16px;display:none">
+  <div id="motivation-text" style="font-size:14px;font-weight:600;line-height:1.5;color:var(--text)"></div>
+  <div id="motivation-sub" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+</div>
+
 <div class="section">
   <div class="section-title">Aujourd'hui</div>
   <div class="today-card" id="today-card">
@@ -1152,6 +1157,7 @@ async function loadDashboard() {
       console.error('Session generation error:', e);
     }
 
+    renderMotivation(sessions);
     renderToday(sessions, calendar, todaySession);
     renderProgress(sessions);
     renderHistory(sessions);
@@ -1162,6 +1168,49 @@ async function loadDashboard() {
     document.getElementById('today-title').textContent = 'Erreur de chargement';
     document.getElementById('today-meta').textContent = 'Vérifie ta connexion et recharge la page.';
   }
+}
+
+// ─── MOTIVATION ──────────────────────────────────────────────────────────────
+function renderMotivation(sessions) {
+  const banner = document.getElementById('motivation-banner');
+  const textEl = document.getElementById('motivation-text');
+  const subEl = document.getElementById('motivation-sub');
+  const daysLeft = Math.max(0, Math.ceil((EXAM_DATE - TODAY) / 86400000));
+  const totalSessions = sessions.length;
+  const hour = new Date().getHours();
+
+  let text, sub;
+
+  if (totalSessions === 0) {
+    text = 'Bienvenue ! Ta premiere session t\'attend.';
+    sub = 'Chaque question te rapproche du concours. Lance-toi.';
+  } else if (daysLeft <= 3) {
+    text = 'Sprint final — tu y es presque.';
+    sub = `Plus que ${daysLeft} jour${daysLeft > 1 ? 's' : ''}. Concentre-toi sur tes erreurs.`;
+  } else if (daysLeft <= 7) {
+    text = 'La derniere ligne droite commence.';
+    sub = `${daysLeft} jours. ${totalSessions} sessions effectuees. Continue.`;
+  } else if (hour < 12) {
+    const msgs = [
+      'Session du matin = meilleure memorisation.',
+      'Ton cerveau est frais — profites-en.',
+      'Chaque jour compte. Aujourd\'hui aussi.'
+    ];
+    text = msgs[Math.floor(Math.random() * msgs.length)];
+    sub = `${totalSessions} session${totalSessions > 1 ? 's' : ''} completee${totalSessions > 1 ? 's' : ''} · J-${daysLeft}`;
+  } else {
+    const msgs = [
+      'Une session de plus, un pas de plus.',
+      'La regularite bat le talent.',
+      'Tu construis ta reussite, session apres session.'
+    ];
+    text = msgs[Math.floor(Math.random() * msgs.length)];
+    sub = `${totalSessions} session${totalSessions > 1 ? 's' : ''} completee${totalSessions > 1 ? 's' : ''} · J-${daysLeft}`;
+  }
+
+  textEl.textContent = text;
+  subEl.textContent = sub;
+  banner.style.display = 'block';
 }
 
 // ─── TODAY ────────────────────────────────────────────────────────────────────

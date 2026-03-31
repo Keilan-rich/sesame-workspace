@@ -517,6 +517,7 @@ body {
     <div id="weak-section" style="display:none; margin-bottom:28px;">
       <div class="section-hl">Points à retravailler</div>
       <div class="weak-chips" id="weak-chips"></div>
+      <div id="fiche-links" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"></div>
     </div>
 
     <div class="review-block" id="review-block" style="display:none">
@@ -1170,11 +1171,24 @@ async function showResults() {
     ringFill.style.stroke = score >= total * 0.75 ? 'var(--green)' : score >= total * 0.5 ? 'var(--amber)' : 'var(--red)';
   }, 100);
 
-  document.getElementById('score-verdict').textContent =
-    pct >= 80 ? 'Excellent — tu maîtrises cette épreuve.' :
-    pct >= 60 ? 'Bon niveau — quelques points à consolider.' :
-    pct >= 40 ? 'Moyen — ces thèmes demandent plus de travail.' :
-    'Difficultés importantes — reviens sur les bases.';
+  // Check if this is user's first session ever
+  const { data: pastCount } = await sb.from('session_results').select('id', { count: 'exact', head: true })
+    .eq('user_id', currentUser.id);
+  const isFirstSession = !pastCount || pastCount.length <= subjectsInSession.length;
+
+  let verdict;
+  if (isFirstSession && pct < 60) {
+    verdict = 'C\'est ton premier essai — chaque erreur est un pas vers la réussite. La prochaine session sera meilleure.';
+  } else if (pct >= 80) {
+    verdict = 'Excellent — tu maîtrises ces sujets. Continue comme ça.';
+  } else if (pct >= 60) {
+    verdict = 'Bon niveau — quelques points à consolider, tu es sur la bonne voie.';
+  } else if (pct >= 40) {
+    verdict = 'En progression — chaque session renforce ta mémoire. Revois les erreurs ci-dessous.';
+  } else {
+    verdict = 'C\'est le début de l\'apprentissage — normal de ne pas tout savoir. Revois les corrections, la prochaine fois tu feras mieux.';
+  }
+  document.getElementById('score-verdict').textContent = verdict;
 
   document.getElementById('stat-pct').textContent = pct + '%';
   document.getElementById('stat-time').textContent = durationMin + ' min';
@@ -1184,6 +1198,15 @@ async function showResults() {
     const unique = [...new Set(weakTopics)];
     document.getElementById('weak-chips').innerHTML = unique.map(t => `<span class="weak-chip">${t}</span>`).join('');
     document.getElementById('weak-section').style.display = 'block';
+
+    // Show relevant fiche links for weak subjects
+    const ficheMap = { digital:'/fiches/digital.html', enjeux:'/fiches/enjeux.html', maths:'/fiches/maths.html', francais:'/fiches/francais.html', anglais:'/fiches/anglais.html', espagnol:'/fiches/espagnol.html', analyse_doc:'/fiches/analyse-doc.html' };
+    const ficheLabels = { digital:'Digital', enjeux:'Enjeux', maths:'Maths', francais:'Francais', anglais:'Anglais', espagnol:'Espagnol', analyse_doc:'Analyse doc' };
+    const weakSubjects = [...new Set(wrongAnswers.map(w => w.subject))];
+    const ficheLinksEl = document.getElementById('fiche-links');
+    ficheLinksEl.innerHTML = weakSubjects.filter(s => ficheMap[s]).map(s =>
+      `<a href="${ficheMap[s]}" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;color:var(--accent);text-decoration:none">📋 Fiche ${ficheLabels[s] || s}</a>`
+    ).join('');
 
     document.getElementById('review-list').innerHTML = wrongAnswers.map(w => `
       <div class="review-item">
