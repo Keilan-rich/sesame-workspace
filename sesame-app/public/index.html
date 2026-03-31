@@ -617,8 +617,7 @@ body {
     <div class="header-title">Sésame 2026 <span id="header-username"></span></div>
   </div>
   <div class="countdown-card">
-    <div class="countdown-num" id="days-left">—</div>
-    <div><div class="countdown-label">jours</div><div class="countdown-date">avant le concours</div></div>
+    <div class="countdown-num">J-<span id="days-left">—</span></div>
   </div>
 </div>
 
@@ -1195,7 +1194,7 @@ function renderMotivation(sessions) {
       'Chaque jour compte. Aujourd\'hui aussi.'
     ];
     text = msgs[Math.floor(Math.random() * msgs.length)];
-    sub = `${totalSessions} session${totalSessions > 1 ? 's' : ''} completee${totalSessions > 1 ? 's' : ''} · J-${daysLeft}`;
+    sub = `${totalSessions} session${totalSessions > 1 ? 's' : ''} completee${totalSessions > 1 ? 's' : ''}`;
   } else {
     const msgs = [
       'Une session de plus, un pas de plus.',
@@ -1203,7 +1202,7 @@ function renderMotivation(sessions) {
       'Tu construis ta reussite, session apres session.'
     ];
     text = msgs[Math.floor(Math.random() * msgs.length)];
-    sub = `${totalSessions} session${totalSessions > 1 ? 's' : ''} completee${totalSessions > 1 ? 's' : ''} · J-${daysLeft}`;
+    sub = `${totalSessions} session${totalSessions > 1 ? 's' : ''} completee${totalSessions > 1 ? 's' : ''}`;
   }
 
   textEl.textContent = text;
