@@ -1054,9 +1054,14 @@ function showFeedback(qid) {
   el.className = 'feedback-text show ' + (isOk ? 'correct' : 'wrong');
   document.getElementById('feedback-icon').textContent = isOk ? '✓' : '✗';
   const correctOpt = q.options ? q.options[q.correct.charCodeAt(0) - 65] : '';
-  document.getElementById('feedback-msg').textContent = isOk
-    ? 'Bonne réponse !'
-    : `Incorrect — Réponse : ${q.correct}. ${correctOpt}${q.explanation ? ' · ' + q.explanation : ''}`;
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  if (isOk) {
+    document.getElementById('feedback-msg').innerHTML = '<strong>Bonne réponse !</strong>';
+  } else {
+    let html = `<strong>Réponse : ${esc(q.correct)}. ${esc(correctOpt)}</strong>`;
+    if (q.explanation) html += `<br><span style="font-weight:400;opacity:0.85">${esc(q.explanation)}</span>`;
+    document.getElementById('feedback-msg').innerHTML = html;
+  }
 }
 
 // ─── NEXT ────────────────────────────────────────────────────────────────────
