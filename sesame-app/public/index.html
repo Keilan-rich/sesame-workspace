@@ -604,7 +604,7 @@ body {
 
 <div class="header">
   <div class="header-left">
-    <div class="header-title">Sésame 2026 <span id="header-username"></span></div>
+    <div class="header-title">Sésame 2026</div>
   </div>
   <div class="countdown-card">
     <div class="countdown-num">J-<span id="days-left">—</span></div>
@@ -614,12 +614,10 @@ body {
 <div class="divider"></div>
 
 <!-- STREAK -->
-<div id="streak-card" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;margin:8px 24px;max-width:852px;margin-left:auto;margin-right:auto;display:flex;align-items:center;gap:10px">
-  <span style="font-size:24px" id="streak-icon">🔥</span>
-  <div>
-    <div style="font-size:14px;font-weight:700" id="streak-count">0 jour</div>
-    <div style="font-size:11px;color:var(--muted)" id="streak-msg">Fais ta premiere session pour lancer ta serie !</div>
-  </div>
+<div id="streak-card" style="padding:6px 24px;max-width:900px;margin:4px auto;display:flex;align-items:center;gap:8px">
+  <span style="font-size:18px" id="streak-icon">🔥</span>
+  <span style="font-size:13px;font-weight:600;color:var(--text)" id="streak-count">0 jour</span>
+  <span style="font-size:11px;color:var(--muted)" id="streak-msg">Fais ta premiere session !</span>
 </div>
 
 <div class="section">
@@ -936,7 +934,7 @@ function showUserBar(user) {
   else adminBtn.style.display = 'none';
   // Header username
   const firstName = (meta.full_name || meta.name || user.email || '').split(' ')[0];
-  document.getElementById('header-username').textContent = firstName ? `/ ${firstName}` : '';
+  // username shown in user-bar only
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
