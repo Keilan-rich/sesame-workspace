@@ -613,6 +613,20 @@ body {
 
 <div class="divider"></div>
 
+<!-- SPRINT BANNER -->
+<div id="sprint-banner" style="display:none;background:linear-gradient(135deg,#f87171,#fb923c);color:#fff;padding:12px 20px;margin:8px 24px;border-radius:12px;max-width:852px;margin-left:auto;margin-right:auto;display:none">
+  <div style="font-size:14px;font-weight:700" id="sprint-text"></div>
+  <div style="font-size:11px;opacity:0.85;margin-top:2px" id="sprint-sub"></div>
+</div>
+
+<!-- STREAK -->
+<div id="streak-card" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;margin:8px 24px;max-width:852px;margin-left:auto;margin-right:auto;display:none;align-items:center;gap:10px">
+  <span style="font-size:24px">🔥</span>
+  <div>
+    <div style="font-size:14px;font-weight:700" id="streak-count"></div>
+    <div style="font-size:11px;color:var(--muted)" id="streak-msg"></div>
+  </div>
+</div>
 
 <div class="section">
   <div class="section-title">Aujourd'hui</div>
@@ -1000,8 +1014,9 @@ async function generateDailySession(dateStr) {
   const allWrong = results.flatMap(r => (r.wrong_answers || []).map(w => ({ ...w })));
   const wrongMap = {};
   allWrong.forEach(w => { if (w.id && !wrongMap[w.id]) wrongMap[w.id] = w; });
+  // Spaced repetition: errors come back even if already seen
   const revisionPool = Object.values(wrongMap)
-    .filter(w => subjects.includes(w.subject) && !seenQids.has(w.id));
+    .filter(w => subjects.includes(w.subject));
   const revisionIds = shuffle(revisionPool).slice(0, 5).map(w => w.id);
 
   // 6. Select questions per subject
@@ -1081,6 +1096,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     showUserBar(currentUser);
     await loadDashboard();
     showInstallBanner();
+    requestPushPermission();
     // Auto-open paywall if redirected from trial
     if (new URLSearchParams(window.location.search).get('paywall') === '1') {
       showPaywall();
@@ -1134,6 +1150,8 @@ async function loadDashboard() {
       console.error('Session generation error:', e);
     }
 
+    renderSprintBanner();
+    renderStreak(sessions);
     renderToday(sessions, calendar, todaySession);
     renderProgress(sessions);
     renderHistory(sessions);
@@ -1144,6 +1162,66 @@ async function loadDashboard() {
     document.getElementById('today-title').textContent = 'Erreur de chargement';
     document.getElementById('today-meta').textContent = 'Vérifie ta connexion et recharge la page.';
   }
+}
+
+// ─── SPRINT BANNER ──────────────────────────────────────────────────────────
+function renderSprintBanner() {
+  const daysLeft = Math.max(0, Math.ceil((EXAM_DATE - TODAY) / 86400000));
+  if (daysLeft > 7) return;
+  const banner = document.getElementById('sprint-banner');
+  const text = document.getElementById('sprint-text');
+  const sub = document.getElementById('sprint-sub');
+  if (daysLeft === 0) {
+    text.textContent = "C'est aujourd'hui. Tu es pret.";
+    sub.textContent = 'Bonne chance pour le concours !';
+  } else if (daysLeft === 1) {
+    text.textContent = "C'est demain.";
+    sub.textContent = 'Relis tes erreurs, repose-toi, tu as fait le travail.';
+  } else {
+    text.textContent = `Sprint final — J-${daysLeft}`;
+    sub.textContent = 'Concentre-toi sur tes erreurs et les enjeux contemporains.';
+  }
+  banner.style.display = 'block';
+}
+
+// ─── STREAKS ────────────────────────────────────────────────────────────────
+function renderStreak(sessions) {
+  // Get unique dates with sessions, sorted desc
+  const dates = [...new Set(sessions.map(s => s.date))].sort().reverse();
+  if (dates.length === 0) return;
+
+  // Count consecutive days ending today or yesterday
+  const todayStr = fmtDate(TODAY);
+  const yesterdayStr = fmtDate(new Date(TODAY.getTime() - 86400000));
+  let streak = 0;
+  let checkDate = new Date(TODAY);
+
+  // Allow streak to count if last session was today or yesterday
+  if (dates[0] !== todayStr && dates[0] !== yesterdayStr) return;
+
+  const dateSet = new Set(dates);
+  for (let i = 0; i < 365; i++) {
+    const ds = fmtDate(checkDate);
+    if (dateSet.has(ds)) {
+      streak++;
+      checkDate = new Date(checkDate.getTime() - 86400000);
+    } else {
+      break;
+    }
+  }
+
+  if (streak < 1) return;
+
+  const card = document.getElementById('streak-card');
+  const countEl = document.getElementById('streak-count');
+  const msgEl = document.getElementById('streak-msg');
+
+  countEl.textContent = `${streak} jour${streak > 1 ? 's' : ''} d'affilee`;
+  if (streak >= 7) msgEl.textContent = 'Incroyable ! Une semaine complete.';
+  else if (streak >= 3) msgEl.textContent = 'Continue comme ca, ne lache pas !';
+  else msgEl.textContent = 'Bon debut, reviens demain pour garder ta serie.';
+
+  card.style.display = 'flex';
 }
 
 // ─── TODAY ────────────────────────────────────────────────────────────────────
@@ -1362,6 +1440,31 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+async function requestPushPermission() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+  if (Notification.permission === 'granted') return; // already granted
+  if (Notification.permission === 'denied') return; // user blocked
+  if (localStorage.getItem('sesame_push_asked')) return; // already asked once
+
+  // Wait 10s before asking (don't spam on load)
+  setTimeout(async () => {
+    const perm = await Notification.requestPermission();
+    localStorage.setItem('sesame_push_asked', '1');
+    if (perm === 'granted') {
+      // Schedule a local notification for tomorrow as reminder
+      const reg = await navigator.serviceWorker.ready;
+      if (reg.showNotification) {
+        // Show a welcome notification
+        reg.showNotification('Sesame Train', {
+          body: 'Notifications activees ! Tu recevras un rappel quotidien.',
+          icon: '/icon-192.png',
+          tag: 'sesame-welcome',
+        });
+      }
+    }
+  }, 10000);
 }
 
 function shouldShowInstallBanner() {

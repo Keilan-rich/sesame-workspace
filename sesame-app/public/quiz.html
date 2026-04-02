@@ -665,10 +665,11 @@ async function generateDailyForQuiz(dateStr) {
     if (total > 0 && (score / total) < 0.5) weakSubjects.add(subj);
   });
 
+  // Spaced repetition: errors MUST come back even if already seen
   const allWrong = results.flatMap(r => (r.wrong_answers || []).map(w => ({ ...w })));
   const wrongMap = {};
   allWrong.forEach(w => { if (w.id && !wrongMap[w.id]) wrongMap[w.id] = w; });
-  const revisionPool = Object.values(wrongMap).filter(w => subjects.includes(w.subject) && !seenQids.has(w.id));
+  const revisionPool = Object.values(wrongMap).filter(w => subjects.includes(w.subject));
   const revisionIds = qShuffle(revisionPool).slice(0, 5).map(w => w.id);
 
   let selectedIds = [...revisionIds];
@@ -1064,9 +1065,81 @@ function showFeedback(qid) {
   }
 }
 
+// ─── LE SAVAIS-TU ? ─────────────────────────────────────────────────────────
+const SAVAIS_TU = [
+  { fact: "La COP30 s'est tenue a Belem (Bresil, Amazonie) en novembre 2025. 189 pays, trajectoire +2,5°C.", domain: "Enjeux" },
+  { fact: "Le Nobel de Physique 2025 recompense les circuits quantiques (Clarke, Devoret, Martinis).", domain: "Enjeux" },
+  { fact: "L'AI Act europeen est le premier reglement mondial contraignant sur l'IA (2025-2026).", domain: "Enjeux" },
+  { fact: "RGPD = Reglement General sur la Protection des Donnees. Adopte en 2016, en vigueur depuis 2018.", domain: "Digital" },
+  { fact: "Le phishing (hameconnage) usurpe l'identite d'un organisme de confiance pour voler des infos.", domain: "Digital" },
+  { fact: "HTML = HyperText Markup Language. C'est le langage standard pour creer des pages web.", domain: "Digital" },
+  { fact: "'Hardly...when' est la construction correcte pour 'a peine...que' en anglais.", domain: "Anglais" },
+  { fact: "Les chaines de montagnes prennent 'the' (the Alps), les pics individuels non (Mont Blanc).", domain: "Anglais" },
+  { fact: "Apres 'as soon as', on utilise le present simple pour un sens futur, pas 'will'.", domain: "Anglais" },
+  { fact: "Participe passe avec avoir : accord seulement si le COD est place AVANT le verbe.", domain: "Francais" },
+  { fact: "'Callipyge' vient du grec et signifie 'qui a de belles fesses'. La Venus callipyge est une statue celebre.", domain: "Francais" },
+  { fact: "Apres 'croire que' a la forme negative ou interrogative, le subjonctif est souvent prefere.", domain: "Francais" },
+  { fact: "Fitch a degrade la France de AA- a A+ en septembre 2025, faute de trajectoire budgetaire credible.", domain: "Enjeux" },
+  { fact: "Gemini 2.5 Pro de Google cumule 750 millions d'utilisateurs actifs en 2025.", domain: "Enjeux" },
+  { fact: "La Sagrada Familia de Barcelone est devenue la plus haute eglise du monde en 2025 (172,5 m).", domain: "Enjeux" },
+  { fact: "DeepSeek est une entreprise chinoise d'IA fondee par Liang Wenfeng. Ne pas confondre avec Stargate (USA).", domain: "Enjeux" },
+  { fact: "En maths, |x - a| < r signifie que x est dans l'intervalle ]a-r, a+r[.", domain: "Maths" },
+  { fact: "Pour une suite arithmetique : u_n = u_1 + (n-1) * r, ou r est la raison.", domain: "Maths" },
+  { fact: "Probabilite d'un evenement = nombre de cas favorables / nombre de cas possibles.", domain: "Maths" },
+  { fact: "Le cache d'un navigateur stocke des copies des pages visitees pour un chargement plus rapide.", domain: "Digital" },
+];
+let savaisTuIdx = 0;
+let savaisTuShown = false; // flag to track if we're showing a "le savais-tu"
+const SAVAIS_TU_INTERVAL = 5; // show every N questions
+
+function showSavaisTu() {
+  const item = SAVAIS_TU[savaisTuIdx % SAVAIS_TU.length];
+  savaisTuIdx++;
+  savaisTuShown = true;
+
+  const vp = document.getElementById('question-viewport');
+  const existing = vp.querySelector('.question-slide.active');
+  if (existing) {
+    existing.classList.remove('active');
+    existing.classList.add('exit-left');
+    setTimeout(() => existing.remove(), 350);
+  }
+
+  const slide = document.createElement('div');
+  slide.className = 'question-slide';
+  slide.innerHTML = `
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:16px">💡 Le savais-tu ?</div>
+      <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${escHtml(item.domain)}</div>
+      <div style="font-size:16px;line-height:1.7;color:var(--text);max-width:500px;margin:0 auto 24px">${escHtml(item.fact)}</div>
+      <div style="display:flex;justify-content:center;gap:10px">
+        <button onclick="dismissSavaisTu(true)" style="padding:10px 20px;border-radius:10px;border:1.5px solid var(--green);background:rgba(52,211,153,0.08);color:var(--green);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer">✓ Je savais</button>
+        <button onclick="dismissSavaisTu(false)" style="padding:10px 20px;border-radius:10px;border:1.5px solid var(--amber);background:rgba(251,191,36,0.08);color:var(--amber);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer">✗ Je savais pas</button>
+      </div>
+    </div>
+  `;
+  vp.appendChild(slide);
+  requestAnimationFrame(() => requestAnimationFrame(() => slide.classList.add('active')));
+}
+
+function dismissSavaisTu(knew) {
+  savaisTuShown = false;
+  // Continue to next question
+  currentIdx++;
+  renderQuestion(currentIdx);
+}
+
 // ─── NEXT ────────────────────────────────────────────────────────────────────
 function nextQuestion() {
   if (currentIdx === QUESTIONS.length - 1) { showResults(); return; }
+
+  // Show "Le savais-tu?" every SAVAIS_TU_INTERVAL questions (but not on last)
+  const nextIdx = currentIdx + 1;
+  if (!savaisTuShown && nextIdx > 0 && nextIdx % SAVAIS_TU_INTERVAL === 0 && nextIdx < QUESTIONS.length - 1) {
+    showSavaisTu();
+    return;
+  }
+
   currentIdx++;
   renderQuestion(currentIdx);
 }

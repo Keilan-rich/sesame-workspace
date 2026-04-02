@@ -18,6 +18,25 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// ─── PUSH NOTIFICATIONS ─────────────────────────────────────────────────────
+self.addEventListener('push', e => {
+  const data = e.data ? e.data.json() : {};
+  const title = data.title || 'Sesame Train';
+  const options = {
+    body: data.body || 'Ta session du jour t\'attend !',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    tag: 'sesame-daily',
+    renotify: true,
+  };
+  e.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.openWindow('/'));
+});
+
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
