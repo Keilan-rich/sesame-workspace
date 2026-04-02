@@ -665,7 +665,7 @@ async function generateDailyForQuiz(dateStr) {
     if (total > 0 && (score / total) < 0.5) weakSubjects.add(subj);
   });
 
-  // Spaced repetition: errors MUST come back even if already seen
+  // Revision: inject past errors (spaced repetition only for non-daily sessions)
   const allWrong = results.flatMap(r => (r.wrong_answers || []).map(w => ({ ...w })));
   const wrongMap = {};
   allWrong.forEach(w => { if (w.id && !wrongMap[w.id]) wrongMap[w.id] = w; });
@@ -776,22 +776,29 @@ async function generateGuided(dateStr) {
   });
   const weakest2 = ranked.slice(0, 2);
 
-  let selectedIds = [];
+  // Spaced repetition: inject past errors into guided sessions
+  const allWrong = results.flatMap(r => (r.wrong_answers || []).map(w => ({ ...w })));
+  const wrongMap = {};
+  allWrong.forEach(w => { if (w.id && !wrongMap[w.id]) wrongMap[w.id] = w; });
+  const revisionPool = Object.values(wrongMap).filter(w => weakest2.includes(w.subject));
+  const revisionIds = qShuffle(revisionPool).slice(0, 8).map(w => w.id);
+
+  let selectedIds = [...revisionIds];
   for (const subject of weakest2) {
     const { data: allQ } = await sb.from('questions').select('id').eq('subject', subject);
     if (!allQ) continue;
     const unseen = allQ.filter(q => !seenQids.has(q.id) && !selectedIds.includes(q.id));
-    const picked = qShuffle(unseen).slice(0, 15);
+    const picked = qShuffle(unseen).slice(0, 12);
     selectedIds.push(...picked.map(q => q.id));
-    if (picked.length < 15) {
-      const extra = qShuffle(allQ.filter(q => !selectedIds.includes(q.id))).slice(0, 15 - picked.length);
+    if (picked.length < 12) {
+      const extra = qShuffle(allQ.filter(q => !selectedIds.includes(q.id))).slice(0, 12 - picked.length);
       selectedIds.push(...extra.map(q => q.id));
     }
   }
   if (selectedIds.length === 0) return null;
 
   const session = { date: dateStr, user_id: uid, subjects: weakest2, question_ids: selectedIds,
-    revision_ids: [], session_type: 'guided', time_minutes: 40 };
+    revision_ids: revisionIds, session_type: 'guided', time_minutes: 40 };
   const { data: ins } = await sb.from('daily_sessions').insert(session).select().single();
   return ins || session;
 }

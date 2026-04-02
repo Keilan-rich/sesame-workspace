@@ -78,12 +78,12 @@ body {
 .header-title span { color: var(--muted); font-weight: 300; }
 
 .countdown-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 12px; padding: 8px 16px; text-align: center;
-  box-shadow: 0 2px 12px var(--shadow);
+  background: linear-gradient(135deg, rgba(248,113,113,0.1), rgba(251,146,60,0.1));
+  border: 2px solid var(--red);
+  border-radius: 12px; padding: 8px 18px; text-align: center;
 }
 .countdown-num {
-  font-size: 28px; font-weight: 800; line-height: 1;
+  font-size: 32px; font-weight: 800; line-height: 1;
   color: var(--red); font-variant-numeric: tabular-nums;
 }
 
@@ -613,18 +613,12 @@ body {
 
 <div class="divider"></div>
 
-<!-- SPRINT BANNER -->
-<div id="sprint-banner" style="display:none;background:linear-gradient(135deg,#f87171,#fb923c);color:#fff;padding:12px 20px;margin:8px 24px;border-radius:12px;max-width:852px;margin-left:auto;margin-right:auto;display:none">
-  <div style="font-size:14px;font-weight:700" id="sprint-text"></div>
-  <div style="font-size:11px;opacity:0.85;margin-top:2px" id="sprint-sub"></div>
-</div>
-
 <!-- STREAK -->
-<div id="streak-card" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;margin:8px 24px;max-width:852px;margin-left:auto;margin-right:auto;display:none;align-items:center;gap:10px">
-  <span style="font-size:24px">🔥</span>
+<div id="streak-card" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;margin:8px 24px;max-width:852px;margin-left:auto;margin-right:auto;display:flex;align-items:center;gap:10px">
+  <span style="font-size:24px" id="streak-icon">🔥</span>
   <div>
-    <div style="font-size:14px;font-weight:700" id="streak-count"></div>
-    <div style="font-size:11px;color:var(--muted)" id="streak-msg"></div>
+    <div style="font-size:14px;font-weight:700" id="streak-count">0 jour</div>
+    <div style="font-size:11px;color:var(--muted)" id="streak-msg">Fais ta premiere session pour lancer ta serie !</div>
   </div>
 </div>
 
@@ -1014,7 +1008,6 @@ async function generateDailySession(dateStr) {
   const allWrong = results.flatMap(r => (r.wrong_answers || []).map(w => ({ ...w })));
   const wrongMap = {};
   allWrong.forEach(w => { if (w.id && !wrongMap[w.id]) wrongMap[w.id] = w; });
-  // Spaced repetition: errors come back even if already seen
   const revisionPool = Object.values(wrongMap)
     .filter(w => subjects.includes(w.subject));
   const revisionIds = shuffle(revisionPool).slice(0, 5).map(w => w.id);
@@ -1150,7 +1143,6 @@ async function loadDashboard() {
       console.error('Session generation error:', e);
     }
 
-    renderSprintBanner();
     renderStreak(sessions);
     renderToday(sessions, calendar, todaySession);
     renderProgress(sessions);
@@ -1164,42 +1156,34 @@ async function loadDashboard() {
   }
 }
 
-// ─── SPRINT BANNER ──────────────────────────────────────────────────────────
-function renderSprintBanner() {
-  const daysLeft = Math.max(0, Math.ceil((EXAM_DATE - TODAY) / 86400000));
-  if (daysLeft > 7) return;
-  const banner = document.getElementById('sprint-banner');
-  const text = document.getElementById('sprint-text');
-  const sub = document.getElementById('sprint-sub');
-  if (daysLeft === 0) {
-    text.textContent = "C'est aujourd'hui. Tu es pret.";
-    sub.textContent = 'Bonne chance pour le concours !';
-  } else if (daysLeft === 1) {
-    text.textContent = "C'est demain.";
-    sub.textContent = 'Relis tes erreurs, repose-toi, tu as fait le travail.';
-  } else {
-    text.textContent = `Sprint final — J-${daysLeft}`;
-    sub.textContent = 'Concentre-toi sur tes erreurs et les enjeux contemporains.';
-  }
-  banner.style.display = 'block';
-}
-
 // ─── STREAKS ────────────────────────────────────────────────────────────────
 function renderStreak(sessions) {
-  // Get unique dates with sessions, sorted desc
-  const dates = [...new Set(sessions.map(s => s.date))].sort().reverse();
-  if (dates.length === 0) return;
+  const countEl = document.getElementById('streak-count');
+  const msgEl = document.getElementById('streak-msg');
+  const iconEl = document.getElementById('streak-icon');
 
-  // Count consecutive days ending today or yesterday
+  const dates = [...new Set(sessions.map(s => s.date))].sort().reverse();
+  if (dates.length === 0) {
+    countEl.textContent = '0 jour';
+    msgEl.textContent = 'Fais ta premiere session pour commencer !';
+    iconEl.textContent = '💤';
+    return;
+  }
+
   const todayStr = fmtDate(TODAY);
   const yesterdayStr = fmtDate(new Date(TODAY.getTime() - 86400000));
   let streak = 0;
   let checkDate = new Date(TODAY);
-
-  // Allow streak to count if last session was today or yesterday
-  if (dates[0] !== todayStr && dates[0] !== yesterdayStr) return;
-
   const dateSet = new Set(dates);
+
+  // If last session was not today or yesterday, streak is broken
+  if (dates[0] !== todayStr && dates[0] !== yesterdayStr) {
+    countEl.textContent = '0 jour';
+    msgEl.textContent = 'Ta serie est perdue ! Recommence aujourd\'hui.';
+    iconEl.textContent = '💔';
+    return;
+  }
+
   for (let i = 0; i < 365; i++) {
     const ds = fmtDate(checkDate);
     if (dateSet.has(ds)) {
@@ -1210,18 +1194,11 @@ function renderStreak(sessions) {
     }
   }
 
-  if (streak < 1) return;
-
-  const card = document.getElementById('streak-card');
-  const countEl = document.getElementById('streak-count');
-  const msgEl = document.getElementById('streak-msg');
-
   countEl.textContent = `${streak} jour${streak > 1 ? 's' : ''} d'affilee`;
+  iconEl.textContent = '🔥';
   if (streak >= 7) msgEl.textContent = 'Incroyable ! Une semaine complete.';
-  else if (streak >= 3) msgEl.textContent = 'Continue comme ca, ne lache pas !';
-  else msgEl.textContent = 'Bon debut, reviens demain pour garder ta serie.';
-
-  card.style.display = 'flex';
+  else if (streak >= 3) msgEl.textContent = 'Continue, ne lache pas !';
+  else if (streak >= 1) msgEl.textContent = 'Reviens demain pour garder ta serie.';
 }
 
 // ─── TODAY ────────────────────────────────────────────────────────────────────
@@ -1444,27 +1421,19 @@ if ('serviceWorker' in navigator) {
 
 async function requestPushPermission() {
   if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
-  if (Notification.permission === 'granted') return; // already granted
-  if (Notification.permission === 'denied') return; // user blocked
-  if (localStorage.getItem('sesame_push_asked')) return; // already asked once
-
-  // Wait 10s before asking (don't spam on load)
-  setTimeout(async () => {
-    const perm = await Notification.requestPermission();
-    localStorage.setItem('sesame_push_asked', '1');
-    if (perm === 'granted') {
-      // Schedule a local notification for tomorrow as reminder
-      const reg = await navigator.serviceWorker.ready;
-      if (reg.showNotification) {
-        // Show a welcome notification
-        reg.showNotification('Sesame Train', {
-          body: 'Notifications activees ! Tu recevras un rappel quotidien.',
-          icon: '/icon-192.png',
-          tag: 'sesame-welcome',
-        });
-      }
+  if (Notification.permission === 'denied') return;
+  // Request immediately (no delay, no "already asked" check)
+  const perm = await Notification.requestPermission();
+  if (perm === 'granted') {
+    const reg = await navigator.serviceWorker.ready;
+    if (reg.showNotification) {
+      reg.showNotification('Sesame Train', {
+        body: 'Tu recevras un rappel quand ta session t\'attend.',
+        icon: '/icon-192.png',
+        tag: 'sesame-welcome',
+      });
     }
-  }, 10000);
+  }
 }
 
 function shouldShowInstallBanner() {
