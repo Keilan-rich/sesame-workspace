@@ -1104,61 +1104,75 @@ function selectOption(qid, letter) {
 // ─── FICHE TIPS PAR MATIÈRE ──────────────────────────────────────────────────
 const FICHE_TIPS = {
   maths: [
-    "<b>Suite arithmetique</b> : u<sub>n</sub> = u<sub>1</sub> + (n-1) &times; r<br>Somme des n premiers termes = <b>n(u<sub>1</sub> + u<sub>n</sub>)/2</b>",
-    "<b>Probabilite</b> = cas favorables / cas possibles<br>P(A ou B) = P(A) + P(B) &minus; <b>P(A et B)</b>",
-    "<b>Pourcentage d'evolution</b> = (finale &minus; initiale) / initiale &times; 100<br>Hausse de 20% puis baisse de 20% &ne; retour au depart",
-    "<b>Valeur absolue</b> : |x &minus; a| &lt; r &rArr; x &isin; <b>]a&minus;r ; a+r[</b>",
-    "<b>Vitesse</b> : km/h &rarr; m/s = <b>diviser par 3,6</b>",
-    "<b>Equation 2nd degre</b> : &Delta; = b&sup2; &minus; 4ac<br>&Delta; &gt; 0 : 2 solutions | &Delta; = 0 : 1 solution | &Delta; &lt; 0 : aucune",
-    "<b>Produit en croix</b> : a/b = c/d &hArr; a &times; d = b &times; c",
-    "<b>Moyenne ponderee</b> = &sum;(valeur &times; coeff) / &sum;(coeff)",
+    { keys:['suite','arithm','raison','u_n','terme'], tip:"<b>Suite arithmetique</b> : u<sub>n</sub> = u<sub>1</sub> + (n-1) &times; r<br>Somme des n premiers termes = <b>n(u<sub>1</sub> + u<sub>n</sub>)/2</b>" },
+    { keys:['probabilit','hasard','boule','carte','event','tirage','chance'], tip:"<b>Probabilite</b> = cas favorables / cas possibles<br>P(A ou B) = P(A) + P(B) &minus; <b>P(A et B)</b>" },
+    { keys:['pourcent','evol','augment','baisse','hausse','reduc','taux'], tip:"<b>Pourcentage d'evolution</b> = (finale &minus; initiale) / initiale &times; 100<br>Hausse de 20% puis baisse de 20% &ne; retour au depart" },
+    { keys:['valeur absolue','|','intervalle','encadr'], tip:"<b>Valeur absolue</b> : |x &minus; a| &lt; r &rArr; x &isin; <b>]a&minus;r ; a+r[</b>" },
+    { keys:['vitesse','km/h','m/s','trajet','distance'], tip:"<b>Vitesse</b> : km/h &rarr; m/s = <b>diviser par 3,6</b>" },
+    { keys:['equation','degre','discriminant','delta','racine','solution'], tip:"<b>Equation 2nd degre</b> : &Delta; = b&sup2; &minus; 4ac<br>&Delta; &gt; 0 : 2 solutions | &Delta; = 0 : 1 solution | &Delta; &lt; 0 : aucune" },
+    { keys:['proportion','croix','fraction','rapport'], tip:"<b>Produit en croix</b> : a/b = c/d &hArr; a &times; d = b &times; c" },
+    { keys:['moyenne','ponder','coefficient','note','bulletin'], tip:"<b>Moyenne ponderee</b> = &sum;(valeur &times; coeff) / &sum;(coeff)" },
   ],
   francais: [
-    "<b>Participe passe + AVOIR</b> : accord avec le COD <u>seulement</u> s'il est place <b>avant</b> le verbe<br><i>Les fleurs que j'ai achetees</i> (COD avant &rarr; accord)",
-    "<b>Participe passe + ETRE</b> : accord avec le <b>sujet</b> en genre et en nombre<br><i>Elles sont parties</i>",
-    "<b>Semi, demi, mi</b> : toujours <b>invariables</b> avant le nom<br><i>des demi-heures, a mi-chemin</i>",
-    "<b>Subjonctif</b> obligatoire apres : <i>bien que, quoique, pour que, avant que, a moins que</i>",
-    "<b>Verbes en -eler/-eter</b> : doublent la consonne &rarr; <i>j'appelle, je jette</i><br>Exceptions : <b>acheter, geler, peler</b> &rarr; <i>j'achete</i>",
-    "<b>Homophones</b> : ce/se &bull; ces/ses/c'est/s'est &bull; ou/ou &bull; a/a<br>Astuce : remplacer par un synonyme pour tester",
-    "<b>Voix passive</b> : le sujet <u>subit</u> l'action<br><i>Le gateau <b>est mange</b> par les enfants</i>",
-    "<b>Quelque</b> : variable devant un nom (<i>quelques jours</i>), invariable devant adj+que (<i>quelque grands qu'ils soient</i>)",
+    { keys:['participe','accord','avoir','cod','passe'], tip:"<b>Participe passe + AVOIR</b> : accord avec le COD <u>seulement</u> s'il est place <b>avant</b> le verbe<br><i>Les fleurs que j'ai achetees</i>" },
+    { keys:['participe','etre','sujet','accord'], tip:"<b>Participe passe + ETRE</b> : accord avec le <b>sujet</b> en genre et en nombre<br><i>Elles sont parties</i>" },
+    { keys:['semi','demi','mi-','invariable'], tip:"<b>Semi, demi, mi</b> : toujours <b>invariables</b> avant le nom<br><i>des demi-heures, a mi-chemin</i>" },
+    { keys:['subjonctif','bien que','quoique','pour que','avant que'], tip:"<b>Subjonctif</b> obligatoire apres : <i>bien que, quoique, pour que, avant que, a moins que</i>" },
+    { keys:['appel','jette','achete','geler','conjugaison','-eler','-eter'], tip:"<b>Verbes en -eler/-eter</b> : doublent la consonne &rarr; <i>j'appelle, je jette</i><br>Exceptions : <b>acheter, geler, peler</b>" },
+    { keys:['ce/se','ces/ses','homonyme','homophone','ou/ou','a/a','orthographe'], tip:"<b>Homophones</b> : ce/se &bull; ces/ses/c'est/s'est &bull; ou/ou &bull; a/a<br>Astuce : remplacer par un synonyme pour tester" },
+    { keys:['passive','voix','est mange','subit','action'], tip:"<b>Voix passive</b> : le sujet <u>subit</u> l'action<br><i>Le gateau <b>est mange</b> par les enfants</i>" },
+    { keys:['quelque','pluriel','invariable','grammaire','phrase','correct'], tip:"<b>Quelque</b> : variable devant un nom (<i>quelques jours</i>), invariable devant adj+que (<i>quelque grands qu'ils soient</i>)" },
   ],
   anglais: [
-    "<b>Present perfect</b> (have + past participle) : action passee avec lien au present<br><b>Since</b> + date precise | <b>For</b> + duree",
-    "<b>Conditionals</b><br>Type 1 : If + <b>present</b> &rarr; will<br>Type 2 : If + <b>past</b> &rarr; would<br>Type 3 : If + <b>past perfect</b> &rarr; would have",
-    "<b>Comparatifs</b> : court adj + <b>-er than</b> | <b>more</b> + long adj + than<br>Superlatif : <b>the -est</b> | <b>the most</b>",
-    "<b>Articles</b> : <b>the</b> devant chaines de montagnes (<i>the Alps</i>), rivieres (<i>the Thames</i>)<br><b>Pas d'article</b> devant pays, etats, pics (<i>Mont Blanc</i>)",
-    "<b>Used to</b> + infinitif = habitude passee<br><b>Be used to</b> + -ing = etre habitue a",
-    "<b>Much</b> + uncountable | <b>Many</b> + countable | <b>A lot of</b> = les deux",
-    "<b>Hardly...when</b> = a peine...que<br><b>No sooner...than</b> = des que",
-    "<b>Would rather</b> + infinitif sans to<br><b>Had better</b> + infinitif sans to",
+    { keys:['present perfect','have','since','for','been','already','yet'], tip:"<b>Present perfect</b> (have + past participle)<br><b>Since</b> + date precise | <b>For</b> + duree" },
+    { keys:['if','would','conditional','will','had'], tip:"<b>Conditionals</b><br>Type 1 : If + <b>present</b> &rarr; will<br>Type 2 : If + <b>past</b> &rarr; would<br>Type 3 : If + <b>past perfect</b> &rarr; would have" },
+    { keys:['compar','more','most','than','-er','-est','superlat'], tip:"<b>Comparatifs</b> : court adj + <b>-er than</b> | <b>more</b> + long adj + than<br>Superlatif : <b>the -est</b> | <b>the most</b>" },
+    { keys:['the','article','mountain','river','country','alps','state'], tip:"<b>Articles</b> : <b>the</b> devant chaines de montagnes, rivieres<br><b>Pas d'article</b> devant pays, etats, pics" },
+    { keys:['used to','habitude','habit','be used'], tip:"<b>Used to</b> + infinitif = habitude passee<br><b>Be used to</b> + -ing = etre habitue a" },
+    { keys:['much','many','lot','countable','uncountable'], tip:"<b>Much</b> + uncountable | <b>Many</b> + countable | <b>A lot of</b> = les deux" },
+    { keys:['hardly','scarcely','sooner','barely','no sooner'], tip:"<b>Hardly...when</b> = a peine...que<br><b>No sooner...than</b> = des que" },
+    { keys:['rather','better','would rather','had better','prefer'], tip:"<b>Would rather</b> + infinitif sans to<br><b>Had better</b> + infinitif sans to" },
   ],
   digital: [
-    "<b>RGPD</b> = Reglement General sur la Protection des Donnees<br>En vigueur depuis <b>2018</b> en Europe",
-    "<b>Phishing</b> = faux email/site imitant un organisme de confiance<br>But : <b>voler des informations personnelles</b>",
-    "<b>URL securisee</b> = commence par <b>https://</b><br>Le 's' = <i>secure</i> (chiffrement SSL/TLS)",
-    "<b>Cookie</b> = petit fichier texte stocke par un site web sur ton ordinateur<br>Peut contenir des infos personnelles",
-    "<b>Cloud</b> = stockage en ligne<br><b>Televerser</b> (upload) &ne; <b>Telecharger</b> (download)",
-    "<b>Boucle 'pour'</b> = nombre d'iterations connu<br><b>Boucle 'tant que'</b> = condition a verifier a chaque tour",
-    "<b>Reference absolue Excel</b> : <code>$A$1</code> (fixe a la recopie)<br><b>Relative</b> : <code>A1</code> (change a la recopie)",
-    "<b>Compression</b> (7zip, WinZip) : reduit la taille, regroupe, peut proteger par <b>mot de passe</b>",
+    { keys:['rgpd','donnee','personnel','protection','reglement'], tip:"<b>RGPD</b> = Reglement General sur la Protection des Donnees<br>En vigueur depuis <b>2018</b> en Europe" },
+    { keys:['phishing','hamecon','arnaque','fraudul','usurp','identite'], tip:"<b>Phishing</b> = faux email/site imitant un organisme de confiance<br>But : <b>voler des informations personnelles</b>" },
+    { keys:['https','securis','ssl','url','connexion','navigateur'], tip:"<b>URL securisee</b> = commence par <b>https://</b><br>Le 's' = <i>secure</i> (chiffrement SSL/TLS)" },
+    { keys:['cookie','fichier texte','stocke','navigat','site web'], tip:"<b>Cookie</b> = petit fichier texte stocke par un site web sur ton ordinateur<br>Peut contenir des infos personnelles" },
+    { keys:['cloud','telecharger','televerser','upload','download','sauvegard','ligne'], tip:"<b>Cloud</b> = stockage en ligne<br><b>Televerser</b> (upload) &ne; <b>Telecharger</b> (download)" },
+    { keys:['boucle','tant que','pour','while','for','iteration','algorithme'], tip:"<b>Boucle 'pour'</b> = nombre d'iterations connu<br><b>Boucle 'tant que'</b> = condition a verifier a chaque tour" },
+    { keys:['excel','cellule','formule','absolue','relative','tableur','$'], tip:"<b>Reference absolue Excel</b> : <code>$A$1</code> (fixe a la recopie)<br><b>Relative</b> : <code>A1</code> (change)" },
+    { keys:['compress','zip','7zip','archive','taille','mot de passe'], tip:"<b>Compression</b> (7zip, WinZip) : reduit la taille, regroupe, peut proteger par <b>mot de passe</b>" },
   ],
   enjeux: [
-    "<b>COP30</b> (nov 2025) : <b>Belem, Bresil</b>. 189 pays<br>Trajectoire <b>+2,5&deg;C</b> — objectif 1,5&deg;C hors d'atteinte",
-    "<b>AI Act europeen</b> : 1er reglement mondial contraignant sur l'IA<br>Classification par <b>niveau de risque</b> (2025-2026)",
-    "<b>Fitch degrade la France</b> : AA&minus; &rarr; <b>A+</b> (sept 2025)<br>Motif : pas de trajectoire budgetaire credible",
-    "<b>PIB France 2025</b> : +0,9% (zone euro : +1,3%)<br><b>Inflation</b> France : 0,9% | Zone euro : 2,2%",
-    "<b>Nobel Physique 2025</b> : circuits quantiques<br>Clarke, Devoret, Martinis",
-    "<b>Nobel Paix 2025</b> : <b>Maria Corina Machado</b><br>Venezuela, opposition a Maduro",
-    "<b>CAN 2026</b> au Maroc : <b>Senegal</b> champion<br><b>Ballon d'Or 2025</b> : Dembele (PSG)",
-    "<b>Dette France</b> T1 2025 : 3 345 Mds&euro; = <b>114% du PIB</b>",
+    { keys:['cop','climat','rechauff','temperature','belem','paris'], tip:"<b>COP30</b> (nov 2025) : <b>Belem, Bresil</b>. 189 pays<br>Trajectoire <b>+2,5&deg;C</b> — objectif 1,5&deg;C hors d'atteinte" },
+    { keys:['ia','intelligen','artificiel','reglement','ai act','risque'], tip:"<b>AI Act europeen</b> : 1er reglement mondial contraignant sur l'IA<br>Classification par <b>niveau de risque</b>" },
+    { keys:['fitch','note','dette','degrad','agence','notation'], tip:"<b>Fitch degrade la France</b> : AA&minus; &rarr; <b>A+</b> (sept 2025)<br>Motif : pas de trajectoire budgetaire credible" },
+    { keys:['pib','croissance','inflation','economie','france','zone euro'], tip:"<b>PIB France 2025</b> : +0,9% (zone euro : +1,3%)<br><b>Inflation</b> France : 0,9% | Zone euro : 2,2%" },
+    { keys:['nobel','physique','quantique','chimie','prix'], tip:"<b>Nobel Physique 2025</b> : circuits quantiques<br>Clarke, Devoret, Martinis" },
+    { keys:['nobel','paix','machado','venezuela','maduro'], tip:"<b>Nobel Paix 2025</b> : <b>Maria Corina Machado</b><br>Venezuela, opposition a Maduro" },
+    { keys:['can','foot','ballon','dembele','senegal','maroc'], tip:"<b>CAN 2026</b> au Maroc : <b>Senegal</b> champion<br><b>Ballon d'Or 2025</b> : Dembele (PSG)" },
+    { keys:['dette','milliard','pib','114','budget','deficit'], tip:"<b>Dette France</b> T1 2025 : 3 345 Mds&euro; = <b>114% du PIB</b>" },
   ],
 };
 
-function getRandomTip(subject) {
+function getMatchingTip(subject, questionText) {
   const tips = FICHE_TIPS[subject];
   if (!tips || tips.length === 0) return null;
-  return tips[Math.floor(Math.random() * tips.length)];
+  const qLower = (questionText || '').toLowerCase();
+
+  // Score each tip by keyword matches
+  let best = null, bestScore = 0;
+  for (const t of tips) {
+    let score = 0;
+    for (const k of t.keys) {
+      if (qLower.includes(k.toLowerCase())) score++;
+    }
+    if (score > bestScore) { bestScore = score; best = t; }
+  }
+
+  // If no keyword match, return null (don't show irrelevant tip)
+  if (!best || bestScore === 0) return null;
+  return best.tip;
 }
 
 function showFeedback(qid) {
@@ -1174,8 +1188,8 @@ function showFeedback(qid) {
   } else {
     let html = `<strong>Réponse : ${esc(q.correct)}. ${esc(correctOpt)}</strong>`;
     if (q.explanation) html += `<br><span style="font-weight:400;opacity:0.85">${esc(q.explanation)}</span>`;
-    // Fiche tip in guided sessions
-    const tip = getRandomTip(q.subject);
+    // Fiche tip in guided sessions (only if relevant to the question)
+    const tip = getMatchingTip(q.subject, q.text);
     if (tip && (sessionType === 'guided' || sessionType === 'daily')) {
       html += `<div style="margin-top:10px;padding:10px 14px;background:rgba(6,214,245,0.06);border:1px solid rgba(6,214,245,0.15);border-radius:8px;font-size:12px;color:var(--text);font-weight:400;line-height:1.6">📋 ${tip}</div>`;
     }
