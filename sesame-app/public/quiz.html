@@ -637,7 +637,7 @@ async function generateDailyForQuiz(dateStr) {
   if (!calEntry) return null;
 
   const subjects = calEntry.subjects || [];
-  const qPerSubject = calEntry.questions_per_subject || 10;
+  const qPerSubject = Math.max(10, calEntry.questions_per_subject || 10);
 
   // Check existing session matching calendar's session_type
   const sessionType = calEntry.session_type || 'daily';
