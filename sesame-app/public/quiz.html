@@ -825,9 +825,8 @@ async function generateExpress(dateStr, subject) {
     // Multi-subject: pick 2-3 random subjects, 4 questions each + errors
     const shuffled = qShuffle([...allSubjects]);
     const picked3 = shuffled.slice(0, 3);
-    const revisionPool = Object.values(wrongMap).filter(w => picked3.includes(w.subject));
-    const revisionIds = qShuffle(revisionPool).slice(0, 5).map(w => w.id);
-    let selectedIds = [...revisionIds];
+    const revisionIds = [];
+    let selectedIds = [];
 
     for (const subj of picked3) {
       const { data: allQ } = await sb.from('questions').select('id').eq('subject', subj);
