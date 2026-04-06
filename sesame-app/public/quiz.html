@@ -815,14 +815,39 @@ async function generateExpress(dateStr, subject) {
   const uid = currentUser.id;
   const seenQids = await getUserSeenQids();
   const results = await getUserPastResults();
-
-  // Inject 3 past errors for this subject
   const allWrong = results.flatMap(r => (r.wrong_answers || []).map(w => ({ ...w })));
   const wrongMap = {};
   allWrong.forEach(w => { if (w.id && !wrongMap[w.id]) wrongMap[w.id] = w; });
+
+  const allSubjects = ['digital','enjeux','maths','francais','anglais'];
+
+  if (subject === 'all') {
+    // Multi-subject: pick 2-3 random subjects, 4 questions each + errors
+    const shuffled = qShuffle([...allSubjects]);
+    const picked3 = shuffled.slice(0, 3);
+    const revisionPool = Object.values(wrongMap).filter(w => picked3.includes(w.subject));
+    const revisionIds = qShuffle(revisionPool).slice(0, 5).map(w => w.id);
+    let selectedIds = [...revisionIds];
+
+    for (const subj of picked3) {
+      const { data: allQ } = await sb.from('questions').select('id').eq('subject', subj);
+      if (!allQ) continue;
+      const unseen = allQ.filter(q => !seenQids.has(q.id) && !selectedIds.includes(q.id));
+      const p = qShuffle(unseen).slice(0, 5);
+      selectedIds.push(...p.map(q => q.id));
+      if (p.length < 5) {
+        const extra = qShuffle(allQ.filter(q => !selectedIds.includes(q.id))).slice(0, 5 - p.length);
+        selectedIds.push(...extra.map(q => q.id));
+      }
+    }
+    if (selectedIds.length === 0) return null;
+    return { date: dateStr, user_id: uid, subjects: picked3, question_ids: selectedIds,
+      revision_ids: revisionIds, session_type: 'guided', time_minutes: 20 };
+  }
+
+  // Single subject: 10 questions + 3 errors
   const revisionPool = Object.values(wrongMap).filter(w => w.subject === subject);
   const revisionIds = qShuffle(revisionPool).slice(0, 3).map(w => w.id);
-
   let selectedIds = [...revisionIds];
   const { data: allQ } = await sb.from('questions').select('id').eq('subject', subject);
   if (!allQ) return null;
@@ -834,10 +859,8 @@ async function generateExpress(dateStr, subject) {
     selectedIds.push(...extra.map(q => q.id));
   }
   if (selectedIds.length === 0) return null;
-
-  // Express sessions are not saved to daily_sessions — just return the object
   return { date: dateStr, user_id: uid, subjects: [subject], question_ids: selectedIds,
-    revision_ids: revisionIds, session_type: 'express', time_minutes: 10 };
+    revision_ids: revisionIds, session_type: 'guided', time_minutes: 10 };
 }
 
 // ─── LOAD ────────────────────────────────────────────────────────────────────
