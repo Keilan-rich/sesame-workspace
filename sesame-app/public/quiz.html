@@ -1506,6 +1506,19 @@ async function showResults() {
   if (timerRunning) { clearInterval(timerInterval); timerRunning = false; }
   clearState();
 
+  // Mark express session as done
+  if (sessionType === 'express') {
+    const params = new URLSearchParams(window.location.search);
+    const n = parseInt(params.get('n'));
+    if (n) {
+      const todayStr = sessionDate;
+      const key = 'sesame_express_' + todayStr;
+      let done = [];
+      try { done = JSON.parse(localStorage.getItem(key) || '[]'); } catch { done = []; }
+      if (!done.includes(n)) { done.push(n); localStorage.setItem(key, JSON.stringify(done)); }
+    }
+  }
+
   let score = 0;
   const weakTopics = [], wrongAnswers = [];
   QUESTIONS.forEach(q => {

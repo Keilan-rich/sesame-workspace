@@ -636,28 +636,7 @@ body {
 
 <div class="section">
   <div class="section-title">Sessions rapides</div>
-  <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch">
-    <a href="/quiz.html?type=express&subject=all&n=1" style="flex-shrink:0;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;text-decoration:none;min-width:140px;box-shadow:0 2px 8px var(--shadow)">
-      <div style="font-size:14px;font-weight:700;color:var(--text)">Session 1</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">~20 Q · mix de matieres</div>
-    </a>
-    <a href="/quiz.html?type=express&subject=all&n=2" style="flex-shrink:0;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;text-decoration:none;min-width:140px;box-shadow:0 2px 8px var(--shadow)">
-      <div style="font-size:14px;font-weight:700;color:var(--text)">Session 2</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">~20 Q · mix de matieres</div>
-    </a>
-    <a href="/quiz.html?type=express&subject=all&n=3" style="flex-shrink:0;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;text-decoration:none;min-width:140px;box-shadow:0 2px 8px var(--shadow)">
-      <div style="font-size:14px;font-weight:700;color:var(--text)">Session 3</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">~20 Q · mix de matieres</div>
-    </a>
-    <a href="/quiz.html?type=express&subject=all&n=4" style="flex-shrink:0;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;text-decoration:none;min-width:140px;box-shadow:0 2px 8px var(--shadow)">
-      <div style="font-size:14px;font-weight:700;color:var(--text)">Session 4</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">~20 Q · mix de matieres</div>
-    </a>
-    <a href="/quiz.html?type=express&subject=all&n=5" style="flex-shrink:0;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;text-decoration:none;min-width:140px;box-shadow:0 2px 8px var(--shadow)">
-      <div style="font-size:14px;font-weight:700;color:var(--text)">Session 5</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">~20 Q · mix de matieres</div>
-    </a>
-  </div>
+  <div id="express-sessions" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch"></div>
 </div>
 
 <div class="section">
@@ -1169,6 +1148,7 @@ async function loadDashboard() {
 
     renderStreak(sessions);
     renderToday(sessions, calendar, todaySession);
+    renderExpressSessions();
     renderProgress(sessions);
     renderHistory(sessions);
     renderCalendar(sessions, calendar);
@@ -1178,6 +1158,32 @@ async function loadDashboard() {
     document.getElementById('today-title').textContent = 'Erreur de chargement';
     document.getElementById('today-meta').textContent = 'Vérifie ta connexion et recharge la page.';
   }
+}
+
+// ─── EXPRESS SESSIONS (5 per day, tracked via localStorage) ─────────────────
+function renderExpressSessions() {
+  const todayStr = fmtDate(TODAY);
+  const storageKey = 'sesame_express_' + todayStr;
+  let done = [];
+  try { done = JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch { done = []; }
+
+  const container = document.getElementById('express-sessions');
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    const isDone = done.includes(i);
+    if (isDone) {
+      html += `<div style="flex-shrink:0;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;min-width:140px;opacity:0.4">
+        <div style="font-size:14px;font-weight:700;color:var(--green)">✓ Session ${i}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Terminee</div>
+      </div>`;
+    } else {
+      html += `<a href="/quiz.html?type=express&subject=all&n=${i}" style="flex-shrink:0;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;text-decoration:none;min-width:140px;box-shadow:0 2px 8px var(--shadow)">
+        <div style="font-size:14px;font-weight:700;color:var(--text)">Session ${i}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">~20 Q · mix de matieres</div>
+      </a>`;
+    }
+  }
+  container.innerHTML = html;
 }
 
 // ─── STREAKS ────────────────────────────────────────────────────────────────
