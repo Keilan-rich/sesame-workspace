@@ -962,6 +962,40 @@ function updateSubjectUI(subject) {
   document.documentElement.style.setProperty('--accent-dim', c.dim);
 }
 
+// ─── FICHE INTRO BEFORE SUBJECT ─────────────────────────────────────────────
+const shownFicheForSubject = new Set();
+
+function showFicheIntro(subject, callback) {
+  const tips = FICHE_TIPS[subject];
+  if (!tips || tips.length === 0) { callback(); return; }
+
+  const style = SUBJECT_STYLES[subject] || SUBJECT_STYLES.digital;
+  const tipsHtml = tips.map(t => `<li style="margin-bottom:8px;line-height:1.6">${escHtml(t)}</li>`).join('');
+
+  const vp = document.getElementById('question-viewport');
+  const existing = vp.querySelector('.question-slide.active');
+  if (existing) {
+    existing.classList.remove('active');
+    existing.classList.add('exit-left');
+    setTimeout(() => existing.remove(), 350);
+  }
+
+  const slide = document.createElement('div');
+  slide.className = 'question-slide';
+  slide.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px">
+      <span style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${style.accent}">📋 Fiche express — ${style.label}</span>
+    </div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text)">Lis ces regles avant de commencer :</div>
+    <ul style="font-size:13px;color:var(--text);padding-left:20px;margin-bottom:24px">${tipsHtml}</ul>
+    <button onclick="this.parentElement.ficheCallback()" style="width:100%;padding:14px;background:${style.accent};color:#000;border:none;border-radius:10px;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;cursor:pointer">C'est bon, je passe aux questions →</button>
+  `;
+  slide.ficheCallback = callback;
+
+  vp.appendChild(slide);
+  requestAnimationFrame(() => requestAnimationFrame(() => slide.classList.add('active')));
+}
+
 // ─── RENDER QUESTION ─────────────────────────────────────────────────────────
 function renderQuestion(idx) {
   const q = QUESTIONS[idx];
@@ -969,8 +1003,17 @@ function renderQuestion(idx) {
   const opts = q.options || [];
   const algoHtml = q.algo ? `<div class="algo-block">${escHtml(q.algo)}</div>` : '';
 
+  // Subject change in guided session? Show fiche intro first
+  const isNewSubject = idx === 0 || QUESTIONS[idx].subject !== QUESTIONS[idx-1]?.subject;
+  if (isNewSubject && sessionType === 'guided' && !shownFicheForSubject.has(q.subject)) {
+    shownFicheForSubject.add(q.subject);
+    updateSubjectUI(q.subject);
+    showFicheIntro(q.subject, () => renderQuestion(idx));
+    return;
+  }
+
   // Subject change?
-  if (idx === 0 || QUESTIONS[idx].subject !== QUESTIONS[idx-1]?.subject) {
+  if (isNewSubject) {
     updateSubjectUI(q.subject);
   }
 
