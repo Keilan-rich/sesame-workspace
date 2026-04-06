@@ -37,6 +37,30 @@ self.addEventListener('notificationclick', e => {
   e.waitUntil(clients.openWindow('/'));
 });
 
+// ─── PERIODIC LOCAL NOTIFICATIONS ───────────────────────────────────────────
+// Since we don't have a push server, schedule local notifications via message
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SCHEDULE_NOTIF') {
+    const delay = e.data.delay || 8 * 3600 * 1000; // default 8h
+    const msgs = [
+      'Ta session du jour t\'attend !',
+      'Ne perds pas ton streak — reviens faire une session.',
+      'J-2 avant le concours. Chaque question compte.',
+      'Revise tes erreurs, c\'est la que tu gagnes le plus de points.',
+    ];
+    const body = msgs[Math.floor(Math.random() * msgs.length)];
+    setTimeout(() => {
+      self.registration.showNotification('Sesame Train', {
+        body,
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
+        tag: 'sesame-reminder',
+        renotify: true,
+      });
+    }, delay);
+  }
+});
+
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 

@@ -1420,17 +1420,13 @@ if ('serviceWorker' in navigator) {
 async function requestPushPermission() {
   if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
   if (Notification.permission === 'denied') return;
-  // Request immediately (no delay, no "already asked" check)
-  const perm = await Notification.requestPermission();
+  const perm = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
   if (perm === 'granted') {
     const reg = await navigator.serviceWorker.ready;
-    if (reg.showNotification) {
-      reg.showNotification('Sesame Train', {
-        body: 'Tu recevras un rappel quand ta session t\'attend.',
-        icon: '/icon-192.png',
-        tag: 'sesame-welcome',
-      });
-    }
+    // Schedule reminders: 4h, 8h, 12h from now (repeats each visit)
+    [4, 8, 12].forEach(hours => {
+      reg.active.postMessage({ type: 'SCHEDULE_NOTIF', delay: hours * 3600 * 1000 });
+    });
   }
 }
 
