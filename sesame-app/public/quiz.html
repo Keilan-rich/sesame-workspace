@@ -832,10 +832,10 @@ async function generateExpress(dateStr, subject) {
       const { data: allQ } = await sb.from('questions').select('id').eq('subject', subj);
       if (!allQ) continue;
       const unseen = allQ.filter(q => !seenQids.has(q.id) && !selectedIds.includes(q.id));
-      const p = qShuffle(unseen).slice(0, 5);
+      const p = qShuffle(unseen).slice(0, 7);
       selectedIds.push(...p.map(q => q.id));
-      if (p.length < 5) {
-        const extra = qShuffle(allQ.filter(q => !selectedIds.includes(q.id))).slice(0, 5 - p.length);
+      if (p.length < 7) {
+        const extra = qShuffle(allQ.filter(q => !selectedIds.includes(q.id))).slice(0, 7 - p.length);
         selectedIds.push(...extra.map(q => q.id));
       }
     }
