@@ -532,6 +532,13 @@ body {
 
     <div class="send-status" id="send-status">Envoi des résultats...</div>
 
+    <div id="retry-wrong" style="display:none;text-align:center;margin:24px 0">
+      <button onclick="retryWrongQuestions()" style="padding:14px 28px;background:var(--red);color:#fff;border:none;border-radius:12px;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s">
+        🔄 Refaire les questions ratées
+      </button>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px" id="retry-count"></div>
+    </div>
+
     <div class="next-steps">
       <div class="next-steps-title">Continue ton entraînement</div>
       <div class="next-grid">
@@ -803,6 +810,36 @@ async function generateGuided(dateStr) {
   return ins || session;
 }
 
+async function generateExpress(dateStr, subject) {
+  if (!currentUser) return null;
+  const uid = currentUser.id;
+  const seenQids = await getUserSeenQids();
+  const results = await getUserPastResults();
+
+  // Inject 3 past errors for this subject
+  const allWrong = results.flatMap(r => (r.wrong_answers || []).map(w => ({ ...w })));
+  const wrongMap = {};
+  allWrong.forEach(w => { if (w.id && !wrongMap[w.id]) wrongMap[w.id] = w; });
+  const revisionPool = Object.values(wrongMap).filter(w => w.subject === subject);
+  const revisionIds = qShuffle(revisionPool).slice(0, 3).map(w => w.id);
+
+  let selectedIds = [...revisionIds];
+  const { data: allQ } = await sb.from('questions').select('id').eq('subject', subject);
+  if (!allQ) return null;
+  const unseen = allQ.filter(q => !seenQids.has(q.id) && !selectedIds.includes(q.id));
+  const picked = qShuffle(unseen).slice(0, 10 - selectedIds.length);
+  selectedIds.push(...picked.map(q => q.id));
+  if (selectedIds.length < 10) {
+    const extra = qShuffle(allQ.filter(q => !selectedIds.includes(q.id))).slice(0, 10 - selectedIds.length);
+    selectedIds.push(...extra.map(q => q.id));
+  }
+  if (selectedIds.length === 0) return null;
+
+  // Express sessions are not saved to daily_sessions — just return the object
+  return { date: dateStr, user_id: uid, subjects: [subject], question_ids: selectedIds,
+    revision_ids: revisionIds, session_type: 'express', time_minutes: 10 };
+}
+
 // ─── LOAD ────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
   initTheme();
@@ -830,7 +867,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Generate or load session based on type
   let session;
-  if (sessionType === 'simulation') {
+  if (sessionType === 'express') {
+    const expressSubject = params.get('subject') || 'maths';
+    session = await generateExpress(sessionDate, expressSubject);
+  } else if (sessionType === 'simulation') {
     session = await generateSimulation(sessionDate);
   } else if (sessionType === 'guided') {
     session = await generateGuided(sessionDate);
@@ -1236,7 +1276,7 @@ const SAVAIS_TU = [
 ];
 let savaisTuIdx = 0;
 let savaisTuShown = false;
-const SAVAIS_TU_INTERVAL = 5;
+const SAVAIS_TU_INTERVAL = 3;
 const pendingQuizCards = []; // facts shown, quiz to come later
 
 function showSavaisTu() {
@@ -1554,6 +1594,37 @@ async function showResults() {
     el.textContent = '⚠ Erreur lors de l\'enregistrement.';
     console.error(e);
   }
+
+  // Show "Retry wrong" button if there are errors
+  if (wrongAnswers.length > 0) {
+    document.getElementById('retry-wrong').style.display = 'block';
+    document.getElementById('retry-count').textContent = `${wrongAnswers.length} question${wrongAnswers.length > 1 ? 's' : ''} a refaire`;
+    window._wrongIds = wrongAnswers.map(w => w.id);
+  }
+}
+
+function retryWrongQuestions() {
+  if (!window._wrongIds || window._wrongIds.length === 0) return;
+  // Reset state and reload only wrong questions
+  const wrongIds = window._wrongIds;
+  QUESTIONS = QUESTIONS.filter(q => wrongIds.includes(q.id));
+  // Shuffle
+  for (let i = QUESTIONS.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [QUESTIONS[i], QUESTIONS[j]] = [QUESTIONS[j], QUESTIONS[i]];
+  }
+  currentIdx = 0;
+  answers = {};
+  revealed = {};
+  elapsed = 0;
+  secondsLeft = 600; // 10 min
+  window._wrongIds = null;
+
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('q-total').textContent = QUESTIONS.length;
+  renderDots();
+  startTimer();
+  renderQuestion(0);
 }
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
