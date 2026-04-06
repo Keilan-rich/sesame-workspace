@@ -1423,8 +1423,8 @@ async function requestPushPermission() {
   const perm = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
   if (perm === 'granted') {
     const reg = await navigator.serviceWorker.ready;
-    // Schedule reminders: 4h, 8h, 12h from now (repeats each visit)
-    [4, 8, 12].forEach(hours => {
+    // Schedule reminders every 3h30 (repeats each visit)
+    [3.5, 7, 10.5, 14].forEach(hours => {
       reg.active.postMessage({ type: 'SCHEDULE_NOTIF', delay: hours * 3600 * 1000 });
     });
   }
