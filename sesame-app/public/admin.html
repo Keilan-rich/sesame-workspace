@@ -218,6 +218,8 @@ function render() {
   const total = allProfiles.length;
   const paid = allProfiles.filter(p => p.paid).length;
   const referred = allProfiles.filter(p => p.referred_by).length;
+  const online = allProfiles.filter(p => p.last_seen && (Date.now() - new Date(p.last_seen).getTime()) < 5 * 60000).length;
+  const today = allProfiles.filter(p => p.last_seen && new Date(p.last_seen).toDateString() === new Date().toDateString()).length;
 
   // Group profiles by referral code
   const groups = {};
@@ -239,7 +241,9 @@ function render() {
   let html = `
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Inscrits</div></div>
-      <div class="stat-card"><div class="stat-num">${paid}</div><div class="stat-label">Payés</div></div>
+      <div class="stat-card"><div class="stat-num">${paid}</div><div class="stat-label">Payes</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#34d399">${online}</div><div class="stat-label">En ligne</div></div>
+      <div class="stat-card"><div class="stat-num">${today}</div><div class="stat-label">Actifs aujourd'hui</div></div>
       <div class="stat-card"><div class="stat-num">${referred}</div><div class="stat-label">Via referral</div></div>
       <div class="stat-card"><div class="stat-num">${allCodes.length}</div><div class="stat-label">Ambassadeurs</div></div>
     </div>
@@ -306,7 +310,7 @@ function renderGroup(id, label, users, paidCount, isDirect) {
           return `
           <div>
             <div class="ref-user">
-              <span class="email">${u.email}${u.is_admin ? ' <span style="font-size:10px;color:var(--accent);font-weight:700">ADMIN</span>' : ''}</span>
+              <span class="email">${u.email}${u.is_admin ? ' <span style="font-size:10px;color:var(--accent);font-weight:700">ADMIN</span>' : ''} ${u.last_seen ? (() => { const diff = Date.now() - new Date(u.last_seen).getTime(); const mins = Math.floor(diff/60000); if (mins < 5) return '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#34d399;margin-left:4px" title="En ligne"></span>'; if (mins < 60) return '<span style="font-size:10px;color:var(--muted)" title="Vu il y a '+mins+' min">'+mins+'min</span>'; const hours = Math.floor(mins/60); if (hours < 24) return '<span style="font-size:10px;color:var(--muted)" title="Vu il y a '+hours+'h">'+hours+'h</span>'; const days = Math.floor(hours/24); return '<span style="font-size:10px;color:var(--muted)">'+days+'j</span>'; })() : ''}</span>
               <span class="date">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
               ${isMe
                 ? '<span style="font-size:11px;color:var(--muted);font-weight:600">Admin</span>'

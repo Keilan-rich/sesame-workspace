@@ -1088,6 +1088,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     currentUser = session.user;
     document.getElementById('auth-overlay').classList.add('hidden');
     await saveReferral(currentUser.id);
+    sb.rpc('update_last_seen').then(() => {}); // fire and forget
     await checkPaywall(currentUser);
     showUserBar(currentUser);
     await loadDashboard();
