@@ -1055,6 +1055,66 @@ function selectOption(qid, letter) {
   saveState();
 }
 
+// ─── FICHE TIPS PAR MATIÈRE ──────────────────────────────────────────────────
+const FICHE_TIPS = {
+  maths: [
+    "Suite arithmetique : u_n = u_1 + (n-1) x r. La somme des n premiers termes = n(u_1 + u_n)/2.",
+    "Probabilite = cas favorables / cas possibles. P(A ou B) = P(A) + P(B) - P(A et B).",
+    "Pourcentage d'evolution : (valeur finale - valeur initiale) / valeur initiale x 100.",
+    "Valeur absolue : |x - a| < r signifie x dans ]a-r ; a+r[.",
+    "Vitesse en m/s = vitesse en km/h / 3.6.",
+    "Equation du second degre : discriminant = b² - 4ac. Si > 0 : 2 solutions, = 0 : 1 solution, < 0 : aucune.",
+    "Proportionnalite : produit en croix. a/b = c/d equivaut a a x d = b x c.",
+    "Moyenne ponderee : somme(valeur x coefficient) / somme(coefficients).",
+  ],
+  francais: [
+    "Participe passe avec AVOIR : accord avec le COD seulement s'il est place AVANT le verbe.",
+    "Participe passe avec ETRE : accord avec le sujet en genre et en nombre.",
+    "Semi, demi, mi : toujours invariables quand places avant le nom (des demi-heures).",
+    "Quelque : variable devant un nom (quelques jours), invariable devant un adjectif + que (quelque grands qu'ils soient).",
+    "Subjonctif apres : bien que, quoique, pour que, avant que, a moins que.",
+    "Les verbes en -eler/-eter : la plupart doublent la consonne (j'appelle, je jette), sauf acheter, geler, peler (j'achete).",
+    "Homophones : ce/se, ces/ses/c'est/s'est, ou/ou, a/a.",
+    "Voix passive : sujet subit l'action. Le chat est mange par le chien = voix passive.",
+  ],
+  anglais: [
+    "Present perfect (have + past participle) : action passee avec lien au present. Since + date precise, For + duree.",
+    "Conditionals : If + present → will (type 1). If + past → would (type 2). If + past perfect → would have (type 3).",
+    "Comparatifs : short adj + -er + than / more + long adj + than. Superlatif : the + -est / the most.",
+    "The : pas d'article devant les pays, les etats, les pics. Avec les chaines (the Alps), les rivieres (the Thames).",
+    "Used to + infinitif (habitude passee). Be used to + -ing (etre habitue a).",
+    "Much/many : much + uncountable, many + countable. A lot of : les deux.",
+    "Hardly/scarcely...when : a peine...que. No sooner...than : des que.",
+    "Would rather + infinitif sans to. Had better + infinitif sans to.",
+  ],
+  digital: [
+    "RGPD = Reglement General sur la Protection des Donnees. En vigueur depuis 2018 en Europe.",
+    "Phishing = faux email/site imitant un organisme de confiance pour voler des donnees.",
+    "URL securisee = commence par https:// (le 's' = secure, chiffrement SSL/TLS).",
+    "Cookie = petit fichier texte stocke par un site web sur ton ordinateur.",
+    "Cloud = stockage en ligne. Televerser (upload) ≠ telecharger (download).",
+    "Boucle 'pour' = nombre d'iterations connu. Boucle 'tant que' = condition a verifier.",
+    "Reference absolue Excel : $A$1 (ne change pas a la recopie). Relative : A1 (change).",
+    "Compression (7zip, WinZip) : reduit la taille, regroupe des fichiers, peut proteger par mot de passe.",
+  ],
+  enjeux: [
+    "COP30 (nov 2025) : Belem, Bresil. 189 pays. Trajectoire +2,5°C, objectif 1,5°C hors d'atteinte.",
+    "AI Act europeen : premier reglement mondial contraignant sur l'IA. Classification par niveau de risque.",
+    "Fitch degrade la France : AA- → A+ (sept 2025). Motif : pas de trajectoire budgetaire credible.",
+    "PIB France 2025 : +0,9% (zone euro : +1,3%). Inflation France : 0,9%.",
+    "Nobel Physique 2025 : circuits quantiques (Clarke, Devoret, Martinis).",
+    "Nobel Paix 2025 : Maria Corina Machado (Venezuela, opposition a Maduro).",
+    "CAN 2026 au Maroc : le Senegal champion. Ballon d'Or 2025 : Dembele (PSG).",
+    "Dette France T1 2025 : 3 345 Mds€, soit 114% du PIB.",
+  ],
+};
+
+function getRandomTip(subject) {
+  const tips = FICHE_TIPS[subject];
+  if (!tips || tips.length === 0) return null;
+  return tips[Math.floor(Math.random() * tips.length)];
+}
+
 function showFeedback(qid) {
   const q = QUESTIONS.find(q => q.id === qid);
   const isOk = answers[qid] === q.correct;
@@ -1068,6 +1128,11 @@ function showFeedback(qid) {
   } else {
     let html = `<strong>Réponse : ${esc(q.correct)}. ${esc(correctOpt)}</strong>`;
     if (q.explanation) html += `<br><span style="font-weight:400;opacity:0.85">${esc(q.explanation)}</span>`;
+    // Fiche tip in guided sessions
+    const tip = getRandomTip(q.subject);
+    if (tip && (sessionType === 'guided' || sessionType === 'daily')) {
+      html += `<br><span style="display:inline-block;margin-top:8px;padding:8px 12px;background:rgba(6,214,245,0.06);border:1px solid rgba(6,214,245,0.15);border-radius:8px;font-size:12px;color:var(--text);font-weight:400">📋 ${esc(tip)}</span>`;
+    }
     document.getElementById('feedback-msg').innerHTML = html;
   }
 }
