@@ -56,6 +56,16 @@ body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); m
 .status-ok { color:#34d399; }
 .status-wip { color:#fbbf24; }
 .status-todo { color:var(--muted); }
+.fiche-actions { display:flex; gap:8px; margin-top:12px; }
+.fiche-actions a {
+  flex:1; text-align:center; padding:8px 0; border-radius:8px;
+  font-size:11px; font-weight:700; text-decoration:none;
+  text-transform:uppercase; letter-spacing:0.5px; transition:all .15s;
+}
+.btn-lire { background:var(--bg); border:1px solid var(--border); color:var(--muted); }
+.btn-lire:hover { border-color:var(--color); color:var(--color); }
+.btn-apprendre { background:var(--color); color:#000; border:1px solid transparent; }
+.btn-apprendre:hover { opacity:0.85; }
 @supports (padding-top: env(safe-area-inset-top)) {
   body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 }
@@ -74,98 +84,113 @@ body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); m
   </div>
 
   <div class="grid">
-    <a class="fiche-card" href="digital.html" style="--color:#06d6f5">
+    <div class="fiche-card" style="--color:#06d6f5">
       <div class="fiche-icon">💻</div>
-      <div class="fiche-name">Compétences digitales</div>
-      <div class="fiche-seq">Séquence 1 · 20 questions · 20 min</div>
+      <div class="fiche-name">Competences digitales</div>
+      <div class="fiche-seq">Sequence 1 · 20 questions · 20 min</div>
       <div class="fiche-topics">
         <span class="topic-chip">Algorithmes</span>
         <span class="topic-chip">Tableur</span>
-        <span class="topic-chip">Sécurité</span>
-        <span class="topic-chip">Réseaux</span>
-        <span class="topic-chip">Formats</span>
+        <span class="topic-chip">Securite</span>
+        <span class="topic-chip">Reseaux</span>
       </div>
-      <div class="fiche-status status-ok">✓ Disponible</div>
-    </a>
+      <div class="fiche-actions">
+        <a class="btn-lire" href="digital.html">Lire la fiche</a>
+        <a class="btn-apprendre" href="/quiz.html?type=express&subject=digital">Apprendre</a>
+      </div>
+    </div>
 
-    <a class="fiche-card" href="enjeux.html" style="--color:#fbbf24">
+    <div class="fiche-card" style="--color:#fbbf24">
       <div class="fiche-icon">🌍</div>
       <div class="fiche-name">Enjeux contemporains</div>
-      <div class="fiche-seq">Séquence 1 · 40 questions · 30 min</div>
+      <div class="fiche-seq">Sequence 1 · 40 questions · 30 min</div>
       <div class="fiche-topics">
         <span class="topic-chip">Actu 2025</span>
-        <span class="topic-chip">Géopolitique</span>
-        <span class="topic-chip">Économie</span>
-        <span class="topic-chip">ODD</span>
+        <span class="topic-chip">Geopolitique</span>
+        <span class="topic-chip">Economie</span>
         <span class="topic-chip">IA & Tech</span>
       </div>
-      <div class="fiche-status status-ok">✓ Disponible</div>
-    </a>
-
-<a class="fiche-card" href="maths.html" style="--color:#a78bfa">
-      <div class="fiche-icon">📐</div>
-      <div class="fiche-name">Mathématiques</div>
-      <div class="fiche-seq">Séquence 1 · 20 exercices · 40 min</div>
-      <div class="fiche-topics">
-        <span class="topic-chip">Algèbre</span>
-        <span class="topic-chip">Probabilités</span>
-        <span class="topic-chip">Stats</span>
-        <span class="topic-chip">Dérivées</span>
+      <div class="fiche-actions">
+        <a class="btn-lire" href="enjeux.html">Lire la fiche</a>
+        <a class="btn-apprendre" href="/quiz.html?type=express&subject=enjeux">Apprendre</a>
       </div>
-      <div class="fiche-status status-ok">✓ Disponible</div>
-    </a>
+    </div>
 
-    <a class="fiche-card" href="francais.html" style="--color:#f97316">
+    <div class="fiche-card" style="--color:#a78bfa">
+      <div class="fiche-icon">📐</div>
+      <div class="fiche-name">Mathematiques</div>
+      <div class="fiche-seq">Sequence 1 · 20 exercices · 40 min</div>
+      <div class="fiche-topics">
+        <span class="topic-chip">Algebre</span>
+        <span class="topic-chip">Probabilites</span>
+        <span class="topic-chip">Stats</span>
+        <span class="topic-chip">Derivees</span>
+      </div>
+      <div class="fiche-actions">
+        <a class="btn-lire" href="maths.html">Lire la fiche</a>
+        <a class="btn-apprendre" href="/quiz.html?type=express&subject=maths">Apprendre</a>
+      </div>
+    </div>
+
+    <div class="fiche-card" style="--color:#f97316">
       <div class="fiche-icon">✍️</div>
-      <div class="fiche-name">Français</div>
-      <div class="fiche-seq">Séquence 2 · 40 questions · 30 min</div>
+      <div class="fiche-name">Francais</div>
+      <div class="fiche-seq">Sequence 2 · 40 questions · 30 min</div>
       <div class="fiche-topics">
         <span class="topic-chip">Conjugaison</span>
         <span class="topic-chip">Grammaire</span>
         <span class="topic-chip">Vocabulaire</span>
-        <span class="topic-chip">Littérature</span>
       </div>
-      <div class="fiche-status status-ok">✓ Disponible</div>
-    </a>
+      <div class="fiche-actions">
+        <a class="btn-lire" href="francais.html">Lire la fiche</a>
+        <a class="btn-apprendre" href="/quiz.html?type=express&subject=francais">Apprendre</a>
+      </div>
+    </div>
 
-    <a class="fiche-card" href="anglais.html" style="--color:#3b82f6">
+    <div class="fiche-card" style="--color:#3b82f6">
       <div class="fiche-icon">🇬🇧</div>
       <div class="fiche-name">Anglais</div>
-      <div class="fiche-seq">Séquence 2 · 40 questions · 30 min</div>
+      <div class="fiche-seq">Sequence 2 · 40 questions · 30 min</div>
       <div class="fiche-topics">
         <span class="topic-chip">Tenses</span>
         <span class="topic-chip">Vocabulary</span>
         <span class="topic-chip">UK culture</span>
-        <span class="topic-chip">Faux-amis</span>
       </div>
-      <div class="fiche-status status-ok">✓ Disponible</div>
-    </a>
+      <div class="fiche-actions">
+        <a class="btn-lire" href="anglais.html">Lire la fiche</a>
+        <a class="btn-apprendre" href="/quiz.html?type=express&subject=anglais">Apprendre</a>
+      </div>
+    </div>
 
-    <a class="fiche-card" href="espagnol.html" style="--color:#f43f5e">
+    <div class="fiche-card" style="--color:#f43f5e">
       <div class="fiche-icon">🇪🇸</div>
       <div class="fiche-name">Espagnol</div>
-      <div class="fiche-seq">Séquence 2 · 40 questions · 30 min</div>
+      <div class="fiche-seq">Sequence 2 · 40 questions · 30 min</div>
       <div class="fiche-topics">
         <span class="topic-chip">Ser/Estar</span>
         <span class="topic-chip">Por/Para</span>
-        <span class="topic-chip">Andes</span>
         <span class="topic-chip">Subjonctif</span>
       </div>
-      <div class="fiche-status status-ok">✓ Disponible</div>
-    </a>
+      <div class="fiche-actions">
+        <a class="btn-lire" href="espagnol.html">Lire la fiche</a>
+        <a class="btn-apprendre" href="/quiz.html?type=express&subject=espagnol" style="opacity:0.4;pointer-events:none">Apprendre</a>
+      </div>
+    </div>
 
-    <a class="fiche-card" href="analyse-doc.html" style="--color:#10b981">
+    <div class="fiche-card" style="--color:#10b981">
       <div class="fiche-icon">📄</div>
       <div class="fiche-name">Analyse documentaire</div>
-      <div class="fiche-seq">Séquence 3 · 1 dossier · 2h</div>
+      <div class="fiche-seq">Sequence 3 · 1 dossier · 2h</div>
       <div class="fiche-topics">
-        <span class="topic-chip">Repérage</span>
+        <span class="topic-chip">Reperage</span>
         <span class="topic-chip">Analyse</span>
-        <span class="topic-chip">Synthèse</span>
-        <span class="topic-chip">Statistiques</span>
+        <span class="topic-chip">Synthese</span>
       </div>
-      <div class="fiche-status status-ok">✓ Disponible</div>
-    </a>
+      <div class="fiche-actions">
+        <a class="btn-lire" href="analyse-doc.html">Lire la fiche</a>
+        <a class="btn-apprendre" href="#" style="opacity:0.4;pointer-events:none">Apprendre</a>
+      </div>
+    </div>
   </div>
 </div>
 <script>
