@@ -856,10 +856,15 @@ async function generateExpress(dateStr, subject) {
     return ins || session;
   }
 
-  // Single subject: 15 random questions (ignore seenQids — always fresh)
+  // Single subject: 15 questions, prioritize unseen
   const { data: allQ } = await sb.from('questions').select('id').eq('subject', subject);
   if (!allQ || allQ.length === 0) return null;
-  const selectedIds = qShuffle(allQ).slice(0, 15).map(q => q.id);
+  const unseen = allQ.filter(q => !seenQids.has(q.id));
+  let selectedIds = qShuffle(unseen).slice(0, 15).map(q => q.id);
+  if (selectedIds.length < 15) {
+    const extra = qShuffle(allQ.filter(q => !selectedIds.includes(q.id))).slice(0, 15 - selectedIds.length);
+    selectedIds.push(...extra.map(q => q.id));
+  }
   return { date: dateStr, user_id: uid, subjects: [subject], question_ids: selectedIds,
     revision_ids: [], session_type: 'guided', time_minutes: 30 };
 }
@@ -917,7 +922,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   sessionSubjects = session.subjects || [];
   sessionTypeTag = session.session_type || sessionType;
   secondsLeft = (session.time_minutes || 20) * 60;
-  SAVE_KEY = `sesame_pause_${currentUser.id}_${sessionType}_${sessionDate}`;
+  const subjectTag = (sessionType === 'express') ? `_${new URLSearchParams(window.location.search).get('subject') || 'all'}_${new URLSearchParams(window.location.search).get('n') || '0'}` : '';
+  SAVE_KEY = `sesame_pause_${currentUser.id}_${sessionType}${subjectTag}_${sessionDate}`;
 
   // Fetch actual question content from Supabase
   const { data: questions } = await sb

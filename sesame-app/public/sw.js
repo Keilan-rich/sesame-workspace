@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sesame-v3';
+const CACHE_NAME = 'sesame-v4';
 const ASSETS = [
   '/manifest.json',
   '/icon.svg'
