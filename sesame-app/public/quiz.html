@@ -856,20 +856,12 @@ async function generateExpress(dateStr, subject) {
     return ins || session;
   }
 
-  // Single subject: 15 questions (prioritize unseen)
-  let selectedIds = [];
+  // Single subject: 15 random questions (ignore seenQids — always fresh)
   const { data: allQ } = await sb.from('questions').select('id').eq('subject', subject);
-  if (!allQ) return null;
-  const unseen = allQ.filter(q => !seenQids.has(q.id));
-  const picked = qShuffle(unseen).slice(0, 15);
-  selectedIds.push(...picked.map(q => q.id));
-  if (selectedIds.length < 15) {
-    const extra = qShuffle(allQ.filter(q => !selectedIds.includes(q.id))).slice(0, 15 - selectedIds.length);
-    selectedIds.push(...extra.map(q => q.id));
-  }
-  if (selectedIds.length === 0) return null;
+  if (!allQ || allQ.length === 0) return null;
+  const selectedIds = qShuffle(allQ).slice(0, 15).map(q => q.id);
   return { date: dateStr, user_id: uid, subjects: [subject], question_ids: selectedIds,
-    revision_ids: [], session_type: 'guided', time_minutes: 15 };
+    revision_ids: [], session_type: 'guided', time_minutes: 30 };
 }
 
 // ─── LOAD ────────────────────────────────────────────────────────────────────
