@@ -616,8 +616,14 @@ function qShuffle(arr) {
 
 async function getUserSeenQids() {
   if (!currentUser) return new Set();
-  const { data } = await sb.from('daily_sessions').select('question_ids').eq('user_id', currentUser.id);
-  return new Set((data || []).flatMap(s => s.question_ids || []));
+  // Only count questions from sessions that have results (actually completed/answered)
+  const { data: results } = await sb.from('session_results').select('all_answers')
+    .eq('user_id', currentUser.id);
+  const seen = new Set();
+  (results || []).forEach(r => {
+    if (r.all_answers) Object.keys(r.all_answers).forEach(qid => seen.add(qid));
+  });
+  return seen;
 }
 
 async function getUserPastResults() {

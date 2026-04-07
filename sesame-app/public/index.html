@@ -990,10 +990,13 @@ async function generateDailySession(dateStr) {
     .eq('user_id', uid).order('created_at', { ascending: false }).limit(50);
   const results = pastResults || [];
 
-  // 3. User's already-seen questions (from their past daily_sessions)
-  const { data: pastSessions } = await sb
-    .from('daily_sessions').select('question_ids').eq('user_id', uid);
-  const seenQids = new Set((pastSessions || []).flatMap(s => s.question_ids || []));
+  // 3. User's actually-answered questions (from session_results)
+  const { data: pastAnswers } = await sb
+    .from('session_results').select('all_answers').eq('user_id', uid);
+  const seenQids = new Set();
+  (pastAnswers || []).forEach(r => {
+    if (r.all_answers) Object.keys(r.all_answers).forEach(qid => seenQids.add(qid));
+  });
 
   // 4. Weak subjects (average < 50%)
   const subjectScores = {};
