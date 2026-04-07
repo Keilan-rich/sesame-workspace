@@ -1296,14 +1296,37 @@ const SAVAIS_TU = [
   { fact: "Le cache d'un navigateur stocke des copies des pages visitees pour un chargement plus rapide.", domain: "Digital",
     q: "A quoi sert le cache d'un navigateur web ?", opts: ["Bloquer les virus","Stocker les mots de passe","Accelerer le chargement des pages","Filtrer les publicites"], correct: "C" },
 ];
-let savaisTuIdx = 0;
 let savaisTuShown = false;
 const SAVAIS_TU_INTERVAL = 3;
-const pendingQuizCards = []; // facts shown, quiz to come later
+const pendingQuizCards = [];
+
+// Track which facts the user already knows (persistent)
+function getSavaisTuKnown() {
+  try { return JSON.parse(localStorage.getItem('sesame_savaistu_known') || '[]'); } catch { return []; }
+}
+function markSavaisTuKnown(idx) {
+  const known = getSavaisTuKnown();
+  if (!known.includes(idx)) { known.push(idx); localStorage.setItem('sesame_savaistu_known', JSON.stringify(known)); }
+}
+
+// Get next fact: skip known ones, randomize unknown
+function getNextSavaisTu() {
+  const known = getSavaisTuKnown();
+  const unknown = SAVAIS_TU.map((item, i) => ({ ...item, _idx: i })).filter(item => !known.includes(item._idx));
+  if (unknown.length === 0) {
+    // All known — reset and show random
+    localStorage.removeItem('sesame_savaistu_known');
+    const i = Math.floor(Math.random() * SAVAIS_TU.length);
+    return { ...SAVAIS_TU[i], _idx: i };
+  }
+  return unknown[Math.floor(Math.random() * unknown.length)];
+}
+
+let currentSavaisTuItem = null;
 
 function showSavaisTu() {
-  const item = SAVAIS_TU[savaisTuIdx % SAVAIS_TU.length];
-  savaisTuIdx++;
+  const item = getNextSavaisTu();
+  currentSavaisTuItem = item;
   savaisTuShown = true;
 
   // Schedule the QCM version for later
@@ -1335,6 +1358,9 @@ function showSavaisTu() {
 }
 
 function dismissSavaisTu(knew) {
+  if (knew && currentSavaisTuItem) {
+    markSavaisTuKnown(currentSavaisTuItem._idx);
+  }
   savaisTuShown = false;
   currentIdx++;
   renderQuestion(currentIdx);
