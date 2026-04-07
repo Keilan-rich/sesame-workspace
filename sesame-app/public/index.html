@@ -1149,7 +1149,7 @@ async function loadDashboard() {
 
     renderStreak(sessions);
     renderToday(sessions, calendar, todaySession);
-    renderExpressSessions();
+    await renderExpressSessions();
     renderProgress(sessions);
     renderHistory(sessions);
     renderCalendar(sessions, calendar);
@@ -1161,22 +1161,29 @@ async function loadDashboard() {
   }
 }
 
-// ─── EXPRESS SESSIONS (5 per day, tracked via localStorage) ─────────────────
-function renderExpressSessions() {
+// ─── EXPRESS SESSIONS (5 per day, saved in DB) ──────────────────────────────
+async function renderExpressSessions() {
   const todayStr = fmtDate(TODAY);
-  const storageKey = 'sesame_express_' + todayStr;
-  let done = [];
-  try { done = JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch { done = []; }
+  const uid = currentUser.id;
+
+  // Check which express sessions exist and which have results
+  const [sessRes, resultsRes] = await Promise.all([
+    sb.from('daily_sessions').select('session_type').eq('user_id', uid).like('session_type', `express_${todayStr}_%`),
+    sb.from('session_results').select('session_type').eq('user_id', uid).eq('date', todayStr)
+  ]);
+  const existingSessions = new Set((sessRes.data || []).map(s => s.session_type));
+  const completedTypes = new Set((resultsRes.data || []).map(r => r.session_type));
 
   const container = document.getElementById('express-sessions');
   let html = '';
   for (let i = 1; i <= 5; i++) {
-    const isDone = done.includes(i);
+    const tag = `express_${todayStr}_${i}`;
+    const isDone = completedTypes.has(tag);
     if (isDone) {
-      html += `<div style="flex-shrink:0;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;min-width:140px;opacity:0.4">
+      html += `<a href="/quiz.html?type=express&subject=all&n=${i}" style="flex-shrink:0;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;min-width:140px;opacity:0.5;text-decoration:none">
         <div style="font-size:14px;font-weight:700;color:var(--green)">✓ Session ${i}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Terminee</div>
-      </div>`;
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Terminee · voir resultats</div>
+      </a>`;
     } else {
       html += `<a href="/quiz.html?type=express&subject=all&n=${i}" style="flex-shrink:0;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;text-decoration:none;min-width:140px;box-shadow:0 2px 8px var(--shadow)">
         <div style="font-size:14px;font-weight:700;color:var(--text)">Session ${i}</div>

@@ -599,6 +599,7 @@ let paused = false;
 let sessionDate = '';
 let sessionSubjects = [];
 let sessionType = 'daily';
+let sessionTypeTag = 'daily'; // for express: express_date_n
 let SAVE_KEY = '';
 let userIsPaid = false;
 
@@ -822,10 +823,18 @@ async function generateExpress(dateStr, subject) {
   const allSubjects = ['digital','enjeux','maths','francais','anglais','espagnol'];
 
   if (subject === 'all') {
-    // Multi-subject: pick 2-3 random subjects, 4 questions each + errors
+    const params = new URLSearchParams(window.location.search);
+    const sessionNum = params.get('n') || '1';
+    const expressTag = `express_${dateStr}_${sessionNum}`;
+
+    // Check if this specific express session already exists
+    const { data: existing } = await sb.from('daily_sessions').select('*')
+      .eq('user_id', uid).eq('session_type', expressTag).maybeSingle();
+    if (existing && existing.question_ids && existing.question_ids.length > 0) return existing;
+
+    // Generate new session with 3 random subjects
     const shuffled = qShuffle([...allSubjects]);
     const picked3 = shuffled.slice(0, 3);
-    const revisionIds = [];
     let selectedIds = [];
 
     for (const subj of picked3) {
@@ -840,8 +849,11 @@ async function generateExpress(dateStr, subject) {
       }
     }
     if (selectedIds.length === 0) return null;
-    return { date: dateStr, user_id: uid, subjects: picked3, question_ids: selectedIds,
-      revision_ids: revisionIds, session_type: 'guided', time_minutes: 20 };
+
+    const session = { date: dateStr, user_id: uid, subjects: picked3, question_ids: selectedIds,
+      revision_ids: [], session_type: expressTag, time_minutes: 20 };
+    const { data: ins } = await sb.from('daily_sessions').insert(session).select().single();
+    return ins || session;
   }
 
   // Single subject: 10 questions + 3 errors
@@ -913,6 +925,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   sessionSubjects = session.subjects || [];
+  sessionTypeTag = session.session_type || sessionType;
   secondsLeft = (session.time_minutes || 20) * 60;
   SAVE_KEY = `sesame_pause_${currentUser.id}_${sessionType}_${sessionDate}`;
 
@@ -1658,6 +1671,7 @@ async function showResults() {
         date: sessionDate,
         user_id: currentUser.id,
         subject,
+        session_type: sessionTypeTag,
         score: subScore,
         total: subQ.length,
         duration_min: durationMin,
