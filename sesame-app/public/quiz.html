@@ -1347,8 +1347,8 @@ function showSavaisTu() {
   currentSavaisTuItem = item;
   savaisTuShown = true;
 
-  // Schedule the QCM version for later
-  pendingQuizCards.push({ ...item, showAfterIdx: currentIdx + 10 });
+  // Schedule the QCM version 4 questions later
+  pendingQuizCards.push({ ...item, showAfterIdx: currentIdx + 4 });
 
   const vp = document.getElementById('question-viewport');
   const existing = vp.querySelector('.question-slide.active');
@@ -1460,8 +1460,8 @@ function nextQuestion() {
     return;
   }
 
-  // Show "Le savais-tu?" every SAVAIS_TU_INTERVAL questions
-  if (!savaisTuShown && nextIdx > 0 && nextIdx % SAVAIS_TU_INTERVAL === 0 && nextIdx < QUESTIONS.length - 1) {
+  // Show "Le savais-tu?" only if no bonus QCM is pending
+  if (!savaisTuShown && pendingQuizCards.length === 0 && nextIdx > 0 && nextIdx % SAVAIS_TU_INTERVAL === 0 && nextIdx < QUESTIONS.length - 1) {
     showSavaisTu();
     return;
   }
