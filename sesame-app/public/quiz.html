@@ -1255,8 +1255,8 @@ function getMatchingTip(subject, questionText) {
     if (score > bestScore) { bestScore = score; best = t; }
   }
 
-  // If no keyword match, return null (don't show irrelevant tip)
-  if (!best || bestScore === 0) return null;
+  // Need at least 2 keyword matches to be relevant
+  if (!best || bestScore < 2) return null;
   return best.tip;
 }
 
