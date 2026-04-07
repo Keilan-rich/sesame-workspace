@@ -731,7 +731,7 @@ async function generateSimulation(dateStr) {
     if (!completed) return existing; // Resume existing
   }
 
-  const allSubjects = ['digital','enjeux','maths','francais','anglais'];
+  const allSubjects = ['digital','enjeux','maths','francais','anglais','espagnol'];
   const seenQids = await getUserSeenQids();
   let selectedIds = [];
 
@@ -775,7 +775,7 @@ async function generateGuided(dateStr) {
     subjectScores[r.subject].total += r.total;
   });
 
-  const allSubjects = ['digital','enjeux','maths','francais','anglais'];
+  const allSubjects = ['digital','enjeux','maths','francais','anglais','espagnol'];
   const ranked = [...allSubjects].sort((a, b) => {
     const pa = subjectScores[a] ? (subjectScores[a].score / subjectScores[a].total) : 0.5;
     const pb = subjectScores[b] ? (subjectScores[b].score / subjectScores[b].total) : 0.5;
@@ -819,7 +819,7 @@ async function generateExpress(dateStr, subject) {
   const wrongMap = {};
   allWrong.forEach(w => { if (w.id && !wrongMap[w.id]) wrongMap[w.id] = w; });
 
-  const allSubjects = ['digital','enjeux','maths','francais','anglais'];
+  const allSubjects = ['digital','enjeux','maths','francais','anglais','espagnol'];
 
   if (subject === 'all') {
     // Multi-subject: pick 2-3 random subjects, 4 questions each + errors
@@ -1070,7 +1070,7 @@ function renderQuestion(idx) {
 
   // Subject change in guided session? Show fiche intro first
   const isNewSubject = idx === 0 || QUESTIONS[idx].subject !== QUESTIONS[idx-1]?.subject;
-  if (isNewSubject && sessionType === 'guided' && !shownFicheForSubject.has(q.subject)) {
+  if (isNewSubject && (sessionType === 'guided' || sessionType === 'daily' || sessionType === 'express') && !shownFicheForSubject.has(q.subject)) {
     shownFicheForSubject.add(q.subject);
     updateSubjectUI(q.subject);
     showFicheIntro(q.subject, () => renderQuestion(idx));
@@ -1214,6 +1214,16 @@ const FICHE_TIPS = {
     { keys:['nobel','paix','machado','venezuela','maduro'], tip:"<b>Nobel Paix 2025</b> : <b>Maria Corina Machado</b><br>Venezuela, opposition a Maduro" },
     { keys:['can','foot','ballon','dembele','senegal','maroc'], tip:"<b>CAN 2026</b> au Maroc : <b>Senegal</b> champion<br><b>Ballon d'Or 2025</b> : Dembele (PSG)" },
     { keys:['dette','milliard','pib','114','budget','deficit'], tip:"<b>Dette France</b> T1 2025 : 3 345 Mds&euro; = <b>114% du PIB</b>" },
+  ],
+  espagnol: [
+    { keys:['ser','estar','soy','estoy','es','esta'], tip:"<b>Ser</b> = identite, caracteristique permanente<br><b>Estar</b> = etat temporaire, localisation" },
+    { keys:['por','para','motivo','razon','destino'], tip:"<b>Por</b> = cause, duree, moyen<br><b>Para</b> = but, destination, delai" },
+    { keys:['subjuntivo','subjonctif','quiero que','espero que'], tip:"<b>Subjonctif</b> apres : quiero que, espero que, es necesario que, dudo que" },
+    { keys:['preterit','pasado','indefinido','imperfecto','ayer'], tip:"<b>Preterito indefinido</b> = action ponctuelle passee<br><b>Imperfecto</b> = habitude, description au passe" },
+    { keys:['gustar','encantar','interesar','parecer'], tip:"<b>Gustar</b> se conjugue avec le COI : me gusta / me gustan<br>Comme <i>plaire</i> en francais" },
+    { keys:['condicional','conditional','habria','podria'], tip:"<b>Conditionnel</b> : radical du futur + terminaisons de l'imparfait<br><i>habria, podria, deberia</i>" },
+    { keys:['comparativo','mejor','peor','mayor','menor'], tip:"<b>Comparatifs irreguliers</b> : mejor (meilleur), peor (pire), mayor (plus grand/age), menor (plus petit/jeune)" },
+    { keys:['accent','tilde','acento','aguda','esdrujula'], tip:"<b>Accent</b> : agudas (accent si finit par n/s/voyelle), llanas (inverse), esdrujulas (toujours accent)" },
   ],
 };
 
