@@ -840,7 +840,9 @@ async function generateExpress(dateStr, subject) {
     for (const subj of picked3) {
       const { data: allQ } = await sb.from('questions').select('id').eq('subject', subj);
       if (!allQ) continue;
-      const picked = qShuffle(allQ).filter(q => !selectedIds.includes(q.id)).slice(0, 7);
+      const unseen = qShuffle(allQ.filter(q => !seenQids.has(q.id) && !selectedIds.includes(q.id)));
+      const seen = qShuffle(allQ.filter(q => seenQids.has(q.id) && !selectedIds.includes(q.id)));
+      const picked = [...unseen, ...seen].slice(0, 7);
       selectedIds.push(...picked.map(q => q.id));
     }
     if (selectedIds.length === 0) return null;
@@ -851,10 +853,12 @@ async function generateExpress(dateStr, subject) {
     return ins || session;
   }
 
-  // Single subject: 15 random questions
+  // Single subject: 15 questions, unseen first then seen
   const { data: allQ } = await sb.from('questions').select('id').eq('subject', subject);
   if (!allQ || allQ.length === 0) return null;
-  const selectedIds = qShuffle(allQ).slice(0, 15).map(q => q.id);
+  const unseen = qShuffle(allQ.filter(q => !seenQids.has(q.id)));
+  const seen = qShuffle(allQ.filter(q => seenQids.has(q.id)));
+  const selectedIds = [...unseen, ...seen].slice(0, 15).map(q => q.id);
   return { date: dateStr, user_id: uid, subjects: [subject], question_ids: selectedIds,
     revision_ids: [], session_type: 'guided', time_minutes: 30 };
 }
