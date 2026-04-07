@@ -1330,6 +1330,7 @@ const SAVAIS_TU = [
 let savaisTuShown = false;
 const SAVAIS_TU_INTERVAL = 3;
 const pendingQuizCards = [];
+let lastSpecialIdx = -10; // last index where a savais-tu or bonus was shown
 
 // Track which facts the user already knows (persistent)
 function getSavaisTuKnown() {
@@ -1359,9 +1360,10 @@ function showSavaisTu() {
   const item = getNextSavaisTu();
   currentSavaisTuItem = item;
   savaisTuShown = true;
+  lastSpecialIdx = currentIdx;
 
-  // Schedule the QCM version 4 questions later
-  pendingQuizCards.push({ ...item, showAfterIdx: currentIdx + 4 });
+  // Schedule the QCM version 5 questions later
+  pendingQuizCards.push({ ...item, showAfterIdx: currentIdx + 5 });
 
   const vp = document.getElementById('question-viewport');
   const existing = vp.querySelector('.question-slide.active');
@@ -1455,6 +1457,7 @@ function answerBonus(chosen, correct) {
 
 function dismissBonus() {
   savaisTuShown = false;
+  lastSpecialIdx = currentIdx;
   currentIdx++;
   renderQuestion(currentIdx);
 }
@@ -1465,16 +1468,21 @@ function nextQuestion() {
 
   const nextIdx = currentIdx + 1;
 
+  // Minimum 2 questions gap between any special card (savais-tu or bonus)
+  const gapOk = (nextIdx - lastSpecialIdx) >= 2;
+
   // Check if a bonus quiz card is due
-  const dueBonus = pendingQuizCards.findIndex(c => c.showAfterIdx <= nextIdx);
-  if (dueBonus !== -1) {
-    const card = pendingQuizCards.splice(dueBonus, 1)[0];
-    showBonusQuiz(card);
-    return;
+  if (gapOk) {
+    const dueBonus = pendingQuizCards.findIndex(c => c.showAfterIdx <= nextIdx);
+    if (dueBonus !== -1) {
+      const card = pendingQuizCards.splice(dueBonus, 1)[0];
+      showBonusQuiz(card);
+      return;
+    }
   }
 
-  // Show "Le savais-tu?" only if no bonus QCM is pending
-  if (!savaisTuShown && pendingQuizCards.length === 0 && nextIdx > 0 && nextIdx % SAVAIS_TU_INTERVAL === 0 && nextIdx < QUESTIONS.length - 1) {
+  // Show "Le savais-tu?" only if no bonus QCM is pending and gap is ok
+  if (gapOk && !savaisTuShown && pendingQuizCards.length === 0 && nextIdx > 0 && nextIdx % SAVAIS_TU_INTERVAL === 0 && nextIdx < QUESTIONS.length - 1) {
     showSavaisTu();
     return;
   }
