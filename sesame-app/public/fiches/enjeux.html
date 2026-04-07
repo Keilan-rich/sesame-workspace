@@ -451,30 +451,40 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.info-grid .info-card').forEach(c => {
     LEARN_CARDS.push(c.outerHTML);
   });
-  // Collect traps
-  document.querySelectorAll('.trap-row').forEach(t => {
-    const wrong = t.querySelector('.trap-wrong')?.textContent || '';
-    const right = t.querySelector('.trap-right')?.textContent || '';
-    if (wrong && right) {
-      LEARN_QUIZ.push({
-        q: `Vrai ou faux ? "${wrong}"`,
-        opts: ['Vrai', 'Faux'], explanation: right,
-        correct: 1
-      });
-    }
-  });
-  // Collect quiz eclairs
-  document.querySelectorAll('.qr-card').forEach(qr => {
-    const question = qr.querySelector('.qr-q')?.textContent || '';
-    const answer = qr.querySelector('.qr-answer')?.textContent?.trim() || '';
-    if (question && answer) {
-      LEARN_QUIZ.push({
-        q: question,
-        opts: null,
-        answer: answer
-      });
-    }
-  });
+
+  // QCM questions linked to fiche content
+  LEARN_QUIZ.push(
+    { q: "Ou se tient la COP30 prevue en novembre 2025 ?",
+      opts: ["Dubaï","Belem (Bresil)","Nairobi","Paris"], correct: 1,
+      explanation: "La COP30 se tient a Belem, au Bresil, pour faire le bilan des engagements climatiques." },
+    { q: "Quel pays a annonce son retrait de l'Accord de Paris sur le climat en 2025 ?",
+      opts: ["La Russie","La Chine","Les Etats-Unis","Le Bresil"], correct: 2,
+      explanation: "Les USA sous Trump ont annonce leur 2e retrait de l'Accord de Paris." },
+    { q: "Qu'est-ce que l'AI Act europeen entre en vigueur en 2025 ?",
+      opts: ["Un accord commercial","Une reglementation sur l'intelligence artificielle","Un traite militaire","Une loi sur les reseaux sociaux"], correct: 1,
+      explanation: "L'AI Act est la premiere legislation complete au monde reglementant l'intelligence artificielle." },
+    { q: "Quel groupement de pays cherche a promouvoir la dedollarisation ?",
+      opts: ["L'OTAN","Le G7","Les BRICS","L'OCDE"], correct: 2,
+      explanation: "Les BRICS (Bresil, Russie, Inde, Chine, Afrique du Sud + nouveaux membres) promeuvent des alternatives au dollar." },
+    { q: "Quel film d'animation a depasse 2 milliards de dollars de recettes ?",
+      opts: ["Le Roi Lion 2","Ne Zha 2","Spider-Verse 3","Toy Story 5"], correct: 1,
+      explanation: "Ne Zha 2, film d'animation chinois, est devenu le plus rentable de l'histoire avec plus de 2 Mds $." },
+    { q: "Quelle est la temperature moyenne mondiale par rapport a l'ere preindustrielle en aout 2025 selon Copernicus ?",
+      opts: ["+0,8°C","+1,29°C","+1,5°C","+2,0°C"], correct: 1,
+      explanation: "Copernicus a mesure +1,29°C au-dessus de la moyenne preindustrielle en aout 2025." },
+    { q: "Quelle entreprise automobile a subi un avertissement sur resultats en 2025 ?",
+      opts: ["Renault","Tesla","Stellantis","Volkswagen"], correct: 2,
+      explanation: "Stellantis a connu une chute de −18,5% en juillet 2025 avec un avertissement sur ses resultats." },
+    { q: "Ou se tiendra la Coupe du Monde de football 2026 ?",
+      opts: ["Qatar","USA / Canada / Mexique","Arabie Saoudite","Japon / Coree du Sud"], correct: 1,
+      explanation: "La Coupe du Monde 2026 sera organisee conjointement par les USA, le Canada et le Mexique." },
+    { q: "Qu'est-ce que DeepSeek R1 ?",
+      opts: ["Un satellite europeen","Un vaccin experimental","Une IA chinoise open-source","Un accord commercial"], correct: 2,
+      explanation: "DeepSeek R1 est une IA chinoise open-source lancee en janvier 2025 qui a provoque un choc sur les marches tech." },
+    { q: "Quel accord commercial est conteste par la France en raison de l'impact sur les agriculteurs ?",
+      opts: ["CETA","UE-Mercosur","TTIP","UE-Japon"], correct: 1,
+      explanation: "L'accord UE-Mercosur est fortement conteste par la France, notamment par les agriculteurs qui craignent la concurrence." },
+  );
 });
 
 let learnStep = 0;

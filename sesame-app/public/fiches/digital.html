@@ -444,31 +444,40 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.info-grid .info-card').forEach(c => {
     LEARN_CARDS.push(c.outerHTML);
   });
-  // Collect traps
-  document.querySelectorAll('.trap-row').forEach(t => {
-    const wrong = t.querySelector('.trap-wrong')?.textContent || '';
-    const right = t.querySelector('.trap-right')?.textContent || '';
-    if (wrong && right) {
-      LEARN_QUIZ.push({
-        q: `Vrai ou faux ? "${wrong}"`,
-        opts: ['Vrai', 'Faux'], explanation: right,
-        correct: 1
-      });
-    }
-  });
-  // Collect quiz eclairs
-  document.querySelectorAll('.qr-card').forEach(qr => {
-    const question = qr.querySelector('.qr-q')?.textContent || '';
-    const answer = qr.querySelector('.qr-answer')?.textContent?.trim() || '';
-    if (question && answer) {
-      // Create a simple recall question
-      LEARN_QUIZ.push({
-        q: question,
-        opts: null, // free recall, show answer after
-        answer: answer
-      });
-    }
-  });
+
+  // QCM questions linked to fiche content
+  LEARN_QUIZ.push(
+    { q: "Comment s'appelle le processus de collecte automatique de flux d'information ?",
+      opts: ["Concatenation","Agregation","Diffusion","Compilation"], correct: 1,
+      explanation: "L'agregation permet de recevoir l'info sans aller la chercher (ex: flux RSS, Feedly)." },
+    { q: "Quelle est la formule correcte pour fixer le taux de TVA en E2 lors d'une recopie ?",
+      opts: ["=B2*E2","=$B$2*E2","=B2*$E$2","=B2*E$2"], correct: 2,
+      explanation: "B2 est relatif (change a la recopie), $E$2 est absolu (fixe le taux de TVA)." },
+    { q: "Quel format de fichier joint dans un mail peut contenir un virus via des macros ?",
+      opts: [".pdf",".jpg",".xlsm",".txt"], correct: 2,
+      explanation: ".xlsm = fichier Excel avec macros. Les macros peuvent executer du code malveillant." },
+    { q: "Quel moyen n'est PAS utilise dans la double authentification ?",
+      opts: ["Code SMS","Empreinte digitale","Ressaisir son nom d'utilisateur","Code par mail"], correct: 2,
+      explanation: "Ressaisir son nom n'est pas une verification supplementaire, c'est deja la 1ere etape." },
+    { q: "L'impact des data centers sur les emissions de GES est comparable a quel secteur ?",
+      opts: ["Transport automobile","Transport maritime","Transport aerien","Transport ferroviaire"], correct: 2,
+      explanation: "~2-3% des emissions mondiales, similaire a l'aviation civile." },
+    { q: "Que signifie le 's' dans https:// ?",
+      opts: ["Server","Secure","Standard","Simple"], correct: 1,
+      explanation: "Le 's' signifie secure — chiffrement SSL/TLS entre le navigateur et le serveur." },
+    { q: "Une reference absolue dans Excel s'ecrit :",
+      opts: ["A1","$A1","A$1","$A$1"], correct: 3,
+      explanation: "$A$1 = reference absolue (ne change pas a la recopie). $A1 ou A$1 = mixte." },
+    { q: "Qu'est-ce que le phishing ?",
+      opts: ["Un virus informatique","Un logiciel espion","Une usurpation d'identite en ligne","Un pare-feu"], correct: 2,
+      explanation: "Le phishing imite un organisme de confiance pour voler des donnees personnelles." },
+    { q: "A quoi sert le cache d'un navigateur web ?",
+      opts: ["Bloquer les pubs","Stocker les mots de passe","Accelerer le chargement des pages","Anonymiser la navigation"], correct: 2,
+      explanation: "Le cache stocke des copies des pages visitees pour un chargement plus rapide." },
+    { q: "Un logiciel de compression (7zip) ne permet PAS de :",
+      opts: ["Reduire la taille d'un fichier","Creer une archive protegee","Diviser en parties identiques","Regrouper plusieurs fichiers"], correct: 2,
+      explanation: "La division en parties identiques n'est pas garantie — c'est le split, pas la compression." },
+  );
 });
 
 let learnStep = 0;

@@ -463,30 +463,40 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.info-grid .info-card').forEach(c => {
     LEARN_CARDS.push(c.outerHTML);
   });
-  // Collect traps
-  document.querySelectorAll('.trap-row').forEach(t => {
-    const wrong = t.querySelector('.trap-wrong')?.textContent || '';
-    const right = t.querySelector('.trap-right')?.textContent || '';
-    if (wrong && right) {
-      LEARN_QUIZ.push({
-        q: `Vrai ou faux ? "${wrong}"`,
-        opts: ['Vrai', 'Faux'], explanation: right,
-        correct: 1
-      });
-    }
-  });
-  // Collect quiz eclairs
-  document.querySelectorAll('.qr-card').forEach(qr => {
-    const question = qr.querySelector('.qr-q')?.textContent || '';
-    const answer = qr.querySelector('.qr-answer')?.textContent?.trim() || '';
-    if (question && answer) {
-      LEARN_QUIZ.push({
-        q: question,
-        opts: null,
-        answer: answer
-      });
-    }
-  });
+
+  // QCM questions linked to fiche content
+  LEARN_QUIZ.push(
+    { q: "Which sentence uses the correct conditional type 2?",
+      opts: ["If I was rich, I will travel","If I were rich, I would travel","If I am rich, I would travel","If I had been rich, I would travel"], correct: 1,
+      explanation: "Type 2 (potentiel) : if + were/past → would. Always 'were' for all pronouns in type 2." },
+    { q: "What does 'eventually' mean in English?",
+      opts: ["Possiblement","Finalement","Eventuellement","Actuellement"], correct: 1,
+      explanation: "'Eventually' = finalement / au bout du compte. 'Eventuellement' se traduit par 'possibly'." },
+    { q: "'I am bored' vs 'I am boring' — what is the difference?",
+      opts: ["No difference","'Bored' = I feel boredom, 'boring' = I cause boredom","'Bored' = I cause boredom, 'boring' = I feel boredom","Both mean I feel boredom"], correct: 1,
+      explanation: "-ed = what you feel (bored, tired). -ing = what causes the feeling (boring, tiring)." },
+    { q: "Complete: She is very good ___ maths.",
+      opts: ["in","on","at","for"], correct: 2,
+      explanation: "'Good AT something' is the correct preposition. Common mistake: 'good in'." },
+    { q: "What is the Present Perfect of 'I finish'?",
+      opts: ["I finished","I have finished","I had finished","I am finishing"], correct: 1,
+      explanation: "Present perfect = have/has + past participle. Used with just, already, never, etc." },
+    { q: "What does the phrasal verb 'look forward to' require after it?",
+      opts: ["An infinitive (to + verb)","A gerund (-ing form)","A past participle","A noun only"], correct: 1,
+      explanation: "'Look forward to' + -ing : 'I look forward to hearing from you' (not 'to hear')." },
+    { q: "Which is the correct translation of 'bibliotheque' in English?",
+      opts: ["Bookshop","Library","Bookstore","Shelf"], correct: 1,
+      explanation: "'Library' = bibliotheque. 'Bookshop/bookstore' = librairie. Classic false friend." },
+    { q: "What is the UK composed of?",
+      opts: ["England + Scotland","England + Scotland + Wales","England + Scotland + Wales + Northern Ireland","England + Ireland"], correct: 2,
+      explanation: "The United Kingdom = England + Scotland + Wales + Northern Ireland." },
+    { q: "Which tense is used for an action happening right now?",
+      opts: ["Present simple","Present continuous","Present perfect","Past simple"], correct: 1,
+      explanation: "Present continuous (be + -ing) is used for actions in progress right now." },
+    { q: "'Sensible' in English means:",
+      opts: ["Sensible (fr)","Raisonnable","Delicat","Emotif"], correct: 1,
+      explanation: "'Sensible' = raisonnable / sense. 'Sensitive' = sensible (fr). Faux-ami classique." },
+  );
 });
 
 let learnStep = 0;

@@ -450,30 +450,40 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.info-grid .info-card').forEach(c => {
     LEARN_CARDS.push(c.outerHTML);
   });
-  // Collect traps
-  document.querySelectorAll('.trap-row').forEach(t => {
-    const wrong = t.querySelector('.trap-wrong')?.textContent || '';
-    const right = t.querySelector('.trap-right')?.textContent || '';
-    if (wrong && right) {
-      LEARN_QUIZ.push({
-        q: `Vrai ou faux ? "${wrong}"`,
-        opts: ['Vrai', 'Faux'], explanation: right,
-        correct: 1
-      });
-    }
-  });
-  // Collect quiz eclairs
-  document.querySelectorAll('.qr-card').forEach(qr => {
-    const question = qr.querySelector('.qr-q')?.textContent || '';
-    const answer = qr.querySelector('.qr-answer')?.textContent?.trim() || '';
-    if (question && answer) {
-      LEARN_QUIZ.push({
-        q: question,
-        opts: null,
-        answer: answer
-      });
-    }
-  });
+
+  // QCM questions linked to fiche content
+  LEARN_QUIZ.push(
+    { q: "Que vaut (a+b)² ?",
+      opts: ["a² + b²","a² + 2ab + b²","a² − 2ab + b²","2a² + 2b²"], correct: 1,
+      explanation: "(a+b)² = a² + 2ab + b². Le terme 2ab est souvent oublie." },
+    { q: "Un prix augmente de 20% puis baisse de 20%. Quel est l'effet global ?",
+      opts: ["+0%","+4%","−4%","−2%"], correct: 2,
+      explanation: "CM = 1,2 × 0,8 = 0,96, soit une baisse de 4%." },
+    { q: "Quelle est la formule du terme general d'une suite arithmetique ?",
+      opts: ["Uₙ = U₀ · qⁿ","Uₙ = U₀ + n·r","Uₙ = n · U₀","Uₙ = U₀ + qⁿ"], correct: 1,
+      explanation: "Suite arithmetique : Uₙ = U₀ + n·r, ou r est la raison." },
+    { q: "P(A∪B) = ?",
+      opts: ["P(A) + P(B)","P(A) · P(B)","P(A) + P(B) − P(A∩B)","P(A) − P(B)"], correct: 2,
+      explanation: "Formule d'inclusion-exclusion : P(A∪B) = P(A) + P(B) − P(A∩B)." },
+    { q: "Quelle est la derivee de x³ ?",
+      opts: ["x²","3x","3x²","x³"], correct: 2,
+      explanation: "f'(xⁿ) = nxⁿ⁻¹, donc f'(x³) = 3x²." },
+    { q: "La mediane est insensible a quoi ?",
+      opts: ["Au nombre de donnees","Aux valeurs extremes","A la moyenne","A l'ecart-type"], correct: 1,
+      explanation: "La mediane est la valeur du milieu, elle n'est pas affectee par les valeurs extremes." },
+    { q: "Quel critere indique qu'un nombre est divisible par 9 ?",
+      opts: ["Il finit par 0 ou 9","La somme de ses chiffres est divisible par 9","Il est impair","Il finit par 9"], correct: 1,
+      explanation: "Un nombre est divisible par 9 si la somme de ses chiffres est divisible par 9." },
+    { q: "Quel est le coefficient directeur de la droite passant par A(1,3) et B(4,9) ?",
+      opts: ["3","2","6","1"], correct: 1,
+      explanation: "Coeff. directeur = (y₂−y₁)/(x₂−x₁) = (9−3)/(4−1) = 6/3 = 2." },
+    { q: "cos θ correspond a quel rapport dans un triangle rectangle ?",
+      opts: ["oppose / hypotenuse","adjacent / oppose","adjacent / hypotenuse","hypotenuse / adjacent"], correct: 2,
+      explanation: "cos θ = cote adjacent / hypotenuse." },
+    { q: "Somme des n premiers termes d'une suite geometrique de raison q ≠ 1 ?",
+      opts: ["n · (U₀ + Uₙ) / 2","U₀ · (1 − qⁿ) / (1 − q)","U₀ · qⁿ","n · U₀ · q"], correct: 1,
+      explanation: "Somme geometrique = U₀ · (1 − qⁿ) / (1 − q)." },
+  );
 });
 
 let learnStep = 0;

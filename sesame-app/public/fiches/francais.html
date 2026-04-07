@@ -432,30 +432,40 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.info-grid .info-card').forEach(c => {
     LEARN_CARDS.push(c.outerHTML);
   });
-  // Collect traps
-  document.querySelectorAll('.trap-row').forEach(t => {
-    const wrong = t.querySelector('.trap-wrong')?.textContent || '';
-    const right = t.querySelector('.trap-right')?.textContent || '';
-    if (wrong && right) {
-      LEARN_QUIZ.push({
-        q: `Vrai ou faux ? "${wrong}"`,
-        opts: ['Vrai', 'Faux'], explanation: right,
-        correct: 1
-      });
-    }
-  });
-  // Collect quiz eclairs
-  document.querySelectorAll('.qr-card').forEach(qr => {
-    const question = qr.querySelector('.qr-q')?.textContent || '';
-    const answer = qr.querySelector('.qr-answer')?.textContent?.trim() || '';
-    if (question && answer) {
-      LEARN_QUIZ.push({
-        q: question,
-        opts: null,
-        answer: answer
-      });
-    }
-  });
+
+  // QCM questions linked to fiche content
+  LEARN_QUIZ.push(
+    { q: "Quelle forme verbale est interdite apres 'si' hypothetique ?",
+      opts: ["L'imparfait","Le futur","Le conditionnel","Le subjonctif"], correct: 2,
+      explanation: "On ne met jamais le conditionnel apres 'si' hypothetique. Ex: 'si tu venais' (imparfait), pas 'si tu viendrais'." },
+    { q: "Avec l'auxiliaire AVOIR, le participe passe s'accorde avec :",
+      opts: ["Le sujet","Le COD place avant","Le COD place apres","Le complement circonstanciel"], correct: 1,
+      explanation: "Avec AVOIR, le PP s'accorde avec le COD uniquement s'il est place AVANT le verbe." },
+    { q: "'Bien que' est suivi de quel mode ?",
+      opts: ["L'indicatif","Le conditionnel","Le subjonctif","L'infinitif"], correct: 2,
+      explanation: "'Bien que' exprime la concession et exige le subjonctif : 'bien qu'il soit malade'." },
+    { q: "Dans 'Elle s'est lave les mains', pourquoi 'lave' est invariable ?",
+      opts: ["Le sujet est feminin","Le COD 'les mains' est place apres","Le verbe est intransitif","C'est un verbe du 1er groupe"], correct: 1,
+      explanation: "Verbe pronominal + COD apres = pas d'accord. Le COD 'les mains' est apres le verbe." },
+    { q: "Le pronom 'en' remplace generalement :",
+      opts: ["a + lieu","de + chose ou quantite","un complement de temps","un sujet"], correct: 1,
+      explanation: "'En' remplace 'de + chose' ou une quantite : 'J'en veux trois' = 'je veux trois de ces choses'." },
+    { q: "Quel est le type d'exercice ou l'on complete un texte a trous ?",
+      opts: ["Analogies verbales","Maladresses d'expression","Unites textuelles","Synonymes"], correct: 2,
+      explanation: "Les unites textuelles demandent de completer un texte a trous de maniere coherente." },
+    { q: "Dans 'On dit que la Terre est ronde', quelle est la valeur de 'on' ?",
+      opts: ["Nous (familier)","Quelqu'un (indefini)","Les gens en general","Une personne precise"], correct: 2,
+      explanation: "'On dit que...' = les gens en general, valeur collective indeterminee." },
+    { q: "'Si tu etais venu, j'aurais ete la' — quel type d'hypothese ?",
+      opts: ["Reel (present)","Potentiel (futur)","Irreel du passe","Conditionnel present"], correct: 2,
+      explanation: "Si + plus-que-parfait → conditionnel passe = irreel du passe (action qui ne s'est pas realisee)." },
+    { q: "Quel articulateur exprime la cause ?",
+      opts: ["Neanmoins","Afin que","Puisque","Pourtant"], correct: 2,
+      explanation: "'Puisque' introduit une cause connue ou evidente. 'Neanmoins' et 'pourtant' = opposition. 'Afin que' = but." },
+    { q: "'Penser que' a la forme affirmative est suivi de :",
+      opts: ["L'indicatif","Le subjonctif","L'infinitif","Le conditionnel"], correct: 0,
+      explanation: "A la forme affirmative, 'penser que' + indicatif. A la forme negative, 'ne pas penser que' + subjonctif." },
+  );
 });
 
 let learnStep = 0;
