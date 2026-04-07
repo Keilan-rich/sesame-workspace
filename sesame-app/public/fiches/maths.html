@@ -492,6 +492,8 @@ let learnCardIdx = 0;
 let learnQuizIdx = 0;
 
 function startLearnMode() {
+  // Shuffle quiz
+  for (let i = LEARN_QUIZ.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [LEARN_QUIZ[i], LEARN_QUIZ[j]] = [LEARN_QUIZ[j], LEARN_QUIZ[i]]; }
   learnStep = 0;
   learnCardIdx = 0;
   learnQuizIdx = 0;
