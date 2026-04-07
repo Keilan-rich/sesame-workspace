@@ -856,22 +856,20 @@ async function generateExpress(dateStr, subject) {
     return ins || session;
   }
 
-  // Single subject: 10 questions + 3 errors
-  const revisionPool = Object.values(wrongMap).filter(w => w.subject === subject);
-  const revisionIds = qShuffle(revisionPool).slice(0, 3).map(w => w.id);
-  let selectedIds = [...revisionIds];
+  // Single subject: 15 questions (prioritize unseen)
+  let selectedIds = [];
   const { data: allQ } = await sb.from('questions').select('id').eq('subject', subject);
   if (!allQ) return null;
-  const unseen = allQ.filter(q => !seenQids.has(q.id) && !selectedIds.includes(q.id));
-  const picked = qShuffle(unseen).slice(0, 10 - selectedIds.length);
+  const unseen = allQ.filter(q => !seenQids.has(q.id));
+  const picked = qShuffle(unseen).slice(0, 15);
   selectedIds.push(...picked.map(q => q.id));
-  if (selectedIds.length < 10) {
-    const extra = qShuffle(allQ.filter(q => !selectedIds.includes(q.id))).slice(0, 10 - selectedIds.length);
+  if (selectedIds.length < 15) {
+    const extra = qShuffle(allQ.filter(q => !selectedIds.includes(q.id))).slice(0, 15 - selectedIds.length);
     selectedIds.push(...extra.map(q => q.id));
   }
   if (selectedIds.length === 0) return null;
   return { date: dateStr, user_id: uid, subjects: [subject], question_ids: selectedIds,
-    revision_ids: revisionIds, session_type: 'guided', time_minutes: 10 };
+    revision_ids: [], session_type: 'guided', time_minutes: 15 };
 }
 
 // ─── LOAD ────────────────────────────────────────────────────────────────────
