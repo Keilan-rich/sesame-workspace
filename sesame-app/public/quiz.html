@@ -1033,7 +1033,7 @@ function showFicheIntro(subject, callback) {
 
   const style = SUBJECT_STYLES[subject] || SUBJECT_STYLES.digital;
   const tipsHtml = tips.map(t =>
-    `<div style="padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-left:3px solid ${style.accent};border-radius:8px;margin-bottom:8px;font-size:13px;line-height:1.65;color:var(--text)">${t}</div>`
+    `<div style="padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-left:3px solid ${style.accent};border-radius:8px;margin-bottom:8px;font-size:13px;line-height:1.65;color:var(--text)">${t.tip}</div>`
   ).join('');
 
   const vp = document.getElementById('question-viewport');
