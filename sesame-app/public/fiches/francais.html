@@ -429,7 +429,7 @@ const LEARN_QUIZ = [];
 
 // Collect info cards from the page
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.info-card').forEach(c => {
+  document.querySelectorAll('.info-grid .info-card').forEach(c => {
     LEARN_CARDS.push(c.outerHTML);
   });
   // Collect traps
@@ -503,7 +503,7 @@ function renderLearnStep() {
 
     if (q.opts) {
       const optsHtml = q.opts.map((o, i) =>
-        `<div onclick="answerLearnQuiz(${i},${q.correct},${JSON.stringify(q.explanation||'')})" style="padding:12px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;margin-bottom:8px;transition:all .15s" id="lq-opt-${i}">${o}</div>`
+        `<div onclick="answerLearnQuiz(${i},${q.correct})" style="padding:12px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;margin-bottom:8px;transition:all .15s" id="lq-opt-${i}">${o}</div>`
       ).join('');
       content.innerHTML = `
         <div style="font-size:15px;font-weight:600;line-height:1.6;margin-bottom:16px;color:var(--text)">${q.q}</div>
@@ -556,8 +556,9 @@ function nextLearnStep() {
   renderLearnStep();
 }
 
-function answerLearnQuiz(chosen, correct, explanation) {
+function answerLearnQuiz(chosen, correct) {
   const fb = document.getElementById('lq-feedback');
+  const explanation = window._learnExplanation || '';
   document.querySelectorAll('[id^="lq-opt-"]').forEach(el => el.style.pointerEvents = 'none');
   document.getElementById('lq-opt-' + correct).style.borderColor = '#34d399';
   document.getElementById('lq-opt-' + correct).style.background = 'rgba(52,211,153,0.08)';
